@@ -119,6 +119,19 @@ intents:
           - "[<polite>]sag mir [bitte] [das] wetter [für] {day}"
 
   # --------------------------------------------------------------------------
+  # WETTER GESTERN (Vergangenheit)
+  # --------------------------------------------------------------------------
+  GetWeatherYesterday:
+    data:
+      - sentences:
+          - "wie war [das] wetter gestern"
+          - "wie war das wetter gestern"
+          - "wetter gestern"
+          - "gestern wetter"
+          - "was war gestern für [ein] wetter"
+          - "wie ist das wetter gestern gewesen"
+
+  # --------------------------------------------------------------------------
   # WETTER MIT TAG + TAGESZEIT
   # --------------------------------------------------------------------------
   GetWeatherTime:
@@ -151,21 +164,34 @@ intents:
     data:
       - sentences:
           - "wie (warm|kalt|heiß) ist es [<time_prep>][draußen]"
-          - "[aktuelle] temperatur [draußen]"
+          - "[wie ist] [die] [aktuelle] temperatur [draußen]"
+          - "(was|wie) ist die temperatur"
           - "(wieviel|wie viel[e]) grad [haben wir|ist es|sind es][ draußen]"
           - "ist es (warm|kalt|heiß)[ draußen]"
           - "wird es (warm|kalt|heiß)"
           - "(außen|aussen)temperatur"
           - "[<polite_question>][<polite>]sag mir die temperatur"
+          - "zeig mir die temperatur"
 
   GetTemperatureDay:
     data:
       - sentences:
           - "wie (warm|kalt|heiß) (ist|wird) es {day}"
+          - "(was|wie) ist die temperatur {day}"
           - "temperatur[en] [für] {day}"
           - "(wieviel|wie viel[e]) grad [werden es|wird es|haben wir] {day}"
           - "wird es {day} (warm|kalt|heiß|wärmer|kälter)"
           - "{day} (wie warm|wie kalt|temperatur)"
+          - "{day} (wieviel|wie viel) grad"
+          - "was für [(eine|welche)] temperatur[en] [haben wir|wird es|ist es] {day}"
+          # Ergänzungen aus Fehlanalyse
+          - "wie (werden|sind) [die] temperatur[en] {day}"
+          - "(wie sind|wie werden) {day} [die] temperatur[en]"
+          - "welche temperatur[en] (haben wir|erwarten wir|gibt es) {day}"
+          - "welche temperatur[en] (haben wir|erwarten wir) {day} [zu erwarten]"
+          - "wie wird die temperatur [am] {day}"
+          - "wie ist die temperatur [am] {day}"
+          - "{day} temperatur"
 
   GetTemperatureTime:
     data:
@@ -173,6 +199,7 @@ intents:
           - "wie (warm|kalt) (ist|wird) es {day} {time}"
           - "temperatur {day} {time}"
           - "(wieviel|wie viel) grad {day} {time}"
+          - "{day} {time} temperatur"
 
   # --------------------------------------------------------------------------
   # REGEN
@@ -203,6 +230,8 @@ intents:
           - "(bleibt|ist) es {day} (trocken|nass)"
           - "regen {day}"
           - "{day} regen[schirm]"
+          # Ergänzungen aus Fehlanalyse
+          - "wird es {day} regen geben"
 
   GetRainProbabilityDay:
     data:
@@ -332,17 +361,26 @@ intents:
     data:
       - sentences:
           - "[wie (hoch|ist)] [die] luftfeuchtigkeit"
+          - "(was|wie) ist die luftfeuchtigkeit"
           - "wie (feucht|schwül) ist es[ draußen]"
           - "ist es (schwül|feucht|drückend)"
           - "feuchtigkeit [draußen]"
+          - "zeig mir die luftfeuchtigkeit"
 
   GetHumidityDay:
     data:
       - sentences:
+          - "(was|wie) ist die luftfeuchtigkeit {day}"
           - "luftfeuchtigkeit [für] {day}"
           - "wie (feucht|schwül) (ist|wird) es {day}"
           - "(wird|ist) es {day} (schwül|feucht)"
           - "{day} luftfeuchtigkeit"
+          - "wie hoch ist die luftfeuchtigkeit {day}"
+          # Ergänzungen aus Fehlanalyse
+          - "welche luftfeuchtigkeit haben wir [am] {day}"
+          - "welche luftfeuchtigkeit (haben wir|erwarten wir) {day} [zu erwarten]"
+          - "wie ist [am] {day} die luftfeuchtigkeit"
+          - "ist die luftfeuchtigkeit {day}"
 
   # --------------------------------------------------------------------------
   # LUFTDRUCK

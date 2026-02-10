@@ -1,0 +1,52 @@
+# Conversation Memory Logging Package
+# Ermöglicht das Aufzeichnen aller Gespräche in der Memory-Datenbank
+
+input_text:
+  conv_log_frage:
+    name: Letzte Frage
+    max: 255
+  conv_log_intent:
+    name: Letzter Intent
+    max: 100
+  conv_log_antwort:
+    name: Letzte Antwort
+    max: 255
+
+shell_command:
+  log_conv_now: >-
+    python3 /config/conversation_memory.py add 
+    "{{ states('input_text.conv_log_frage') | replace('"', '') }}" 
+    "{{ states('input_text.conv_log_intent') }}" 
+    "{{ states('input_text.conv_log_antwort') | replace('"', '') }}"
+
+automation:
+  - id: 'log_assist_pipeline_v2'
+    alias: 'Log Assist Pipeline V2'
+    description: 'Logs all conversations to memory'
+    trigger:
+      - platform: event
+        event_type: assist_pipeline_run_end
+    condition:
+      - condition: template
+        value_template: "{{ trigger.event.data.stt_output is defined or trigger.event.data.intent_input is defined }}"
+    action:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.conv_log_frage
+        data:
+          value: "{{ trigger.event.data.stt_output.text | default(trigger.event.data.intent_input.text | default('keine')) | truncate(250, True) }}"
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.conv_log_intent
+        data:
+          value: "{{ trigger.event.data.intent_output.intent.name | default('Unknown') }}"
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.conv_log_antwort
+        data:
+          value: "{{ trigger.event.data.tts_input.message | default('keine') | truncate(250, True) }}"
+      - delay:
+          milliseconds: 200
+      - service: shell_command.log_conv_now
+    mode: queued
+    max: 10

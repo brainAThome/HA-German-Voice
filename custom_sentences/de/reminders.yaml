@@ -21,18 +21,42 @@ expansion_rules:
 lists:
   seconds:
     values:
-      - in: "(5|fünf|fuenf)"
+      - in: "5"
         out: 5
-      - in: "(10|zehn)"
+      - in: "fünf"
+        out: 5
+      - in: "fuenf"
+        out: 5
+      - in: "10"
         out: 10
-      - in: "(15|fünfzehn|fuenfzehn)"
+      - in: "zehn"
+        out: 10
+      - in: "15"
         out: 15
-      - in: "(20|zwanzig)"
+      - in: "fünfzehn"
+        out: 15
+      - in: "fuenfzehn"
+        out: 15
+      - in: "20"
         out: 20
-      - in: "(30|dreißig|dreissig)"
+      - in: "zwanzig"
+        out: 20
+      - in: "30"
         out: 30
-      - in: "(45|fünfundvierzig|fuenfundvierzig)"
+      - in: "dreißig"
+        out: 30
+      - in: "dreissig"
+        out: 30
+      - in: "45"
         out: 45
+      - in: "fünfundvierzig"
+        out: 45
+      - in: "fuenfundvierzig"
+        out: 45
+      - in: "60"
+        out: 60
+      - in: "sechzig"
+        out: 60
 
   minutes:
     values:
@@ -182,16 +206,17 @@ intents:
   SetReminderSecondsSimple:
     data:
       - sentences:
-          - "(erinner|erinnerung) [mich] <polite> in {seconds} (sekunden|sekunde|sek)"
+          - "(erinnere|erinner|erinnerung) [mich] <polite> in {seconds} (sekunden|sekunde|sek)"
           - "[in] {seconds} (sekunden|sekunde|sek) (erinnern|erinnerung|timer)"
           - "timer [auf] {seconds} (sekunden|sekunde|sek)"
-          - "(weck|meld) [mich] [dich] in {seconds} sekunden"
+          - "(weck|wecke|meld|melde) [mich] [dich] in {seconds} sekunden"
         response: "OK, Timer auf {{ slots.seconds }} Sekunden."
 
   SetReminderSeconds:
     data:
       - sentences:
-          - "(erinner|erinnerung) [mich] <polite> in {seconds} (sekunden|sekunde|sek) (an|ans|wegen|dass) {message}"
+          - "(erinnere|erinner|erinnerung) [mich] <polite> in {seconds} (sekunden|sekunde|sek) (an|ans|wegen|dass) {message}"
+          - "(erinnere|erinner|erinnerung) [mich] in {seconds} (sekunden|sekunde|sek) an {message}"
           - "[in] {seconds} (sekunden|sekunde|sek) (erinnern|erinnerung) [(an|ans)] {message}"
           - "[in] {seconds} (sekunden|sekunde|sek) {message}"
           - "timer [auf] {seconds} (sekunden|sekunde|sek) {message}"
@@ -207,28 +232,29 @@ intents:
   SetReminderMinutesSimple:
     data:
       - sentences:
-          - "(erinner|erinnerung) [mich] <polite> in {minutes} (minuten|minute|min)"
+          - "(erinnere|erinner|erinnerung) [mich] <polite> in {minutes} (minuten|minute|min)"
           - "[in] {minutes} (minuten|minute|min) (erinnern|erinnerung|timer)"
           - "timer [auf] {minutes} (minuten|minute|min)"
-          - "(wecker|meld) [mich] [dich] in {minutes} (minuten|minute|min)"
+          - "(wecker|weck|meld|melde) [mich] [dich] in {minutes} (minuten|minute|min)"
           - "{minutes} (minuten|minute|min) (erinnerung|timer)"
-          - "[stell] [einen] timer [auf] {minutes} (minuten|minute|min)"
+          - "[stell|stelle] [einen] timer [auf] {minutes} (minuten|minute|min)"
         response: "OK, Timer auf {{ slots.minutes }} Minuten."
 
   SetReminderMinutes:
     data:
       - sentences:
-          - "(erinner|erinnerung) [mich] <polite> in {minutes} (minuten|minute|min) (an|ans|an das|an die|an den) {message}"
+          - "(erinnere|erinner|erinnerung) [mich] <polite> in {minutes} (minuten|minute|min) (an|ans|an das|an die|an den) {message}"
+          - "(erinnere|erinner|erinnerung) [mich] in {minutes} (minuten|minute|min) an {message}"
           - "[in] {minutes} (minuten|minute|min) (erinnern|erinnerung) (an|ans) {message}"
           - "[in] {minutes} (minuten|minute|min) (an|ans) {message} erinnern"
-          - "(erinner|erinnerung) [mich] in {minutes} (minuten|minute|min) (wegen|dass|daran) {message}"
-          - "(erinner|erinnerung) {minutes} (minuten|minute|min) {message}"
+          - "(erinnere|erinner|erinnerung) [mich] in {minutes} (minuten|minute|min) (wegen|dass|daran) {message}"
+          - "(erinnere|erinner|erinnerung) {minutes} (minuten|minute|min) {message}"
           - "[in] {minutes} (minuten|minute|min) {message}"
           - "{minutes} (minuten|minute|min) {message}"
           - "{minutes} (minuten|minute|min) (erinnerung|timer) {message}"
           - "timer [auf] {minutes} (minuten|minute|min) {message}"
-          - "[stell] [einen] timer [auf] {minutes} (minuten|minute|min) {message}"
-          - "(wecker|meld) [mich] [dich] in {minutes} (minuten|minute|min) {message}"
+          - "[stell|stelle] [einen] timer [auf] {minutes} (minuten|minute|min) {message}"
+          - "(wecker|weck|meld|melde) [mich] [dich] in {minutes} (minuten|minute|min) {message}"
         slots:
           message:
             type: text
@@ -240,24 +266,25 @@ intents:
   SetReminderHoursSimple:
     data:
       - sentences:
-          - "(erinner|erinnerung) [mich] <polite> in {hours} (stunden|stunde|std)"
-          - "(erinner|erinnerung) [mich] <polite> in einer stunde"
+          - "(erinnere|erinner|erinnerung) [mich] <polite> in {hours} (stunden|stunde|std)"
+          - "(erinnere|erinner|erinnerung) [mich] <polite> in einer stunde"
           - "[in] {hours} (stunden|stunde|std) (erinnern|erinnerung|timer)"
           - "[in] einer stunde (erinnern|erinnerung|timer)"
           - "timer [auf] {hours} (stunden|stunde|std)"
           - "timer [auf] eine stunde"
-          - "(wecker|meld) [mich] [dich] in {hours} (stunden|stunde|std)"
+          - "(wecker|weck|meld|melde) [mich] [dich] in {hours} (stunden|stunde|std)"
           - "{hours} (stunden|stunde|std) (erinnerung|timer)"
         response: "OK, Timer auf {{ slots.hours or 1 }} Stunde(n)."
 
   SetReminderHours:
     data:
       - sentences:
-          - "(erinner|erinnerung) [mich] <polite> in {hours} (stunden|stunde|std) (an|ans|wegen|dass) {message}"
-          - "(erinner|erinnerung) [mich] <polite> in einer stunde (an|ans) {message}"
+          - "(erinnere|erinner|erinnerung) [mich] <polite> in {hours} (stunden|stunde|std) (an|ans|wegen|dass) {message}"
+          - "(erinnere|erinner|erinnerung) [mich] <polite> in einer stunde (an|ans) {message}"
+          - "(erinnere|erinner|erinnerung) [mich] in {hours} (stunden|stunde|std) an {message}"
           - "[in] {hours} (stunden|stunde|std) (erinnern|erinnerung) (an|ans) {message}"
           - "[in] einer stunde (an|ans) {message} erinnern"
-          - "(erinner|erinnerung) {hours} (stunden|stunde|std) {message}"
+          - "(erinnere|erinner|erinnerung) {hours} (stunden|stunde|std) {message}"
           - "[in] {hours} (stunden|stunde|std) {message}"
           - "[in] einer stunde {message}"
           - "{hours} (stunden|stunde|std) {message}"
@@ -275,16 +302,17 @@ intents:
   SetReminderTimeSimple:
     data:
       - sentences:
-          - "(erinner|erinnerung) [mich] <polite> um {clock_hour} [uhr] [{clock_minute}]"
+          - "(erinnere|erinner|erinnerung) [mich] <polite> um {clock_hour} [uhr] [{clock_minute}]"
           - "um {clock_hour} [uhr] [{clock_minute}] (erinnern|erinnerung)"
-          - "(wecker|meld) [mich] [dich] um {clock_hour} [uhr]"
+          - "(wecker|weck|meld|melde) [mich] [dich] um {clock_hour} [uhr]"
           - "{clock_hour} uhr (erinnerung|wecker)"
         response: "OK, Erinnerung um {{ slots.clock_hour }}:{{ '%02d' | format(slots.clock_minute or 0) }} Uhr."
 
   SetReminderTime:
     data:
       - sentences:
-          - "(erinner|erinnerung) [mich] <polite> um {clock_hour} [uhr] [{clock_minute}] (an|ans|wegen|dass) {message}"
+          - "(erinnere|erinner|erinnerung) [mich] <polite> um {clock_hour} [uhr] [{clock_minute}] (an|ans|wegen|dass) {message}"
+          - "(erinnere|erinner|erinnerung) [mich] um {clock_hour} [uhr] [{clock_minute}] an {message}"
           - "um {clock_hour} [uhr] [{clock_minute}] (erinnern|erinnerung) [(an|ans)] {message}"
           - "um {clock_hour} [uhr] {message}"
           - "{clock_hour} uhr {message}"
@@ -299,7 +327,7 @@ intents:
   SetReminderSimple:
     data:
       - sentences:
-          - "(erinner|erinnerung) [mich] <polite> (an|ans|an das|an die|an den|wegen|dass) {message}"
+          - "(erinnere|erinner|erinnerung) [mich] <polite> (an|ans|an das|an die|an den|wegen|dass) {message}"
           - "(merk|merke) [dir] {message}"
           - "nicht vergessen {message}"
           - "(denk|denke) dran {message}"

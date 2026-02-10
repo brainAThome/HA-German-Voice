@@ -2,6 +2,36 @@
 
 Alle wichtigen Änderungen an diesem Projekt werden hier dokumentiert.
 
+## [3.0.0] - 2026-02-10
+
+### 🚀 Modulare Architektur + Echo/VACA + TTS-Erinnerungen
+
+Komplett überarbeitete Architektur mit modularem Intent-System, Echo-Steuerung und funktionierenden Erinnerungen.
+
+### Hinzugefügt
+- **Echo/VACA Steuerung**: 22+ neue Intents für jailbroken Echo Show 5
+  - Sprachlautstärke, Musiklautstärke, Gesamtlautstärke
+  - Bildschirmhelligkeit, Mikrofon
+  - Routinen starten, Media-Player Kontrolle
+- **TTS-Erinnerungen**: Erinnerungen werden jetzt per Sprachansage durchgegeben
+  - `erinnerung_timer_watcher` Script für timer-basierte Erinnerungen
+  - `erinnerung_zeit_watcher` Script für uhrzeitbasierte Erinnerungen
+  - Automatischer Sprachlautstärke-Boost (+50%) bei Ansage
+- **Entity-basierte Lichtsteuerung**: Heller/Dunkler/Max/Min für benannte Lampen
+  - Alias-Map für STT-Fehlerkorrekturen (Wadenlicht → Wandlicht)
+- **Conversation Logging**: Konversations-Logging Konfiguration
+- **Modulares Intent-System**: `intent_scripts/` Verzeichnis mit 5 Moduldateien
+
+### Geändert
+- **Architektur**: Von monolithischer `intent_script.yaml` zu `!include_dir_merge_named intent_scripts/`
+- **Lichter**: 373+ neue Zeilen für Entity-basierte Steuerung
+- **Erinnerungen**: Pattern-Fixes (Hälfte, Prozent, reduzieren)
+- **Wetter**: Verbesserte Patterns und Responses
+- **Rolladen**: Aktualisierte Sentence-Patterns
+
+### Entfernt
+- `intent_script.yaml` (monolithische Datei) — ersetzt durch modulares System
+
 ## [2.0.0] - 2024
 
 ### 🚀 TRUE STATE OF THE ART

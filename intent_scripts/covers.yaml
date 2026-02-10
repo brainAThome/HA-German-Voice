@@ -1,0 +1,174 @@
+# ============================================================================
+# ROLLADEN/COVER INTENTS - Modulare Datei
+# ============================================================================
+# Teil von: intent_script: !include_dir_merge_named intent_scripts/
+# ============================================================================
+
+SetSunProtection:
+  action:
+    - service: cover.set_cover_position
+      target:
+        entity_id: "{{ 'cover.' ~ name | lower | replace(' ', '_') }}"
+      data:
+        position: 30
+  speech:
+    text: >
+      {% set responses = [
+        "Sonnenschutz für " ~ name ~ " ist jetzt aktiv. Die Rolladen fahren auf 30 Prozent.",
+        "Alles klar, Sonnenschutzmodus für " ~ name ~ " aktiviert.",
+        "OK, " ~ name ~ " Rolladen sind jetzt im Sonnenschutz.",
+        "Erledigt, " ~ name ~ " ist vor der Sonne geschützt.",
+        "Geht klar, Sonnenschutz im " ~ name ~ " ist an."
+      ] %}
+      {{ responses | random }}
+
+DisableSunProtection:
+  action:
+    - service: cover.open_cover
+      target:
+        entity_id: "{{ 'cover.' ~ name | lower | replace(' ', '_') }}"
+  speech:
+    text: >
+      {% set responses = [
+        "Sonnenschutz für " ~ name ~ " ist deaktiviert, die Rolladen fahren wieder hoch.",
+        "Alles klar, " ~ name ~ " Rolladen öffnen sich wieder.",
+        "OK, Sonnenschutz im " ~ name ~ " ist aus.",
+        "Erledigt, " ~ name ~ " Sonnenschutz wurde beendet.",
+        "Geht klar, " ~ name ~ " Rolladen gehen wieder auf."
+      ] %}
+      {{ responses | random }}
+
+EnableCoverAutomation:
+  action:
+    - service: input_boolean.turn_on
+      target:
+        entity_id: "input_boolean.rolladen_automatik_{{ name | lower | replace(' ', '_') }}"
+  speech:
+    text: >
+      {% set responses = [
+        "Die Rolladen-Automatik für " ~ name ~ " ist jetzt eingeschaltet.",
+        "Alles klar, " ~ name ~ " Automatik ist aktiv.",
+        "OK, automatische Steuerung für " ~ name ~ " läuft.",
+        "Erledigt, " ~ name ~ " wird jetzt automatisch gesteuert.",
+        "Verstanden, Rolladen-Automatik im " ~ name ~ " ist an."
+      ] %}
+      {{ responses | random }}
+
+DisableCoverAutomation:
+  action:
+    - service: input_boolean.turn_off
+      target:
+        entity_id: "input_boolean.rolladen_automatik_{{ name | lower | replace(' ', '_') }}"
+  speech:
+    text: >
+      {% set responses = [
+        "Rolladen-Automatik für " ~ name ~ " ist aus. Du kannst jetzt manuell steuern.",
+        "Alles klar, " ~ name ~ " ist jetzt auf manuelle Steuerung.",
+        "OK, Automatik für " ~ name ~ " deaktiviert.",
+        "Erledigt, " ~ name ~ " läuft jetzt ohne Automatik.",
+        "Verstanden, manuelle Kontrolle für " ~ name ~ " ist an."
+      ] %}
+      {{ responses | random }}
+
+SetCoverScene:
+  action:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ 'morgen' in trigger_sentence or 'aufwach' in trigger_sentence or 'aufsteh' in trigger_sentence }}"
+          sequence:
+            - service: cover.open_cover
+              target:
+                entity_id: all
+        - conditions:
+            - condition: template
+              value_template: "{{ 'nacht' in trigger_sentence or 'schlaf' in trigger_sentence }}"
+          sequence:
+            - service: cover.close_cover
+              target:
+                entity_id: all
+        - conditions:
+            - condition: template
+              value_template: "{{ 'kino' in trigger_sentence or 'film' in trigger_sentence or 'heimkino' in trigger_sentence }}"
+          sequence:
+            - service: cover.close_cover
+              target:
+                entity_id: all
+            - service: light.turn_off
+              target:
+                entity_id: all
+      default:
+        - service: cover.set_cover_position
+          target:
+            entity_id: all
+          data:
+            position: 50
+  speech:
+    text: >
+      {% set responses = [
+        "Die Szene ist jetzt aktiv!",
+        "Alles klar, Szene wurde aktiviert.",
+        "OK, die gewählte Szene läuft.",
+        "Erledigt, Szene ist eingestellt.",
+        "Verstanden, alles ist eingerichtet."
+      ] %}
+      {{ responses | random }}
+
+GetCoverState:
+  speech:
+    text: >
+      {% set cover = 'cover.' ~ name | lower | replace(' ', '_') %}
+      {% set state = states(cover) %}
+      {% set pos = state_attr(cover, 'current_position') | default(0) %}
+      {% if state == 'open' %}
+        {% set responses = [
+          "Die Rolladen im " ~ name ~ " sind geöffnet, aktuell bei " ~ pos ~ " Prozent.",
+          "Im " ~ name ~ " sind die Rolladen offen, Position " ~ pos ~ " Prozent.",
+          name ~ " Rolladen: offen bei " ~ pos ~ " Prozent."
+        ] %}
+        {{ responses | random }}
+      {% elif state == 'closed' %}
+        {% set responses = [
+          "Die Rolladen im " ~ name ~ " sind komplett geschlossen.",
+          "Im " ~ name ~ " sind die Rolladen zu.",
+          name ~ " Rolladen sind unten."
+        ] %}
+        {{ responses | random }}
+      {% elif state == 'opening' %}
+        {% set responses = [
+          "Die Rolladen im " ~ name ~ " fahren gerade hoch.",
+          "Im " ~ name ~ " öffnen sich die Rolladen gerade.",
+          name ~ " Rolladen sind in Bewegung nach oben."
+        ] %}
+        {{ responses | random }}
+      {% elif state == 'closing' %}
+        {% set responses = [
+          "Die Rolladen im " ~ name ~ " fahren gerade runter.",
+          "Im " ~ name ~ " schließen sich die Rolladen gerade.",
+          name ~ " Rolladen sind in Bewegung nach unten."
+        ] %}
+        {{ responses | random }}
+      {% else %}
+        {{ name }} hat den Status {{ state }} und ist bei {{ pos }} Prozent.
+      {% endif %}
+
+ScheduleCover:
+  speech:
+    text: >
+      {% set time_map = {
+        'morning': 'morgens',
+        'noon': 'mittags',
+        'evening': 'abends',
+        'night': 'nachts',
+        'sunrise': 'bei Sonnenaufgang',
+        'sunset': 'bei Sonnenuntergang'
+      } %}
+      {% set time_text = time_map.get(time_of_day, time_of_day) %}
+      {% set responses = [
+        "Perfekt, ich übernehme das! Die Rolladen werden " ~ time_text ~ " automatisch gesteuert.",
+        "Alles klar, Rolladen-Zeitplan für " ~ time_text ~ " ist gesetzt.",
+        "OK, automatische Steuerung " ~ time_text ~ " aktiviert.",
+        "Erledigt, die Rolladen fahren " ~ time_text ~ " automatisch.",
+        "Verstanden, " ~ time_text ~ " werden die Rolladen automatisch bewegt."
+      ] %}
+      {{ responses | random }}

@@ -1,0 +1,384 @@
+# ============================================================================
+# ERINNERUNG INTENTS - Modulare Datei
+# ============================================================================
+# Teil von: intent_script: !include_dir_merge_named intent_scripts/
+# ============================================================================
+
+SetReminderSecondsSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ seconds }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+    - service: script.turn_on
+      target:
+        entity_id: script.erinnerung_timer_watcher
+      data:
+        variables:
+          timer_entity: timer.erinnerung_1
+          nachricht_entity: input_text.erinnerung_1_nachricht
+          slot: 1
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, ich gebe dir in " ~ seconds ~ " Sekunden Bescheid!",
+        "Verstanden, in " ~ seconds ~ " Sekunden melde ich mich.",
+        "Geht klar, " ~ seconds ~ " Sekunden, ich bin dann da.",
+        "OK, Timer auf " ~ seconds ~ " Sekunden gestellt.",
+        "Erledigt, in " ~ seconds ~ " Sekunden gibt es eine Erinnerung."
+      ] %}
+      {{ responses | random }}
+
+SetReminderSeconds:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ seconds }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+    - service: script.turn_on
+      target:
+        entity_id: script.erinnerung_timer_watcher
+      data:
+        variables:
+          timer_entity: timer.erinnerung_1
+          nachricht_entity: input_text.erinnerung_1_nachricht
+          slot: 1
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, ich erinnere dich in " ~ seconds ~ " Sekunden: " ~ message ~ ".",
+        "Verstanden, in " ~ seconds ~ " Sekunden sage ich dir Bescheid wegen: " ~ message ~ ".",
+        "Geht klar, " ~ seconds ~ " Sekunden Timer für: " ~ message ~ ".",
+        "OK, ich melde mich in " ~ seconds ~ " Sekunden mit: " ~ message ~ ".",
+        "Erledigt, Erinnerung in " ~ seconds ~ " Sekunden: " ~ message ~ "."
+      ] %}
+      {{ responses | random }}
+
+SetReminderMinutesSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (minutes | int) * 60 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+    - service: script.turn_on
+      target:
+        entity_id: script.erinnerung_timer_watcher
+      data:
+        variables:
+          timer_entity: timer.erinnerung_1
+          nachricht_entity: input_text.erinnerung_1_nachricht
+          slot: 1
+  speech:
+    text: >
+      {% set min_text = minutes ~ ' Minute' ~ ('n' if minutes | int > 1 else '') %}
+      {% set responses = [
+        "Ich merk's mir und melde mich in " ~ min_text ~ "!",
+        "Alles klar, in " ~ min_text ~ " gibt's Bescheid.",
+        "Verstanden, Timer auf " ~ min_text ~ " gestellt.",
+        "Geht klar, " ~ min_text ~ " ab jetzt.",
+        "OK, in " ~ min_text ~ " erinnere ich dich."
+      ] %}
+      {{ responses | random }}
+
+SetReminderMinutes:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (minutes | int) * 60 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+    - service: script.turn_on
+      target:
+        entity_id: script.erinnerung_timer_watcher
+      data:
+        variables:
+          timer_entity: timer.erinnerung_1
+          nachricht_entity: input_text.erinnerung_1_nachricht
+          slot: 1
+  speech:
+    text: >
+      {% set min_text = minutes ~ ' Minute' ~ ('n' if minutes | int > 1 else '') %}
+      {% set responses = [
+        "Verstanden! In " ~ min_text ~ " erinnere ich dich: " ~ message ~ ".",
+        "Alles klar, in " ~ min_text ~ " sage ich dir Bescheid wegen: " ~ message ~ ".",
+        "Geht klar, " ~ min_text ~ " Timer für: " ~ message ~ ".",
+        "OK, ich melde mich in " ~ min_text ~ " mit: " ~ message ~ ".",
+        "Erledigt, Erinnerung in " ~ min_text ~ ": " ~ message ~ "."
+      ] %}
+      {{ responses | random }}
+
+SetReminderHoursSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (hours | int) * 3600 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+    - service: script.turn_on
+      target:
+        entity_id: script.erinnerung_timer_watcher
+      data:
+        variables:
+          timer_entity: timer.erinnerung_1
+          nachricht_entity: input_text.erinnerung_1_nachricht
+          slot: 1
+  speech:
+    text: >
+      {% set hour_text = hours ~ ' Stunde' ~ ('n' if hours | int > 1 else '') %}
+      {% set responses = [
+        "Alles klar, ich melde mich in " ~ hour_text ~ " bei dir!",
+        "Verstanden, in " ~ hour_text ~ " gibt's eine Erinnerung.",
+        "Geht klar, Timer auf " ~ hour_text ~ " gestellt.",
+        "OK, in " ~ hour_text ~ " erinnere ich dich.",
+        "Erledigt, " ~ hour_text ~ " Timer läuft."
+      ] %}
+      {{ responses | random }}
+
+SetReminderHours:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (hours | int) * 3600 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+    - service: script.turn_on
+      target:
+        entity_id: script.erinnerung_timer_watcher
+      data:
+        variables:
+          timer_entity: timer.erinnerung_1
+          nachricht_entity: input_text.erinnerung_1_nachricht
+          slot: 1
+  speech:
+    text: >
+      {% set hour_text = hours ~ ' Stunde' ~ ('n' if hours | int > 1 else '') %}
+      {% set responses = [
+        "Verstanden! In " ~ hour_text ~ " erinnere ich dich: " ~ message ~ ".",
+        "Alles klar, in " ~ hour_text ~ " sage ich dir Bescheid wegen: " ~ message ~ ".",
+        "Geht klar, " ~ hour_text ~ " Timer für: " ~ message ~ ".",
+        "OK, ich melde mich in " ~ hour_text ~ " mit: " ~ message ~ ".",
+        "Erledigt, Erinnerung in " ~ hour_text ~ ": " ~ message ~ "."
+      ] %}
+      {{ responses | random }}
+
+SetReminderTimeSimple:
+  action:
+    - service: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.erinnerung_1_zeit
+      data:
+        datetime: >
+          {% set h = clock_hour | int %}
+          {% set m = clock_minute | default(0) | int %}
+          {{ now().strftime('%Y-%m-%d') }} {{ '%02d:%02d:00' | format(h, m) }}
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.erinnerung_1_aktiv
+    - service: script.turn_on
+      target:
+        entity_id: script.erinnerung_zeit_watcher
+      data:
+        variables:
+          slot: 1
+  speech:
+    text: >
+      {% set time_text = clock_hour ~ (':' ~ '%02d' | format(clock_minute | int) if clock_minute | int > 0 else '') ~ ' Uhr' %}
+      {% set responses = [
+        "Perfekt, ich erinnere dich um " ~ time_text ~ ".",
+        "Alles klar, Erinnerung für " ~ time_text ~ " gesetzt.",
+        "OK, um " ~ time_text ~ " melde ich mich.",
+        "Erledigt, Timer auf " ~ time_text ~ " gestellt.",
+        "Verstanden, um " ~ time_text ~ " gibt es eine Erinnerung."
+      ] %}
+      {{ responses | random }}
+
+SetReminderTime:
+  action:
+    - service: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.erinnerung_1_zeit
+      data:
+        datetime: >
+          {% set h = clock_hour | int %}
+          {% set m = clock_minute | default(0) | int %}
+          {{ now().strftime('%Y-%m-%d') }} {{ '%02d:%02d:00' | format(h, m) }}
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.erinnerung_1_aktiv
+    - service: script.turn_on
+      target:
+        entity_id: script.erinnerung_zeit_watcher
+      data:
+        variables:
+          slot: 1
+  speech:
+    text: >
+      {% set time_text = clock_hour ~ (':' ~ '%02d' | format(clock_minute | int) if clock_minute | int > 0 else '') ~ ' Uhr' %}
+      {% set responses = [
+        "Gemerkt! Um " ~ time_text ~ " erinnere ich dich: " ~ message ~ ".",
+        "Alles klar, um " ~ time_text ~ " sage ich dir Bescheid wegen: " ~ message ~ ".",
+        "OK, Erinnerung für " ~ time_text ~ ": " ~ message ~ ".",
+        "Erledigt, um " ~ time_text ~ " melde ich mich mit: " ~ message ~ ".",
+        "Verstanden, " ~ time_text ~ " Erinnerung: " ~ message ~ "."
+      ] %}
+      {{ responses | random }}
+
+SetReminderSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "300"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+    - service: script.turn_on
+      target:
+        entity_id: script.erinnerung_timer_watcher
+      data:
+        variables:
+          timer_entity: timer.erinnerung_1
+          nachricht_entity: input_text.erinnerung_1_nachricht
+          slot: 1
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, in 5 Minuten erinnere ich dich: " ~ message ~ ".",
+        "Verstanden, in fünf Minuten sage ich dir Bescheid wegen: " ~ message ~ ".",
+        "OK, 5 Minuten Timer für: " ~ message ~ ".",
+        "Erledigt, in 5 Minuten melde ich mich mit: " ~ message ~ ".",
+        "Geht klar, kurze Erinnerung in 5 Minuten: " ~ message ~ "."
+      ] %}
+      {{ responses | random }}
+
+GetReminders:
+  speech:
+    text: >
+      {% set active = [] %}
+      {% for i in range(1, 4) %}
+        {% set timer = 'timer.erinnerung_' ~ i %}
+        {% set msg = 'input_text.erinnerung_' ~ i ~ '_nachricht' %}
+        {% if states(timer) == 'active' %}
+          {% set active = active + [states(msg)] %}
+        {% endif %}
+      {% endfor %}
+      {% if active | length > 0 %}
+        {% set intro = [
+          "Du hast " ~ active | length ~ " aktive Erinnerung" ~ ('en' if active | length > 1 else '') ~ ": ",
+          "Aktuell laufen " ~ active | length ~ " Timer: ",
+          "Es gibt " ~ active | length ~ " aktive Erinnerung" ~ ('en' if active | length > 1 else '') ~ ": ",
+          "Folgende " ~ active | length ~ " Erinnerung" ~ ('en' if active | length > 1 else '') ~ " " ~ ('sind' if active | length > 1 else 'ist') ~ " gesetzt: "
+        ] %}
+        {{ intro | random }}{{ active | join(', ') }}.
+      {% else %}
+        {% set empty = [
+          "Im Moment hast du keine aktiven Erinnerungen gesetzt.",
+          "Aktuell laufen keine Timer.",
+          "Es sind keine Erinnerungen aktiv.",
+          "Du hast gerade keine Erinnerungen."
+        ] %}
+        {{ empty | random }}
+      {% endif %}
+
+DeleteReminder:
+  action:
+    - service: timer.cancel
+      target:
+        entity_id:
+          - timer.erinnerung_1
+          - timer.erinnerung_2
+          - timer.erinnerung_3
+    - service: input_boolean.turn_off
+      target:
+        entity_id:
+          - input_boolean.erinnerung_1_aktiv
+          - input_boolean.erinnerung_2_aktiv
+          - input_boolean.erinnerung_3_aktiv
+  speech:
+    text: >
+      {% set responses = [
+        "Erledigt, alle Erinnerungen sind gelöscht.",
+        "Alles klar, alle Timer wurden gestoppt.",
+        "OK, sämtliche Erinnerungen sind entfernt.",
+        "Geht klar, alle Erinnerungen gelöscht.",
+        "Verstanden, keine aktiven Erinnerungen mehr."
+      ] %}
+      {{ responses | random }}
+
+DeleteLastReminder:
+  action:
+    - service: timer.cancel
+      target:
+        entity_id: timer.erinnerung_1
+  speech:
+    text: >
+      {% set responses = [
+        "Die letzte Erinnerung habe ich gelöscht.",
+        "Alles klar, letzte Erinnerung entfernt.",
+        "OK, der letzte Timer wurde gestoppt.",
+        "Erledigt, die Erinnerung ist gelöscht.",
+        "Geht klar, letzte Erinnerung abgebrochen."
+      ] %}
+      {{ responses | random }}
+
+StopReminder:
+  action:
+    - service: media_player.media_stop
+      target:
+        entity_id: all
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar.",
+        "OK.",
+        "Erledigt.",
+        "Verstanden.",
+        "Geht klar."
+      ] %}
+      {{ responses | random }}

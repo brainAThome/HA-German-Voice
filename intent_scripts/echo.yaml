@@ -1,0 +1,371 @@
+# ================================================================================
+# HA-GERMAN-VOICE - Echo Show / VACA Intent Scripts
+# ================================================================================
+# Zielgerät: VACA 362812d56 (jailbroken Echo Show 5)
+# Entities:
+#   media_player.vaca_362812d56_mediaplayer  (Volume 0.0-1.0)
+#   number.vaca_362812d56_sprachlautstarke   (0-10)
+#   number.vaca_362812d56_musiklautstarke    (0-10)
+#   number.vaca_362812d56_bildschirmhelligkeit (0-100)
+#   switch.vaca_362812d56_stumm
+#   switch.vaca_362812d56_screen
+#   switch.vaca_362812d56_automatische_helligkeit
+#   switch.vaca_362812d56_dunkelmodus
+#   switch.vaca_362812d56_bildschirm_immer_an
+#   switch.vaca_362812d56_screen_saver
+# ================================================================================
+
+# ==========================================================================
+#  LAUTSTÄRKE - ALLGEMEIN (media_player volume)
+# ==========================================================================
+
+EchoLauter:
+  action:
+    - action: media_player.volume_up
+      target:
+        entity_id: media_player.vaca_362812d56_mediaplayer
+  speech:
+    text: >-
+      {% set r = ["Lauter!", "Lautstärke erhöht.", "Ist lauter jetzt.", "Etwas lauter, bitte sehr."] %}{{ r | random }}
+
+EchoLeiser:
+  action:
+    - action: media_player.volume_down
+      target:
+        entity_id: media_player.vaca_362812d56_mediaplayer
+  speech:
+    text: >-
+      {% set r = ["Leiser!", "Lautstärke verringert.", "Ist leiser jetzt.", "Etwas leiser, bitte sehr."] %}{{ r | random }}
+
+EchoLautstaerke:
+  action:
+    - action: media_player.volume_set
+      target:
+        entity_id: media_player.vaca_362812d56_mediaplayer
+      data:
+        volume_level: "{{ echo_level | int / 10 }}"
+  speech:
+    text: >-
+      {% set l = echo_level | int %}
+      {% if l == 0 %}
+      {% set r = ["Lautstärke auf Null.", "Stummgeschaltet.", "Ton aus."] %}
+      {% elif l <= 3 %}
+      {% set r = ["Lautstärke auf " ~ l ~ ". Schön leise.", "Stufe " ~ l ~ " eingestellt.", "OK, Lautstärke " ~ l ~ "."] %}
+      {% elif l <= 7 %}
+      {% set r = ["Lautstärke auf " ~ l ~ ".", "Stufe " ~ l ~ ", alles klar.", "OK, Lautstärke " ~ l ~ " eingestellt."] %}
+      {% else %}
+      {% set r = ["Lautstärke auf " ~ l ~ ". Das wird laut!", "Stufe " ~ l ~ ", volle Power!", "OK, Lautstärke " ~ l ~ "."] %}
+      {% endif %}{{ r | random }}
+
+EchoLautstaerkeProzent:
+  action:
+    - action: media_player.volume_set
+      target:
+        entity_id: media_player.vaca_362812d56_mediaplayer
+      data:
+        volume_level: "{{ echo_percent | int / 100 }}"
+  speech:
+    text: >-
+      {% set p = echo_percent | int %}
+      {% if p == 0 %}
+      {% set r = ["Lautstärke auf 0 Prozent.", "Stummgeschaltet.", "Ton aus."] %}
+      {% elif p <= 30 %}
+      {% set r = ["Lautstärke auf " ~ p ~ " Prozent.", p ~ "%, schön leise.", "OK, " ~ p ~ " Prozent eingestellt."] %}
+      {% elif p <= 70 %}
+      {% set r = ["Lautstärke auf " ~ p ~ " Prozent.", p ~ "% eingestellt.", "OK, " ~ p ~ " Prozent."] %}
+      {% else %}
+      {% set r = ["Lautstärke auf " ~ p ~ " Prozent.", p ~ "%, das wird laut!", "OK, " ~ p ~ " Prozent. Volle Kraft!"] %}
+      {% endif %}{{ r | random }}
+
+# ==========================================================================
+#  STUMM / MUTE
+# ==========================================================================
+
+EchoStumm:
+  action:
+    - action: switch.turn_on
+      target:
+        entity_id: switch.vaca_362812d56_stumm
+  speech:
+    text: >-
+      {% set r = ["Stummgeschaltet.", "Ton aus.", "Bin jetzt still.", "Mikrofon stumm."] %}{{ r | random }}
+
+EchoStummAus:
+  action:
+    - action: switch.turn_off
+      target:
+        entity_id: switch.vaca_362812d56_stumm
+  speech:
+    text: >-
+      {% set r = ["Ton wieder an.", "Stummschaltung aufgehoben.", "Bin wieder da!", "Mikrofon aktiv."] %}{{ r | random }}
+
+# ==========================================================================
+#  SPRACHLAUTSTÄRKE (number entity, 0-10)
+# ==========================================================================
+
+EchoSprachLauter:
+  action:
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_sprachlautstarke
+      data:
+        value: >-
+          {{ [states('number.vaca_362812d56_sprachlautstarke') | int + 1, 10] | min }}
+  speech:
+    text: >-
+      {% set current = states('number.vaca_362812d56_sprachlautstarke') | int %}
+      {% set new_val = [current + 1, 10] | min %}
+      {% set r = ["Sprachlautstärke auf " ~ new_val ~ ".", "Ich rede jetzt lauter. Stufe " ~ new_val ~ ".", "Sprache lauter, Stufe " ~ new_val ~ "."] %}{{ r | random }}
+
+EchoSprachLeiser:
+  action:
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_sprachlautstarke
+      data:
+        value: >-
+          {{ [states('number.vaca_362812d56_sprachlautstarke') | int - 1, 0] | max }}
+  speech:
+    text: >-
+      {% set current = states('number.vaca_362812d56_sprachlautstarke') | int %}
+      {% set new_val = [current - 1, 0] | max %}
+      {% set r = ["Sprachlautstärke auf " ~ new_val ~ ".", "Ich rede jetzt leiser. Stufe " ~ new_val ~ ".", "Sprache leiser, Stufe " ~ new_val ~ "."] %}{{ r | random }}
+
+EchoSprachLautstaerke:
+  action:
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_sprachlautstarke
+      data:
+        value: "{{ echo_level | int }}"
+  speech:
+    text: >-
+      {% set l = echo_level | int %}
+      {% set r = ["Sprachlautstärke auf " ~ l ~ ".", "OK, Sprache auf Stufe " ~ l ~ ".", "Sprachlautstärke " ~ l ~ " eingestellt."] %}{{ r | random }}
+EchoSprachLautstaerkeProzent:
+  action:
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_sprachlautstarke
+      data:
+        value: "{{ (echo_percent | int / 10) | round(0) | int }}"
+  speech:
+    text: >-
+      {% set p = echo_percent | int %}
+      {% set l = (p / 10) | round(0) | int %}
+      {% set r = ["Sprachlautst\u00e4rke auf " ~ p ~ "%, das ist Stufe " ~ l ~ ".", "OK, Sprache auf " ~ p ~ "% (Stufe " ~ l ~ ").", "Sprachlautst\u00e4rke " ~ p ~ "% eingestellt."] %}{{ r | random }}
+# ==========================================================================
+#  MUSIKLAUTSTÄRKE (number entity, 0-10)
+# ==========================================================================
+
+EchoMusikLauter:
+  action:
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_musiklautstarke
+      data:
+        value: >-
+          {{ [states('number.vaca_362812d56_musiklautstarke') | int + 1, 10] | min }}
+  speech:
+    text: >-
+      {% set current = states('number.vaca_362812d56_musiklautstarke') | int %}
+      {% set new_val = [current + 1, 10] | min %}
+      {% set r = ["Musiklautstärke auf " ~ new_val ~ ".", "Musik lauter, Stufe " ~ new_val ~ ".", "Musik auf " ~ new_val ~ "."] %}{{ r | random }}
+
+EchoMusikLeiser:
+  action:
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_musiklautstarke
+      data:
+        value: >-
+          {{ [states('number.vaca_362812d56_musiklautstarke') | int - 1, 0] | max }}
+  speech:
+    text: >-
+      {% set current = states('number.vaca_362812d56_musiklautstarke') | int %}
+      {% set new_val = [current - 1, 0] | max %}
+      {% set r = ["Musiklautstärke auf " ~ new_val ~ ".", "Musik leiser, Stufe " ~ new_val ~ ".", "Musik auf " ~ new_val ~ "."] %}{{ r | random }}
+
+EchoMusikLautstaerke:
+  action:
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_musiklautstarke
+      data:
+        value: "{{ echo_level | int }}"
+  speech:
+    text: >-
+      {% set l = echo_level | int %}
+      {% set r = ["Musiklautstärke auf " ~ l ~ ".", "OK, Musik auf Stufe " ~ l ~ ".", "Musiklautstärke " ~ l ~ " eingestellt."] %}{{ r | random }}
+EchoMusikLautstaerkeProzent:
+  action:
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_musiklautstarke
+      data:
+        value: "{{ (echo_percent | int / 10) | round(0) | int }}"
+  speech:
+    text: >-
+      {% set p = echo_percent | int %}
+      {% set l = (p / 10) | round(0) | int %}
+      {% set r = ["Musiklautst\u00e4rke auf " ~ p ~ "%, das ist Stufe " ~ l ~ ".", "OK, Musik auf " ~ p ~ "% (Stufe " ~ l ~ ").", "Musiklautst\u00e4rke " ~ p ~ "% eingestellt."] %}{{ r | random }}
+# ==========================================================================
+#  BILDSCHIRM - HELLIGKEIT
+# ==========================================================================
+
+EchoBildschirmHeller:
+  action:
+    - action: switch.turn_off
+      target:
+        entity_id: switch.vaca_362812d56_automatische_helligkeit
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_bildschirmhelligkeit
+      data:
+        value: >-
+          {{ [states('number.vaca_362812d56_bildschirmhelligkeit') | int + 10, 100] | min }}
+  speech:
+    text: >-
+      {% set current = states('number.vaca_362812d56_bildschirmhelligkeit') | int %}
+      {% set new_val = [current + 10, 100] | min %}
+      {% set r = ["Bildschirm heller, " ~ new_val ~ "%.", "Helligkeit auf " ~ new_val ~ "%.", "Display heller. Jetzt " ~ new_val ~ "%."] %}{{ r | random }}
+
+EchoBildschirmDunkler:
+  action:
+    - action: switch.turn_off
+      target:
+        entity_id: switch.vaca_362812d56_automatische_helligkeit
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_bildschirmhelligkeit
+      data:
+        value: >-
+          {{ [states('number.vaca_362812d56_bildschirmhelligkeit') | int - 10, 0] | max }}
+  speech:
+    text: >-
+      {% set current = states('number.vaca_362812d56_bildschirmhelligkeit') | int %}
+      {% set new_val = [current - 10, 0] | max %}
+      {% set r = ["Bildschirm dunkler, " ~ new_val ~ "%.", "Helligkeit auf " ~ new_val ~ "%.", "Display dunkler. Jetzt " ~ new_val ~ "%."] %}{{ r | random }}
+
+EchoBildschirmHelligkeit:
+  action:
+    - action: switch.turn_off
+      target:
+        entity_id: switch.vaca_362812d56_automatische_helligkeit
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_bildschirmhelligkeit
+      data:
+        value: "{{ echo_percent | int }}"
+  speech:
+    text: >-
+      {% set p = echo_percent | int %}
+      {% if p == 0 %}
+      {% set r = ["Bildschirm ganz dunkel.", "Helligkeit auf Null.", "Display auf Minimum."] %}
+      {% elif p <= 30 %}
+      {% set r = ["Helligkeit auf " ~ p ~ "%.", "Display auf " ~ p ~ "%. Schön gedimmt.", "Bildschirmhelligkeit " ~ p ~ "%."] %}
+      {% elif p <= 70 %}
+      {% set r = ["Helligkeit auf " ~ p ~ "%.", "Display auf " ~ p ~ "%.", "Bildschirmhelligkeit " ~ p ~ "% eingestellt."] %}
+      {% else %}
+      {% set r = ["Helligkeit auf " ~ p ~ "%. Schön hell!", "Display auf " ~ p ~ "%.", p ~ "% Helligkeit eingestellt."] %}
+      {% endif %}{{ r | random }}
+
+# ==========================================================================
+#  BILDSCHIRM - AN / AUS
+# ==========================================================================
+
+EchoBildschirmAus:
+  action:
+    - action: switch.turn_off
+      target:
+        entity_id: switch.vaca_362812d56_screen
+  speech:
+    text: >-
+      {% set r = ["Bildschirm aus.", "Display ausgeschaltet.", "Bildschirm geht in den Ruhezustand."] %}{{ r | random }}
+
+EchoBildschirmAn:
+  action:
+    - action: switch.turn_on
+      target:
+        entity_id: switch.vaca_362812d56_screen
+  speech:
+    text: >-
+      {% set r = ["Bildschirm an.", "Display eingeschaltet.", "Bildschirm ist wach."] %}{{ r | random }}
+
+# ==========================================================================
+#  BILDSCHIRM - EINSTELLUNGEN (on_off Switches)
+# ==========================================================================
+
+EchoAutoHelligkeit:
+  action:
+    - action: "switch.turn_{{ on_off }}"
+      target:
+        entity_id: switch.vaca_362812d56_automatische_helligkeit
+  speech:
+    text: >-
+      {% if on_off == 'on' %}
+      {% set r = ["Automatische Helligkeit aktiviert.", "Auto-Helligkeit ist an.", "Helligkeitssensor aktiv."] %}
+      {% else %}
+      {% set r = ["Automatische Helligkeit deaktiviert.", "Auto-Helligkeit ist aus.", "Manuelle Helligkeit aktiv."] %}
+      {% endif %}{{ r | random }}
+
+EchoDunkelmodus:
+  action:
+    - action: "switch.turn_{{ on_off }}"
+      target:
+        entity_id: switch.vaca_362812d56_dunkelmodus
+  speech:
+    text: >-
+      {% if on_off == 'on' %}
+      {% set r = ["Dunkelmodus aktiviert.", "Nachtmodus an.", "Dunkles Design aktiv."] %}
+      {% else %}
+      {% set r = ["Dunkelmodus deaktiviert.", "Nachtmodus aus.", "Helles Design aktiv."] %}
+      {% endif %}{{ r | random }}
+
+EchoBildschirmDauerAn:
+  action:
+    - action: "switch.turn_{{ on_off }}"
+      target:
+        entity_id: switch.vaca_362812d56_bildschirm_immer_an
+  speech:
+    text: >-
+      {% if on_off == 'on' %}
+      {% set r = ["Bildschirm bleibt jetzt dauerhaft an.", "Dauerdisplay aktiviert.", "Display geht nicht mehr aus."] %}
+      {% else %}
+      {% set r = ["Dauerdisplay deaktiviert.", "Bildschirm darf wieder ausgehen.", "Display schaltet sich wieder automatisch ab."] %}
+      {% endif %}{{ r | random }}
+
+EchoScreenSaver:
+  action:
+    - action: "switch.turn_{{ on_off }}"
+      target:
+        entity_id: switch.vaca_362812d56_screen_saver
+  speech:
+    text: >-
+      {% if on_off == 'on' %}
+      {% set r = ["Bildschirmschoner aktiviert.", "Screensaver an.", "Bildschirmschoner läuft."] %}
+      {% else %}
+      {% set r = ["Bildschirmschoner deaktiviert.", "Screensaver aus.", "Kein Bildschirmschoner mehr."] %}
+      {% endif %}{{ r | random }}
+
+# ==========================================================================
+#  MEDIA STEUERUNG (direkt auf VACA, ohne Gerätename)
+# ==========================================================================
+
+EchoPause:
+  action:
+    - action: media_player.media_pause
+      target:
+        entity_id: media_player.vaca_362812d56_mediaplayer
+  speech:
+    text: >-
+      {% set r = ["Pausiert.", "Wiedergabe angehalten.", "Pause."] %}{{ r | random }}
+
+EchoWeiter:
+  action:
+    - action: media_player.media_play
+      target:
+        entity_id: media_player.vaca_362812d56_mediaplayer
+  speech:
+    text: >-
+      {% set r = ["Weiter geht's!", "Wiedergabe fortgesetzt.", "Spielt weiter."] %}{{ r | random }}

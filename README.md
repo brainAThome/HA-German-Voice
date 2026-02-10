@@ -1,6 +1,6 @@
 # 🇩🇪 HA-German-Voice
 
-**Deutsche Sprachbefehle für Home Assistant** - State of the Art Custom Sentences für Assist/Voice Pipelines.
+**Deutsche Sprachbefehle für Home Assistant** — Modulare Custom Sentences + Intent Scripts für Assist/Voice Pipelines.
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1+-blue.svg)](https://www.home-assistant.io/)
@@ -8,19 +8,7 @@
 
 ---
 
-## 🚀 State of the Art Features
-
-Dieses Paket nutzt die **neuesten Home Assistant Intent-Features**:
-
-- ✅ **Entity Slots** mit `type: entity` und `domain` für automatisches Matching
-- ✅ **Area Slots** mit `type: area` für raumbasierte Steuerung
-- ✅ **Responses direkt in Sentences** - keine separaten Dateien nötig
-- ✅ **Expansion Rules** für natürliche Sprachvarianten
-- ✅ **Built-In Intents** (HassTurnOn, HassOpenCover, etc.) werden automatisch erkannt
-
----
-
-## ✨ Features
+## 🚀 Features
 
 ### 🌤️ Wetter
 - **Aktuelles Wetter**: "Wie ist das Wetter?" / "Wie warm ist es draußen?"
@@ -28,34 +16,66 @@ Dieses Paket nutzt die **neuesten Home Assistant Intent-Features**:
 - **Spezifische Werte**: "Was ist die Luftfeuchtigkeit?" / "Wie stark ist der Wind?"
 - **Zeitbereiche**: "Wetter heute Nachmittag" / "Wie wird der Abend?"
 
-### ⏰ Erinnerungen  
-- **Sekunden**: "Erinnere mich in 30 Sekunden"
-- **Minuten**: "In 5 Minuten ans Essen erinnern"
-- **Stunden**: "Erinnerung in 2 Stunden"
+### ⏰ Erinnerungen (mit TTS-Ansage + Lautstärke-Boost)
+- **Sekunden/Minuten/Stunden**: "Erinnere mich in 30 Sekunden an die Pizza"
 - **Uhrzeiten**: "Erinnere mich um 14 Uhr an den Termin"
-- **Abfragen**: "Welche Erinnerungen habe ich?" / "Löschen aller Timer"
+- **TTS-Ansage**: Bei Ablauf wird die Erinnerung per Sprachansage durchgegeben
+- **Lautstärke-Boost**: Sprachlautstärke wird für die Ansage um 50% erhöht, danach zurückgesetzt
+- **Abfragen/Löschen**: "Welche Erinnerungen habe ich?" / "Lösche alle Timer"
 
 ### 💡 Lichter
-- **Ein/Aus**: "Mach das Licht im Wohnzimmer an" / "Licht in Küche aus"
-- **Helligkeit**: "Dimme die Lampe auf 50 Prozent"
-- **Farben**: "Mach das Schlafzimmer rot" / "Blaues Licht in Küche"
+- **Ein/Aus**: "Mach das Licht im Wohnzimmer an"
+- **Helligkeit**: "Dimme die Lampe auf 50 Prozent" / "Heller" / "Dunkler"
+- **Farben**: "Mach das Schlafzimmer rot" / "Blaues Licht"
 - **Farbtemperatur**: "Warmes Licht im Büro"
-- **Raum-basiert**: "Heller im Wohnzimmer" (mit Area-Matching)
+- **Entity-basiert**: "Wandlicht heller" / "Bürolicht auf Maximum"
+- **Area-basiert**: "Licht im Bad an" (automatisches Area-Matching)
+- **Alias-Support**: STT-Fehler wie "Wadenlicht" → Wandlicht werden erkannt
 
-### 🎵 Medien
-- **Wiedergabe**: "Spiele Musik ab" / "Pause"
-- **Navigation**: "Nächster Titel" / "Zurück"
-- **Lautstärke**: "Lauter" / "Lautstärke auf 50%"
-- **Status**: "Was spielt gerade?" (mit dynamischer Antwort)
+### 🔊 Echo/VACA Steuerung (Jailbroken Echo Show 5)
+- **Sprachlautstärke**: "Sprachlautstärke auf 8" / "Sprachlautstärke lauter"
+- **Musiklautstärke**: "Musiklautstärke auf 5" / "Musiklautstärke leiser"
+- **Gesamtlautstärke**: "Lautstärke auf 7" / "Lauter" / "Leiser"
+- **Bildschirm**: "Bildschirm auf 80%" / "Heller" / "Dunkler"
+- **Mikrofon**: "Mikrofon auf 10" / "Mikrofon lauter"
+- **Routinen**: "Starte Guten Morgen" / "Routine Feierabend"
+- **Media-Player**: "Pause" / "Weiter" / "Nächstes Lied" / "Stopp"
 
 ### 🪟 Rolladen/Jalousien
-- **Öffnen/Schließen**: "Wohnzimmerrollo auf" / "Rolladen im Schlafzimmer runter"
-- **Area-basiert**: "Rolladen im Wohnzimmer auf" (automatisches Matching)
+- **Öffnen/Schließen**: "Wohnzimmerrollo auf" / "Rolladen runter"
+- **Area-basiert**: "Rolladen im Wohnzimmer auf"
 - **Position**: "Rolladen auf 50 Prozent"
-- **Lamellen**: "Lamellen auf halb"
-- **Sonnenschutz**: "Sonnenschutz aktivieren im Büro"
 - **Szenen**: "Guten Morgen" / "Kino Modus" / "Gute Nacht"
-- **Status**: "Wie steht das Wohnzimmerrollo?" (mit dynamischer Antwort)
+
+### 🎵 Medien
+- **Wiedergabe**: "Spiele Musik ab" / "Pause" / "Weiter"
+- **Lautstärke**: "Lauter" / "Lautstärke auf 50%"
+
+---
+
+## � Projektstruktur
+
+```
+ha-german-voice/
+├── custom_sentences/de/     # Sprachbefehle (Sentence-Dateien)
+│   ├── covers.yaml          # Rolladen/Jalousien
+│   ├── echo.yaml            # Echo/VACA Steuerung
+│   ├── lights.yaml          # Lichter
+│   ├── media.yaml           # Medien
+│   ├── reminders.yaml       # Erinnerungen/Timer
+│   └── weather.yaml         # Wetter
+├── intent_scripts/          # Intent Handler (Aktionen + Antworten)
+│   ├── covers.yaml          # Rolladen-Szenen
+│   ├── echo.yaml            # Echo/VACA Aktionen
+│   ├── lights.yaml          # Licht-Aktionen (mit Alias-Map)
+│   ├── reminders.yaml       # Timer + Watcher-Script-Aufrufe
+│   └── weather.yaml         # Wetter-Abfragen
+├── scripts/                 # HA Scripts (für Erinnerungen)
+│   └── erinnerung_scripts.yaml
+├── conversation_logging.yaml # Konversations-Logging Config
+├── hacs.json                # HACS-Manifest
+└── README.md
+```
 
 ---
 
@@ -63,90 +83,172 @@ Dieses Paket nutzt die **neuesten Home Assistant Intent-Features**:
 
 ### HACS (Empfohlen)
 
-1. Öffne HACS in Home Assistant
-2. Gehe zu **Integrations** → ⋮ (drei Punkte) → **Custom repositories**
-3. Füge hinzu:
-   - Repository: `https://github.com/brainAThome/HA-German-Voice`
-   - Category: **Integration**
-4. Suche nach "German Voice" und installiere
-5. **Neustart** von Home Assistant
+1. Öffne HACS → **Integrations** → ⋮ → **Custom repositories**
+2. Repository: `https://github.com/brainAThome/HA-German-Voice` / Category: **Integration**
+3. Suche nach "German Voice" und installiere
+4. **Neustart** von Home Assistant
 
 ### Manuelle Installation
 
-1. Lade dieses Repository herunter
-2. Kopiere den Inhalt von `custom_sentences/de/` nach:
-   ```
-   config/custom_sentences/de/
-   ```
-3. Kopiere `intent_script.yaml` und füge es zu deiner config hinzu
-4. **Neustart** von Home Assistant
+1. Repository herunterladen/klonen
+2. Dateien kopieren:
+
+```bash
+# Sprachbefehle
+cp -r custom_sentences/de/*.yaml /config/custom_sentences/de/
+
+# Intent Scripts (modulares System)
+mkdir -p /config/intent_scripts/
+cp intent_scripts/*.yaml /config/intent_scripts/
+```
 
 ---
 
 ## ⚙️ Konfiguration
 
-### Voraussetzungen
-
-- **Home Assistant 2024.1 oder neuer** (für Entity/Area Slots)
-- Eine Wetter-Integration (z.B. Met.no, oder weather.forecast_home)
-- Assist/Voice Pipeline aktiviert
-
-### Optionale Erweiterungen
-
-#### Intent Script (für Custom Intents)
-
-Nur nötig für Wetter, Erinnerungen und Custom Cover Szenen:
+### 1. configuration.yaml
 
 ```yaml
-# configuration.yaml
-intent_script: !include intent_script.yaml
+# Intent Scripts - Modulares System (NICHT !include intent_script.yaml)
+intent_script: !include_dir_merge_named intent_scripts/
 ```
 
-#### Erinnerungen (Timer)
+### 2. Erinnerungs-Helper
 
-Füge folgendes zu deiner `configuration.yaml` hinzu:
+Folgendes in `configuration.yaml` hinzufügen:
+
+```yaml
+timer:
+  erinnerung_1:
+    name: Erinnerung 1
+    duration: "00:05:00"
+  erinnerung_2:
+    name: Erinnerung 2
+    duration: "00:05:00"
+  erinnerung_3:
+    name: Erinnerung 3
+    duration: "00:05:00"
+
+input_text:
+  erinnerung_1_nachricht:
+    name: Erinnerung 1 Nachricht
     max: 255
+    initial: ""
   erinnerung_2_nachricht:
-    name: "Erinnerung 2 Nachricht"
+    name: Erinnerung 2 Nachricht
     max: 255
+    initial: ""
   erinnerung_3_nachricht:
-    name: "Erinnerung 3 Nachricht"
+    name: Erinnerung 3 Nachricht
     max: 255
+    initial: ""
 
 input_datetime:
   erinnerung_1_zeit:
-    name: "Erinnerung 1 Uhrzeit"
+    name: Erinnerung 1 Zeit
     has_date: true
     has_time: true
   erinnerung_2_zeit:
-    name: "Erinnerung 2 Uhrzeit"
+    name: Erinnerung 2 Zeit
     has_date: true
     has_time: true
   erinnerung_3_zeit:
-    name: "Erinnerung 3 Uhrzeit"
+    name: Erinnerung 3 Zeit
     has_date: true
     has_time: true
 
 input_boolean:
   erinnerung_1_aktiv:
-    name: "Erinnerung 1 aktiv"
+    name: Erinnerung 1 Aktiv
+    initial: false
   erinnerung_2_aktiv:
-    name: "Erinnerung 2 aktiv"
+    name: Erinnerung 2 Aktiv
+    initial: false
   erinnerung_3_aktiv:
-    name: "Erinnerung 3 aktiv"
+    name: Erinnerung 3 Aktiv
+    initial: false
 ```
 
-#### Intent Scripts
+### 3. Erinnerungs-Scripts (TTS-Ansage)
 
-Für erweiterte Funktionen (Erinnerungs-Handler, Wetterantworten) kopiere `intent_script.yaml` in deine Konfiguration und füge ein:
+Damit Erinnerungen **per Sprache angesagt** werden (mit Lautstärke-Boost), kopiere den Inhalt von `scripts/erinnerung_scripts.yaml` in deine `/config/scripts.yaml`.
 
-```yaml
-intent_script: !include intent_script.yaml
-```
+> ⚠️ **WICHTIG**: Passe die Entity-IDs an dein Setup an! Suche nach `ANPASSEN` in der Datei:
+> - `assist_satellite.vaca_362812d56` → Dein Assist Satellite
+> - `number.vaca_362812d56_sprachlautstarke` → Deine Sprachlautstärke-Entity
+
+### 4. Echo/VACA Steuerung (Optional)
+
+Die Echo/VACA-Intents in `echo.yaml` steuern einen jailbroken Echo Show 5 über VACA.
+Voraussetzung: [VACA Integration](https://github.com/) mit Assist Satellite.
+
+Die Entity-IDs in `intent_scripts/echo.yaml` müssen an dein Gerät angepasst werden.
 
 ---
 
 ## 🗣️ Beispiele
+
+| Befehl | Funktion |
+|--------|----------|
+| "Wie ist das Wetter?" | Aktuelle Wetterbedingungen |
+| "Wird es morgen regnen?" | Wettervorhersage |
+| "Erinnere mich in 5 Minuten ans Essen" | Timer + TTS bei Ablauf |
+| "Erinnere mich um 14 Uhr an den Termin" | Zeitbasierte Erinnerung |
+| "Mach das Wohnzimmerlicht an" | Licht einschalten |
+| "Wandlicht auf 50 Prozent" | Entity-basierte Helligkeit |
+| "Sprachlautstärke auf 8" | Echo Sprachlautstärke |
+| "Lauter" / "Leiser" | Gesamtlautstärke |
+| "Rolladen im Schlafzimmer zu" | Rolladen schließen |
+| "Starte Guten Morgen" | Echo Routine starten |
+| "Welche Erinnerungen habe ich?" | Aktive Timer abfragen |
+
+---
+
+## 🏗️ Architektur
+
+### Modulares System
+
+Das Projekt verwendet `!include_dir_merge_named intent_scripts/` statt einer monolithischen Datei:
+
+- **custom_sentences/de/*.yaml** — Sprachmuster (was der User sagen kann)
+- **intent_scripts/*.yaml** — Handler (was HA bei Erkennung tut)
+- **scripts/*.yaml** — Hintergrund-Scripts (TTS-Watcher für Erinnerungen)
+
+### Erinnerungs-Ablauf
+
+```
+User: "Erinnere mich in 5 Minuten an Pizza"
+  → Intent: SetReminderMinutes
+  → Action: timer.start + input_text.set_value
+  → Action: script.turn_on (erinnerung_timer_watcher)
+    → Watcher wartet auf timer.finished
+    → Sprachlautstärke +50% (max 10)
+    → TTS: "Erinnerung: Pizza"
+    → Sprachlautstärke zurücksetzen
+    → Nachricht aufräumen
+```
+
+### Alias-Map (Lichter)
+
+STT erkennt Eigennamen oft falsch. Die `alias_map` in `intent_scripts/lights.yaml` korrigiert dies:
+
+```yaml
+# "Wadenlicht" → light.wandlicht
+# "Bürolicht" → light.buro
+alias_map:
+  wadenlicht: light.h61a2_d4ea
+  wandlampe: light.h61a2_d4ea
+  bürolicht: light.buro
+```
+
+---
+
+## 🔧 Voraussetzungen
+
+- **Home Assistant 2024.1+** (für Entity/Area Slots)
+- Wetter-Integration (z.B. Met.no)
+- Assist/Voice Pipeline aktiviert
+- Für Echo-Steuerung: VACA Integration mit jailbroken Echo Show 5
 
 | Befehl | Funktion |
 |--------|----------|
@@ -162,51 +264,20 @@ intent_script: !include intent_script.yaml
 
 ---
 
-## 🔧 Syntax-Referenz
-
-Dieses Projekt verwendet die **State of the Art** Home Assistant Expansion Syntax:
-
-```yaml
-sentences:
-  # (a|b|c) = Alternativen - EINE muss verwendet werden
-  - "(wie|was) ist (das|die) wetter"
-  
-  # [optional] = Optional - kann weggelassen werden  
-  - "wie [warm] ist [es] [draußen]"
-  
-  # {slot} = Variable - wird vom User gefüllt
-  - "erinnere mich in {minutes} minuten"
-  
-# expansion_rules für wiederverwendbare Muster
-expansion_rules:
-  polite: "[bitte|kannst du|könntest du]"
-```
-
----
-
 ## 🤝 Mitwirken
 
-Beiträge sind willkommen! 
+Beiträge sind willkommen!
 
 1. Fork dieses Repository
-2. Erstelle einen Feature-Branch (`git checkout -b feature/NeuerBefehl`)
-3. Committe deine Änderungen (`git commit -m 'Add: Neuer Befehl'`)
-4. Push zum Branch (`git push origin feature/NeuerBefehl`)
-5. Öffne einen Pull Request
+2. Feature-Branch erstellen (`git checkout -b feature/NeuerBefehl`)
+3. Änderungen committen (`git commit -m 'Add: Neuer Befehl'`)
+4. Push und Pull Request öffnen
 
 ---
 
 ## 📄 Lizenz
 
-MIT License - siehe [LICENSE](LICENSE) für Details.
-
----
-
-## 🙏 Danksagungen
-
-- [Home Assistant](https://www.home-assistant.io/) Team
-- [HACS](https://hacs.xyz/) Community
-- Alle Mitwirkenden
+MIT License — siehe [LICENSE](LICENSE) für Details.
 
 ---
 

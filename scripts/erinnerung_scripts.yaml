@@ -1,0 +1,113 @@
+# ==========================================================================
+# HA-German-Voice - Scripts (Erinnerungen)
+# ==========================================================================
+# Diese Scripts werden für die Erinnerungs-TTS-Benachrichtigungen benötigt.
+# Kopiere den Inhalt in deine /config/scripts.yaml oder füge ihn hinzu.
+#
+# WICHTIG: Die Entity-IDs (assist_satellite, number) müssen an dein
+# Setup angepasst werden! Suche nach "ANPASSEN" in dieser Datei.
+# ==========================================================================
+
+erinnerung_timer_watcher:
+  alias: Erinnerung Timer Watcher
+  description: Wartet auf Timer-Ablauf, erhöht Sprachlautstärke, sagt TTS an und räumt auf
+  mode: parallel
+  max: 3
+  fields:
+    timer_entity:
+      description: Timer Entity ID (z.B. timer.erinnerung_1)
+    nachricht_entity:
+      description: Input-Text Entity ID für die Nachricht
+    slot:
+      description: Slot-Nummer (1, 2 oder 3)
+  sequence:
+    - wait_template: "{{ is_state(timer_entity, 'idle') }}"
+      timeout:
+        hours: 24
+      continue_on_timeout: false
+    - delay:
+        seconds: 1
+    - variables:
+        original_vol: >
+          {{ states('number.vaca_362812d56_sprachlautstarke') | int(5) }}
+        boosted_vol: >
+          {{ [10, (states('number.vaca_362812d56_sprachlautstarke') | int(5) * 1.5) | round(0) | int] | min }}
+    # ANPASSEN: Sprachlautstärke-Entity deines Assist Satellite
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_sprachlautstarke
+      data:
+        value: "{{ boosted_vol }}"
+    - delay:
+        seconds: 1
+    # ANPASSEN: Dein Assist Satellite Entity
+    - action: assist_satellite.announce
+      target:
+        entity_id: assist_satellite.vaca_362812d56
+      data:
+        message: >
+          Erinnerung: {{ states(nachricht_entity) }}
+    - delay:
+        seconds: 3
+    # ANPASSEN: Sprachlautstärke-Entity deines Assist Satellite
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_sprachlautstarke
+      data:
+        value: "{{ original_vol }}"
+    - action: input_text.set_value
+      target:
+        entity_id: "{{ nachricht_entity }}"
+      data:
+        value: ""
+
+erinnerung_zeit_watcher:
+  alias: Erinnerung Zeit Watcher
+  description: Wartet auf Uhrzeit, erhöht Sprachlautstärke, sagt TTS an und räumt auf
+  mode: parallel
+  max: 3
+  fields:
+    slot:
+      description: Slot-Nummer (1, 2 oder 3)
+  sequence:
+    - wait_template: >
+        {{ now().strftime('%Y-%m-%d %H:%M') == states('input_datetime.erinnerung_' ~ slot ~ '_zeit')[:16] }}
+      timeout:
+        hours: 24
+      continue_on_timeout: false
+    - variables:
+        original_vol: >
+          {{ states('number.vaca_362812d56_sprachlautstarke') | int(5) }}
+        boosted_vol: >
+          {{ [10, (states('number.vaca_362812d56_sprachlautstarke') | int(5) * 1.5) | round(0) | int] | min }}
+    # ANPASSEN: Sprachlautstärke-Entity deines Assist Satellite
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_sprachlautstarke
+      data:
+        value: "{{ boosted_vol }}"
+    - delay:
+        seconds: 1
+    # ANPASSEN: Dein Assist Satellite Entity
+    - action: assist_satellite.announce
+      target:
+        entity_id: assist_satellite.vaca_362812d56
+      data:
+        message: >
+          Erinnerung: {{ states('input_text.erinnerung_' ~ slot ~ '_nachricht') }}
+    - delay:
+        seconds: 3
+    # ANPASSEN: Sprachlautstärke-Entity deines Assist Satellite
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_sprachlautstarke
+      data:
+        value: "{{ original_vol }}"
+    - action: input_boolean.turn_off
+      target:
+        entity_id: "input_boolean.erinnerung_{{ slot }}_aktiv"
+    - action: input_text.set_value
+      target:
+        entity_id: "input_text.erinnerung_{{ slot }}_nachricht"
+      data:
+        value: ""

@@ -93,13 +93,25 @@ intents:
     data:
       # === Mit Entity-Name (HA matched automatisch gegen cover domain!) ===
       - sentences:
+          # Einfache Formen
           - "{name} <action_open>"
           - "<article> {name} <action_open>"
           - "<action_open> <article> {name}"
+          # Mit Verben
           - "(öffne|oeffne|mach|fahr) <polite> <article> {name} [(auf|hoch)]"
           - "(zieh|ziehe) <polite> <article> {name} (hoch|auf|rauf)"
           - "{name} <cover_type> <action_open>"
-          - "<polite_question> <article> {name} <action_open>"
+          - "<polite_question> <article> {name} (aufmachen|öffnen|hochfahren)"
+          # Mit "ein/eine" Artikel
+          - "[ein|eine] {name} <action_open>"
+          - "(öffne|mach|fahr) <polite> [ein|eine|den|die|das] {name}"
+          # Imperative ohne Artikel
+          - "(öffne|oeffne|mach|fahr) {name}"
+          - "{name} (öffnen|aufmachen|hochfahren)"
+          # Natürliche Sätze
+          - "[ich möchte] [das|die|den] {name} (öffnen|aufmachen|hochfahren)"
+          - "mach [bitte] [das|die|den] {name} auf"
+          - "fahr [bitte] [das|die|den] {name} hoch"
         slots:
           name:
             type: entity
@@ -127,16 +139,28 @@ intents:
     data:
       # === Mit Entity-Name ===
       - sentences:
+          # Einfache Formen
           - "{name} <action_close>"
           - "<article> {name} <action_close>"
           - "<action_close> <article> {name}"
+          # Mit Verben
           - "(schließe|schliesse|mach|fahr) <polite> <article> {name} [(zu|runter)]"
           - "(zieh|ziehe) <polite> <article> {name} (runter|zu|ab)"
           - "(lass|lasse) <polite> <article> {name} (runter|ab)"
           - "(verdunkle|verdunkeln) <polite> <article> {name}"
           - "{name} (verdunkeln|abdunkeln|dunkel [machen])"
           - "{name} <cover_type> <action_close>"
-          - "<polite_question> <article> {name} <action_close>"
+          - "<polite_question> <article> {name} (zumachen|schließen|runterfahren)"
+          # Mit "ein/eine" Artikel
+          - "[ein|eine] {name} <action_close>"
+          - "(schließe|mach|fahr) <polite> [ein|eine|den|die|das] {name} [zu|runter]"
+          # Imperative ohne Artikel
+          - "(schließe|mach) {name} [zu]"
+          - "{name} (schließen|zumachen|runterfahren)"
+          # Natürliche Sätze
+          - "[ich möchte] [das|die|den] {name} (schließen|zumachen|runterfahren)"
+          - "mach [bitte] [das|die|den] {name} zu"
+          - "fahr [bitte] [das|die|den] {name} runter"
         slots:
           name:
             type: entity

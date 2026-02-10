@@ -106,7 +106,15 @@ intents:
           name:
             type: entity
             domain: light
-        response: "OK, {{ slots.name }} ist an."
+        response: >
+          {% set responses = [
+            "OK, " ~ slots.name ~ " ist an.",
+            "Alles klar, " ~ slots.name ~ " leuchtet jetzt.",
+            "Erledigt, " ~ slots.name ~ " eingeschaltet.",
+            slots.name ~ " ist jetzt an.",
+            "Klar, " ~ slots.name ~ " ist an."
+          ] %}
+          {{ responses | random }}
       
       # === Mit Area ===
       - sentences:
@@ -118,7 +126,15 @@ intents:
         slots:
           area:
             type: area
-        response: "OK, Licht in {{ slots.area }} ist an."
+        response: >
+          {% set responses = [
+            "OK, Licht in " ~ slots.area ~ " ist an.",
+            "Alles klar, " ~ slots.area ~ " ist jetzt beleuchtet.",
+            "Erledigt, Licht im " ~ slots.area ~ " eingeschaltet.",
+            slots.area ~ " ist jetzt hell.",
+            "Klar, Licht in " ~ slots.area ~ " ist an."
+          ] %}
+          {{ responses | random }}
 
   # --------------------------------------------------------------------------
   # LICHT AUS
@@ -136,7 +152,15 @@ intents:
           name:
             type: entity
             domain: light
-        response: "OK, {{ slots.name }} ist aus."
+        response: >
+          {% set responses = [
+            "OK, " ~ slots.name ~ " ist aus.",
+            "Alles klar, " ~ slots.name ~ " ausgeschaltet.",
+            "Erledigt, " ~ slots.name ~ " ist jetzt aus.",
+            slots.name ~ " ist jetzt aus.",
+            "Klar, " ~ slots.name ~ " abgeschaltet."
+          ] %}
+          {{ responses | random }}
       
       # === Mit Area ===
       - sentences:
@@ -147,7 +171,15 @@ intents:
         slots:
           area:
             type: area
-        response: "OK, Licht in {{ slots.area }} ist aus."
+        response: >
+          {% set responses = [
+            "OK, Licht in " ~ slots.area ~ " ist aus.",
+            "Alles klar, " ~ slots.area ~ " ist jetzt dunkel.",
+            "Erledigt, Licht im " ~ slots.area ~ " ausgeschaltet.",
+            slots.area ~ " ist jetzt dunkel.",
+            "Klar, Licht in " ~ slots.area ~ " ist aus."
+          ] %}
+          {{ responses | random }}
 
   # --------------------------------------------------------------------------
   # LICHT TOGGLE
@@ -161,7 +193,14 @@ intents:
           name:
             type: entity
             domain: light
-        response: "OK, {{ slots.name }} umgeschaltet."
+        response: >
+          {% set responses = [
+            "OK, " ~ slots.name ~ " umgeschaltet.",
+            "Alles klar, " ~ slots.name ~ " getoggled.",
+            "Erledigt, " ~ slots.name ~ " gewechselt.",
+            slots.name ~ " ist jetzt umgeschaltet."
+          ] %}
+          {{ responses | random }}
 
   # --------------------------------------------------------------------------
   # HELLIGKEIT SETZEN
@@ -180,7 +219,14 @@ intents:
           name:
             type: entity
             domain: light
-        response: "OK, {{ slots.name }} auf {{ slots.brightness }}%."
+        response: >
+          {% set responses = [
+            "OK, " ~ slots.name ~ " auf " ~ slots.brightness ~ "%.",
+            "Alles klar, " ~ slots.name ~ " auf " ~ slots.brightness ~ " Prozent eingestellt.",
+            "Erledigt, Helligkeit von " ~ slots.name ~ " auf " ~ slots.brightness ~ "%.",
+            slots.name ~ " jetzt auf " ~ slots.brightness ~ "%."
+          ] %}
+          {{ responses | random }}
       
       # === Mit Area und Brightness ===
       - sentences:
@@ -190,26 +236,178 @@ intents:
         slots:
           area:
             type: area
-        response: "OK, Licht in {{ slots.area }} auf {{ slots.brightness }}%."
+        response: >
+          {% set responses = [
+            "OK, Licht in " ~ slots.area ~ " auf " ~ slots.brightness ~ "%.",
+            "Alles klar, " ~ slots.area ~ " auf " ~ slots.brightness ~ " Prozent.",
+            "Erledigt, Helligkeit im " ~ slots.area ~ " auf " ~ slots.brightness ~ "%.",
+            slots.area ~ " jetzt auf " ~ slots.brightness ~ "%."
+          ] %}
+          {{ responses | random }}
       
-      # === Heller/Dunkler mit Entity ===
+      # === Heller/Dunkler mit Entity - Alle Satzstellungen ===
       - sentences:
+          # Standard: "das Bürolicht heller"
           - "<article> {name} (heller|dunkler)"
-          - "(mach|stell) <polite> <article> {name} (heller|dunkler)"
+          - "(mach|mache|stell|stelle) <polite> <article> {name} (heller|dunkler)"
+          # Mit "machen": "Bürolicht heller machen"
+          - "[das|die] {name} (heller|dunkler) [machen]"
+          - "(mach|mache) [das|die] {name} (heller|dunkler)"
+          # Natürliche Ordnung: "Mach heller das Bürolicht"
+          - "(mach|mache) (heller|dunkler) [das|die] {name}"
+          # Imperativ: "Dimme das Bürolicht"
+          - "(dimm|dimme) <polite> [das|die] {name}"
+          - "(erhöhe|erhöh) <polite> [das|die] {name}"
+          # Mit Licht explizit
+          - "{name} licht (heller|dunkler) [machen]"
+          - "(mach|mache) {name} licht (heller|dunkler)"
         slots:
           name:
             type: entity
             domain: light
-        response: "OK, {{ slots.name }} angepasst."
+        response: >
+          {% set responses = [
+            "OK, " ~ slots.name ~ " angepasst.",
+            "Alles klar, " ~ slots.name ~ " wurde angepasst.",
+            "Erledigt, Helligkeit von " ~ slots.name ~ " geändert.",
+            slots.name ~ " ist jetzt angepasst."
+          ] %}
+          {{ responses | random }}
       
-      # === Heller/Dunkler mit Area ===
+      # === Heller/Dunkler mit Area - ENTFERNT - siehe LightBrighterArea/LightDarkerArea ===
+
+  # --------------------------------------------------------------------------
+  # LICHT HELLER (Custom Intent für Area)
+  # --------------------------------------------------------------------------
+  LightBrighterArea:
+    data:
       - sentences:
-          - "(heller|mehr licht) <room_prep> {area}"
-          - "(dunkler|weniger licht|gedimmter) <room_prep> {area}"
+          # Standard: "Mach es im Büro heller"
+          - "(mach|mache|stell|stelle) [es] <room_prep> {area} heller"
+          - "(mach|mache|stell|stelle) [das] [licht] <room_prep> {area} heller"
+          # Area am Ende: "Mach es heller im Büro"
+          - "(mach|mache|stell|stelle) [es] heller <room_prep> {area}"
+          - "(mach|mache|stell|stelle) [das] [licht] heller <room_prep> {area}"
+          # Ohne Verb: "Heller im Büro"
+          - "heller <room_prep> {area}"
+          - "mehr licht <room_prep> {area}"
+          # Mit Area am Anfang: "Büro heller machen"
+          - "{area} [licht] heller [machen]"
+          - "[das] {area} [licht] heller [machen]"
+          # Area-Licht Varianten: "Bürolicht heller", "Büro Licht heller"
+          - "{area}licht heller [machen]"
+          - "{area} licht heller [machen]"
+          # Mit Artikel: "Mach das Büro Licht heller"
+          - "(mach|mache) [das] {area} [licht] heller"
+          # Natürliche Sätze: "Ich finde es im Büro zu dunkel"
+          - "[ich] [finde] [es] [ist] <room_prep> {area} [zu] dunkel"
+          - "[ich finde] [das] licht <room_prep> {area} [ist] [zu] dunkel"
+          - "[es ist] <room_prep> {area} [zu] dunkel[, mach es heller]"
+          # Mehr Licht: "Mehr Licht im Büro bitte"
+          - "mehr licht <room_prep> {area} [bitte]"
+          - "<room_prep> {area} mehr licht [bitte]"
+          # Erhöhe: "Erhöhe das Licht im Büro"
+          - "(erhöhe|erhöh) [das] [licht] <room_prep> {area}"
+          - "(erhöhe|erhöh) [die] helligkeit <room_prep> {area}"
         slots:
           area:
             type: area
-        response: "OK, Helligkeit in {{ slots.area }} angepasst."
+
+  # --------------------------------------------------------------------------
+  # LICHT DUNKLER (Custom Intent für Area)
+  # --------------------------------------------------------------------------
+  LightDarkerArea:
+    data:
+      - sentences:
+          # Standard: "Mach es im Büro dunkler"
+          - "(mach|mache|stell|stelle) [es] <room_prep> {area} dunkler"
+          - "(mach|mache|stell|stelle) [das] [licht] <room_prep> {area} dunkler"
+          # Area am Ende: "Mach es dunkler im Büro"
+          - "(mach|mache|stell|stelle) [es] dunkler <room_prep> {area}"
+          - "(mach|mache|stell|stelle) [das] [licht] dunkler <room_prep> {area}"
+          # Ohne Verb: "Dunkler im Büro"
+          - "dunkler <room_prep> {area}"
+          - "weniger licht <room_prep> {area}"
+          # Mit Area am Anfang: "Büro dunkler machen"
+          - "{area} [licht] dunkler [machen]"
+          - "[das] {area} [licht] dunkler [machen]"
+          # Area-Licht Varianten: "Bürolicht dunkler"
+          - "{area}licht dunkler [machen]"
+          - "{area} licht dunkler [machen]"
+          # Mit Artikel: "Mach das Büro Licht dunkler"
+          - "(mach|mache) [das] {area} [licht] dunkler"
+          # Natürliche Sätze: "Ich finde es im Büro zu hell"
+          - "[ich] [finde] [es] [ist] <room_prep> {area} [zu] hell"
+          - "[ich finde] [das] licht <room_prep> {area} [ist] [zu] hell"
+          - "[es ist] <room_prep> {area} [zu] hell[, mach es dunkler]"
+          # Weniger Licht: "Weniger Licht im Büro"
+          - "weniger licht <room_prep> {area} [bitte]"
+          - "<room_prep> {area} weniger licht [bitte]"
+          # Dimme: "Dimme das Licht im Büro"
+          - "(dimme|dimm) [das] [licht] <room_prep> {area}"
+          - "(reduziere|reduzier|verringere|verringer) [das] [licht] <room_prep> {area}"
+          - "(reduziere|reduzier|verringere|verringer) [die] helligkeit <room_prep> {area}"
+        slots:
+          area:
+            type: area
+
+  # --------------------------------------------------------------------------
+  # VOLLE HELLIGKEIT (Custom Intent)
+  # --------------------------------------------------------------------------
+  LightMaxArea:
+    data:
+      - sentences:
+          # Standard: "Volle Helligkeit im Büro"
+          - "(volle|voller|maximale|maximaler) helligkeit <room_prep> {area}"
+          - "(volles|maximales) licht <room_prep> {area}"
+          # Am Ende: "Im Büro volle Helligkeit"
+          - "<room_prep> {area} (volle|voller|maximale|maximaler) helligkeit"
+          - "<room_prep> {area} (volles|maximales) licht"
+          # Mit mach/stell: "Mach das Licht im Büro auf voll"
+          - "(mach|mache|stell|stelle) [das] [licht] <room_prep> {area} auf (voll|maximum|100|100 prozent)"
+          - "(mach|mache|stell|stelle) [das] [licht] <room_prep> {area} (voll|ganz) (hell|an)"
+          # Area am Ende: "Stelle das Licht auf voll im Büro"
+          - "(mach|mache|stell|stelle) [das] [licht] auf (voll|maximum) <room_prep> {area}"
+          # Licht auf voll: "Licht im Büro auf voll"
+          - "licht <room_prep> {area} auf (voll|maximum|100|100 prozent)"
+          # Area am Anfang: "Büro volle Helligkeit"
+          - "{area} [licht] [auf] (volle|voller|maximale) helligkeit"
+          - "{area} [licht] [auf] (voll|maximum|100|100 prozent)"
+          - "{area}licht [auf] (voll|maximum|100|100 prozent)"
+          # Natürliche Sätze
+          - "[alle] lichter <room_prep> {area} auf (voll|maximum|100)"
+          - "alles licht <room_prep> {area} [auf voll|an]"
+          # Voll aufdrehen
+          - "(dreh|drehe) [das] [licht] <room_prep> {area} voll auf"
+          - "[licht] <room_prep> {area} voll aufdrehen"
+        slots:
+          area:
+            type: area
+
+  # --------------------------------------------------------------------------
+  # MINIMALE HELLIGKEIT (Custom Intent) - Gedimmtes Licht
+  # --------------------------------------------------------------------------
+  LightMinArea:
+    data:
+      - sentences:
+          # Standard: "Minimale Helligkeit im Büro"
+          - "(minimale|minimaler|niedrige|niedrigste) helligkeit <room_prep> {area}"
+          - "(gedimmtes|schwaches|dunkles) licht <room_prep> {area}"
+          # Am Ende
+          - "<room_prep> {area} (minimale|minimaler|niedrige) helligkeit"
+          - "<room_prep> {area} (gedimmtes|schwaches) licht"
+          # Mit mach/stell
+          - "(mach|mache|stell|stelle) [das] [licht] <room_prep> {area} auf (minimum|minimal|niedrig|1|1 prozent)"
+          - "(mach|mache|stell|stelle) [das] [licht] <room_prep> {area} ganz (dunkel|gedimmt)"
+          # Dimmen
+          - "(dimm|dimme) [das] [licht] <room_prep> {area} [auf minimum|ganz runter]"
+          - "<room_prep> {area} [licht] dimmen"
+          # Area am Anfang
+          - "{area} [licht] [auf] (minimale|niedrige) helligkeit"
+          - "{area} [licht] [auf] (minimum|1 prozent)"
+        slots:
+          area:
+            type: area
 
   # --------------------------------------------------------------------------
   # FARBE SETZEN
@@ -226,7 +424,14 @@ intents:
           name:
             type: entity
             domain: light
-        response: "OK, {{ slots.name }} auf {{ slots.color }}."
+        response: >
+          {% set responses = [
+            "OK, " ~ slots.name ~ " auf " ~ slots.color ~ ".",
+            "Alles klar, " ~ slots.name ~ " leuchtet jetzt " ~ slots.color ~ ".",
+            "Erledigt, " ~ slots.name ~ " ist jetzt " ~ slots.color ~ ".",
+            slots.name ~ " in " ~ slots.color ~ " eingestellt."
+          ] %}
+          {{ responses | random }}
       
       - sentences:
           - "{color}[es] licht <room_prep> {area}"
@@ -234,7 +439,13 @@ intents:
         slots:
           area:
             type: area
-        response: "OK, Licht in {{ slots.area }} auf {{ slots.color }}."
+        response: >
+          {% set responses = [
+            "OK, Licht in " ~ slots.area ~ " auf " ~ slots.color ~ ".",
+            "Alles klar, " ~ slots.area ~ " leuchtet jetzt " ~ slots.color ~ ".",
+            "Erledigt, Licht im " ~ slots.area ~ " ist jetzt " ~ slots.color ~ "."
+          ] %}
+          {{ responses | random }}
 
   # --------------------------------------------------------------------------
   # FARBTEMPERATUR SETZEN
@@ -248,7 +459,13 @@ intents:
           name:
             type: entity
             domain: light
-        response: "OK, {{ slots.name }} auf {{ slots.color_temp }} Kelvin."
+        response: >
+          {% set responses = [
+            "OK, " ~ slots.name ~ " auf " ~ slots.color_temp ~ " Kelvin.",
+            "Alles klar, Farbtemperatur von " ~ slots.name ~ " angepasst.",
+            "Erledigt, " ~ slots.name ~ " jetzt auf " ~ slots.color_temp ~ "K."
+          ] %}
+          {{ responses | random }}
       
       - sentences:
           - "{color_temp}[es] licht <room_prep> {area}"
@@ -256,7 +473,13 @@ intents:
         slots:
           area:
             type: area
-        response: "OK, Licht in {{ slots.area }} auf {{ slots.color_temp }} Kelvin."
+        response: >
+          {% set responses = [
+            "OK, Licht in " ~ slots.area ~ " auf " ~ slots.color_temp ~ " Kelvin.",
+            "Alles klar, Farbtemperatur in " ~ slots.area ~ " angepasst.",
+            "Erledigt, " ~ slots.area ~ " jetzt auf " ~ slots.color_temp ~ "K."
+          ] %}
+          {{ responses | random }}
 
   # --------------------------------------------------------------------------
   # ALLES AUS/AN
@@ -269,7 +492,14 @@ intents:
           - "lichter (aus|ab)"
           - "licht überall (aus|ab)"
           - "alles dunkel"
-        response: "OK, alle Lichter sind aus."
+        response: >
+          {% set responses = [
+            "OK, alle Lichter sind aus.",
+            "Erledigt, alles dunkel.",
+            "Alle Lampen ausgeschaltet.",
+            "Lichter sind alle aus."
+          ] %}
+          {{ responses | random }}
 
   HassTurnOn:
     data:
@@ -279,7 +509,14 @@ intents:
           - "lichter (an|ein)"
           - "licht überall (an|ein)"
           - "überall hell"
-        response: "OK, alle Lichter sind an."
+        response: >
+          {% set responses = [
+            "OK, alle Lichter sind an.",
+            "Erledigt, alles erleuchtet.",
+            "Alle Lampen eingeschaltet.",
+            "Lichter sind alle an."
+          ] %}
+          {{ responses | random }}
 
   # --------------------------------------------------------------------------
   # LICHT STATUS
@@ -300,8 +537,100 @@ intents:
           {% set state = states(slots.name) %}
           {% set brightness = state_attr(slots.name, 'brightness') | default(0) %}
           {% set pct = (brightness / 2.55) | round %}
+          {% set fname = state_attr(slots.name, 'friendly_name') %}
           {% if state == 'on' %}
-          {{ state_attr(slots.name, 'friendly_name') }} ist an bei {{ pct }}%.
+          {% set on_responses = [
+            fname ~ " ist an bei " ~ pct ~ "%.",
+            fname ~ " leuchtet gerade mit " ~ pct ~ "% Helligkeit.",
+            fname ~ " ist eingeschaltet auf " ~ pct ~ "%."
+          ] %}
+          {{ on_responses | random }}
           {% else %}
-          {{ state_attr(slots.name, 'friendly_name') }} ist aus.
+          {% set off_responses = [
+            fname ~ " ist aus.",
+            fname ~ " ist ausgeschaltet.",
+            fname ~ " leuchtet gerade nicht."
+          ] %}
+          {{ off_responses | random }}
           {% endif %}
+
+  # --------------------------------------------------------------------------
+  # LICHT HELLER (Custom Intent f?r Entity)
+  # --------------------------------------------------------------------------
+
+  # --------------------------------------------------------------------------
+  # LICHT HELLER (Custom Intent fuer Entity)
+  # --------------------------------------------------------------------------
+
+  # --------------------------------------------------------------------------
+  # LICHT HELLER (Custom Intent fuer Entity)
+  # --------------------------------------------------------------------------
+  LightBrighterEntity:
+    data:
+      - sentences:
+          - "{name} heller [machen]"
+          - "[das|die|den] {name} heller [machen]"
+          - "(mach|mache|macht|machst) [das|die|den] {name} heller"
+          - "(mach|mache|macht|machst) heller [das|die|den] {name}"
+          - "{name} [licht] heller [machen]"
+          - "(mach|mache|macht|machst) [das] {name} [licht] heller"
+          - "(dimm|dimme) [das|die|den] {name} (hoch|auf)"
+          - "mehr licht [bei|am|von] {name}"
+          - "(kannst|könntest|würdest) du [das|die|den] {name} heller (machen|stellen)"
+        slots:
+          name:
+            type: entity
+            domain: light
+
+  # --------------------------------------------------------------------------
+  # LICHT DUNKLER (Custom Intent fuer Entity)
+  # --------------------------------------------------------------------------
+  LightDarkerEntity:
+    data:
+      - sentences:
+          - "{name} dunkler [machen]"
+          - "[das|die|den] {name} dunkler [machen]"
+          - "(mach|mache|macht|machst) [das|die|den] {name} dunkler"
+          - "(mach|mache|macht|machst) dunkler [das|die|den] {name}"
+          - "{name} [licht] dunkler [machen]"
+          - "(mach|mache|macht|machst) [das] {name} [licht] dunkler"
+          - "(dimm|dimme) [das|die|den] {name} [(runter|dunkler|ab)]"
+          - "weniger licht [bei|am|von] {name}"
+          - "(kannst|könntest|würdest) du [das|die|den] {name} dunkler (machen|stellen)"
+        slots:
+          name:
+            type: entity
+            domain: light
+
+  # --------------------------------------------------------------------------
+  # LICHT MAXIMUM (Custom Intent fuer Entity)
+  # --------------------------------------------------------------------------
+  LightMaxEntity:
+    data:
+      - sentences:
+          - "{name} [auf] (maximum|voll|100|100 prozent)"
+          - "[das|die|den] {name} [auf] (maximum|voll|100 prozent)"
+          - "(mach|mache|stell|stelle) [das|die|den] {name} [auf] (maximum|voll|100 prozent)"
+          - "(mach|mache) [das|die|den] {name} ganz hell"
+          - "(dreh|drehe) [das|die|den] {name} voll auf"
+          - "{name} voll aufdrehen"
+        slots:
+          name:
+            type: entity
+            domain: light
+
+  # --------------------------------------------------------------------------
+  # LICHT MINIMUM (Custom Intent fuer Entity)
+  # --------------------------------------------------------------------------
+  LightMinEntity:
+    data:
+      - sentences:
+          - "{name} [auf] (minimum|minimal|1 prozent)"
+          - "[das|die|den] {name} [auf] (minimum|minimal)"
+          - "(mach|mache|stell|stelle) [das|die|den] {name} [auf] (minimum|minimal|1 prozent)"
+          - "(mach|mache) [das|die|den] {name} ganz dunkel"
+          - "(dimm|dimme) [das|die|den] {name} ganz runter"
+        slots:
+          name:
+            type: entity
+            domain: light

@@ -1,0 +1,332 @@
+# ================================================================================
+# HA-GERMAN-VOICE - Echo Show / VACA Steuerung
+# ================================================================================
+# Sprachbefehle für Lautstärke, Bildschirm, Media-Steuerung
+# Zielgerät: VACA 362812d56 (jailbroken Echo Show 5)
+# ================================================================================
+
+language: de
+
+# ============================================================================
+# EXPANSION RULES
+# ============================================================================
+expansion_rules:
+  polite: "[bitte|mal|doch|eben]"
+  bildschirm: "(bildschirm|screen|display)"
+
+# ============================================================================
+# LISTEN
+# ============================================================================
+lists:
+  echo_level:
+    values:
+      - in: "(0|null)"
+        out: 0
+      - in: "(1|eins)"
+        out: 1
+      - in: "(2|zwei)"
+        out: 2
+      - in: "(3|drei)"
+        out: 3
+      - in: "(4|vier)"
+        out: 4
+      - in: "(5|fünf)"
+        out: 5
+      - in: "(6|sechs)"
+        out: 6
+      - in: "(7|sieben)"
+        out: 7
+      - in: "(8|acht)"
+        out: 8
+      - in: "(9|neun)"
+        out: 9
+      - in: "(10|zehn|voll|maximum|max)"
+        out: 10
+
+  echo_percent:
+    values:
+      - in: "(0|null)"
+        out: 0
+      - in: "(5|fünf)"
+        out: 5
+      - in: "(10|zehn)"
+        out: 10
+      - in: "(15|fünfzehn)"
+        out: 15
+      - in: "(20|zwanzig)"
+        out: 20
+      - in: "(25|fünfundzwanzig|viertel)"
+        out: 25
+      - in: "(30|dreißig)"
+        out: 30
+      - in: "(35|fünfunddreißig)"
+        out: 35
+      - in: "(40|vierzig)"
+        out: 40
+      - in: "(45|fünfundvierzig)"
+        out: 45
+      - in: "(50|fünfzig|halb|halbe|hälfte)"
+        out: 50
+      - in: "(55|fünfundfünfzig)"
+        out: 55
+      - in: "(60|sechzig)"
+        out: 60
+      - in: "(65|fünfundsechzig)"
+        out: 65
+      - in: "(70|siebzig)"
+        out: 70
+      - in: "(75|fünfundsiebzig|dreiviertel)"
+        out: 75
+      - in: "(80|achtzig)"
+        out: 80
+      - in: "(85|fünfundachtzig)"
+        out: 85
+      - in: "(90|neunzig)"
+        out: 90
+      - in: "(95|fünfundneunzig)"
+        out: 95
+      - in: "(100|hundert|voll|maximum|max)"
+        out: 100
+
+  on_off:
+    values:
+      - in: "(an|ein|einschalten|aktivieren|aktiviere)"
+        out: "on"
+      - in: "(aus|ausschalten|deaktivieren|deaktiviere|ab)"
+        out: "off"
+
+# ============================================================================
+# INTENTS
+# ============================================================================
+intents:
+
+  # ==========================================================================
+  #  LAUTSTÄRKE - ALLGEMEIN
+  # ==========================================================================
+
+  # --- Lauter ---
+  EchoLauter:
+    data:
+      - sentences:
+          - "(mach|stell) <polite> [die] [lautstärke] lauter"
+          - "lauter <polite>"
+          - "[ein] bisschen lauter <polite>"
+          - "lautstärke (hoch|rauf|erhöhen)"
+          - "mehr lautstärke <polite>"
+          - "kannst du [etwas|ein bisschen] lauter (machen|stellen)"
+
+  # --- Leiser ---
+  EchoLeiser:
+    data:
+      - sentences:
+          - "(mach|stell) <polite> [die] [lautstärke] leiser"
+          - "leiser <polite>"
+          - "[ein] bisschen leiser <polite>"
+          - "lautstärke (runter|senken|verringern|reduzieren)"
+          - "weniger lautstärke <polite>"
+          - "nicht so laut <polite>"
+          - "kannst du [etwas|ein bisschen] leiser (machen|stellen)"
+
+  # --- Lautstärke auf Stufe (0-10) ---
+  EchoLautstaerke:
+    data:
+      - sentences:
+          - "[setz|stell] [die] lautstärke [auf] {echo_level}"
+          - "lautstärke {echo_level} <polite>"
+          - "(volume|lautstärke) auf {echo_level}"
+          - "lautstärke auf stufe {echo_level}"
+
+  # --- Lautstärke auf Prozent (0-100%) ---
+  EchoLautstaerkeProzent:
+    data:
+      - sentences:
+          - "[setz|stell] [die] lautstärke [auf] [die] {echo_percent} [prozent|%]"
+          - "lautstärke [die] {echo_percent} [prozent|%]"
+          - "{echo_percent} (prozent|%) lautstärke"
+
+  # ==========================================================================
+  #  STUMM / MUTE
+  # ==========================================================================
+
+  EchoStumm:
+    data:
+      - sentences:
+          - "(stumm|stummschalten|mute) <polite>"
+          - "[mach] [den] ton aus <polite>"
+          - "sei <polite> [mal] (still|leise|ruhig)"
+
+  EchoStummAus:
+    data:
+      - sentences:
+          - "(stumm aus|unmute) <polite>"
+          - "ton [wieder] (an|ein) <polite>"
+          - "stummschaltung (aus|aufheben|beenden)"
+          - "nicht mehr stumm"
+
+  # ==========================================================================
+  #  SPRACH- UND MUSIKLAUTSTÄRKE (getrennt)
+  # ==========================================================================
+
+  # --- Sprache lauter/leiser ---
+  EchoSprachLauter:
+    data:
+      - sentences:
+          - "sprache lauter <polite>"
+          - "(sprich|rede) <polite> lauter"
+          - "sprachlautstärke (hoch|rauf|lauter|erhöhen)"
+
+  EchoSprachLeiser:
+    data:
+      - sentences:
+          - "sprache leiser <polite>"
+          - "(sprich|rede) <polite> leiser"
+          - "sprachlautstärke (runter|leiser|senken|reduzieren|verringern)"
+          - "nicht so laut (reden|sprechen)"
+
+  EchoSprachLautstaerke:
+    data:
+      - sentences:
+          - "sprachlautstärke [auf] [stufe] {echo_level}"
+          - "sprache [auf] [stufe] {echo_level}"
+          - "[die] sprachlautstärke auf [stufe] {echo_level} [stellen|setzen]"
+          - "[setz|stell] [die] sprachlautstärke [auf] [stufe] {echo_level}"
+
+  # --- Sprachlautstärke auf Prozent ---
+  EchoSprachLautstaerkeProzent:
+    data:
+      - sentences:
+          - "sprachlautstärke [auf] [die] {echo_percent} [prozent|%]"
+          - "sprache [auf] [die] {echo_percent} [prozent|%]"
+          - "[setz|stell] [die] sprachlautstärke [auf] [die] {echo_percent} [prozent|%]"
+          - "{echo_percent} (prozent|%) sprachlautstärke"
+
+  # --- Musik lauter/leiser ---
+  EchoMusikLauter:
+    data:
+      - sentences:
+          - "musik lauter <polite>"
+          - "(mach|stell) <polite> [die] musik lauter"
+          - "musiklautstärke (hoch|rauf|lauter|erhöhen)"
+
+  EchoMusikLeiser:
+    data:
+      - sentences:
+          - "musik leiser <polite>"
+          - "(mach|stell) <polite> [die] musik leiser"
+          - "musiklautstärke (runter|leiser|senken|reduzieren|verringern)"
+
+  EchoMusikLautstaerke:
+    data:
+      - sentences:
+          - "musiklautstärke [auf] [stufe] {echo_level}"
+          - "musik [auf] [lautstärke|stufe] {echo_level}"
+          - "[die] musiklautstärke auf [stufe] {echo_level} [stellen|setzen]"
+          - "[setz|stell] [die] musiklautstärke [auf] [stufe] {echo_level}"
+
+  # --- Musiklautstärke auf Prozent ---
+  EchoMusikLautstaerkeProzent:
+    data:
+      - sentences:
+          - "musiklautstärke [auf] [die] {echo_percent} [prozent|%]"
+          - "musik [auf] [die] {echo_percent} [prozent|%]"
+          - "[setz|stell] [die] musiklautstärke [auf] [die] {echo_percent} [prozent|%]"
+          - "{echo_percent} (prozent|%) musiklautstärke"
+
+  # ==========================================================================
+  #  BILDSCHIRM - HELLIGKEIT
+  # ==========================================================================
+
+  # --- Heller ---
+  EchoBildschirmHeller:
+    data:
+      - sentences:
+          - "(mach|stell) <polite> [den] <bildschirm> heller"
+          - "<bildschirm> heller <polite>"
+          - "heller <polite>"
+          - "(helligkeit|bildschirmhelligkeit) (hoch|rauf|erhöhen)"
+          - "mehr helligkeit <polite>"
+
+  # --- Dunkler ---
+  EchoBildschirmDunkler:
+    data:
+      - sentences:
+          - "(mach|stell) <polite> [den] <bildschirm> dunkler"
+          - "<bildschirm> dunkler <polite>"
+          - "dunkler <polite>"
+          - "(helligkeit|bildschirmhelligkeit) (runter|senken|verringern)"
+          - "weniger helligkeit <polite>"
+
+  # --- Helligkeit auf Prozent ---
+  EchoBildschirmHelligkeit:
+    data:
+      - sentences:
+          - "[setz|stell] [die] (helligkeit|bildschirmhelligkeit) [auf] {echo_percent} [prozent]"
+          - "(helligkeit|bildschirmhelligkeit) [auf] {echo_percent} [prozent]"
+          - "<bildschirm> [auf] {echo_percent} [prozent] [helligkeit]"
+
+  # ==========================================================================
+  #  BILDSCHIRM - AN / AUS
+  # ==========================================================================
+
+  EchoBildschirmAus:
+    data:
+      - sentences:
+          - "<bildschirm> aus <polite>"
+          - "(mach|schalte) <polite> [den] <bildschirm> aus"
+          - "<bildschirm> (ausschalten|abschalten)"
+          - "(mach|schalte) <polite> [den] <bildschirm> in [den] (ruhezustand|schlafmodus)"
+
+  EchoBildschirmAn:
+    data:
+      - sentences:
+          - "<bildschirm> (an|ein) <polite>"
+          - "(mach|schalte) <polite> [den] <bildschirm> (an|ein)"
+          - "<bildschirm> (einschalten|anschalten|aufwecken)"
+          - "(weck|wecke) <polite> [den] <bildschirm> [auf]"
+
+  # ==========================================================================
+  #  BILDSCHIRM - EINSTELLUNGEN
+  # ==========================================================================
+
+  EchoAutoHelligkeit:
+    data:
+      - sentences:
+          - "automatische helligkeit {on_off}"
+          - "auto helligkeit {on_off}"
+          - "(helligkeitsautomatik|helligkeitssensor) {on_off}"
+          - "helligkeit (automatisch|auto) {on_off}"
+
+  EchoDunkelmodus:
+    data:
+      - sentences:
+          - "(dunkelmodus|nachtmodus|dark mode) {on_off}"
+          - "(dunkles|nacht) (design|theme|modus) {on_off}"
+
+  EchoBildschirmDauerAn:
+    data:
+      - sentences:
+          - "(dauerdisplay|always on display|always on) {on_off}"
+          - "<bildschirm> (dauerhaft|permanent|immer an) {on_off}"
+
+  EchoScreenSaver:
+    data:
+      - sentences:
+          - "(bildschirmschoner|screensaver|screen saver) {on_off}"
+
+  # ==========================================================================
+  #  MEDIA STEUERUNG (ohne Gerätename - direkt VACA)
+  # ==========================================================================
+
+  EchoPause:
+    data:
+      - sentences:
+          - "[musik|wiedergabe] (pause|pausieren) <polite>"
+          - "(halt|stopp) <polite> [die] (musik|wiedergabe)"
+          - "(anhalten|stoppen) <polite>"
+
+  EchoWeiter:
+    data:
+      - sentences:
+          - "[musik|wiedergabe] (weiter|fortsetzen|weiterspielen|resume) <polite>"
+          - "(spiel|mach) weiter <polite>"
+          - "wiedergabe (starten|fortsetzen) <polite>"

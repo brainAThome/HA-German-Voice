@@ -1,0 +1,254 @@
+# ============================================================================
+# LICHT HELLIGKEIT INTENTS - Modulare Datei
+# ============================================================================
+# Teil von: intent_script: !include_dir_merge_named intent_scripts/
+# Custom Intents für relative Helligkeitssteuerung (Area + Entity)
+# ============================================================================
+
+# --- AREA-BASIERT ---
+
+LightBrighterArea:
+  action:
+    - service: light.turn_on
+      target:
+        area_id: "{{ area_id(area) }}"
+      data:
+        brightness_step_pct: 20
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, das Licht im " ~ area ~ " ist jetzt heller.",
+        "Erledigt, ich habe das " ~ area ~ " aufgehellt.",
+        "OK, " ~ area ~ " ist jetzt heller.",
+        "Das Licht im " ~ area ~ " wurde heller gestellt.",
+        "Klar, " ~ area ~ " Licht ist jetzt heller.",
+        "Geht klar, Helligkeit im " ~ area ~ " erhöht."
+      ] %}
+      {{ responses | random }}
+
+LightDarkerArea:
+  action:
+    - service: light.turn_on
+      target:
+        area_id: "{{ area_id(area) }}"
+      data:
+        brightness_step_pct: -20
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, das Licht im " ~ area ~ " ist jetzt dunkler.",
+        "Erledigt, " ~ area ~ " ist gedimmt.",
+        "OK, " ~ area ~ " Licht wurde gedunkelt.",
+        "Das Licht im " ~ area ~ " ist jetzt gedämpfter.",
+        "Klar, ich habe das " ~ area ~ " abgedunkelt.",
+        "Geht klar, Helligkeit im " ~ area ~ " reduziert."
+      ] %}
+      {{ responses | random }}
+
+LightMaxArea:
+  action:
+    - service: light.turn_on
+      target:
+        area_id: "{{ area_id(area) }}"
+      data:
+        brightness_pct: 100
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, volle Helligkeit im " ~ area ~ ".",
+        "Erledigt, " ~ area ~ " ist jetzt voll aufgedreht.",
+        "OK, maximale Helligkeit im " ~ area ~ " aktiviert.",
+        "Das Licht im " ~ area ~ " strahlt jetzt auf Maximum.",
+        "Klar, " ~ area ~ " Licht ist jetzt auf voller Leistung.",
+        "Geht klar, " ~ area ~ " auf 100 Prozent gestellt."
+      ] %}
+      {{ responses | random }}
+
+LightMinArea:
+  action:
+    - service: light.turn_on
+      target:
+        area_id: "{{ area_id(area) }}"
+      data:
+        brightness_pct: 1
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, minimale Helligkeit im " ~ area ~ ".",
+        "Erledigt, " ~ area ~ " ist jetzt ganz gedimmt.",
+        "OK, " ~ area ~ " Licht ist auf Minimum.",
+        "Das Licht im " ~ area ~ " glimmt jetzt nur noch leicht.",
+        "Klar, " ~ area ~ " ist jetzt auf minimaler Helligkeit.",
+        "Geht klar, dezente Beleuchtung im " ~ area ~ " aktiviert."
+      ] %}
+      {{ responses | random }}
+
+# --- ENTITY-BASIERT ---
+
+LightBrighterEntity:
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: >
+          {% set alias_map = {
+            'wadenlicht': 'light.h61a2_d4ea',
+            'wandlampe': 'light.h61a2_d4ea',
+            'wand licht': 'light.h61a2_d4ea',
+            'wandleuchte': 'light.h61a2_d4ea',
+            'wabellicht': 'light.h61a2_d4ea',
+            'wandel licht': 'light.h61a2_d4ea',
+            'wand leuchte': 'light.h61a2_d4ea',
+            'wand lampe': 'light.h61a2_d4ea',
+            'bürolicht': 'light.buro',
+            'arbeitszimmerlicht': 'light.buro',
+            'büro licht': 'light.buro',
+            'licht im büro': 'light.buro'
+          } %}
+          {% if name | lower in alias_map %}
+            {{ alias_map[name | lower] }}
+          {% else %}
+            {% for light in states.light %}
+              {% if light.name | lower == name | lower %}
+                {{ light.entity_id }}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+      data:
+        brightness_step_pct: 20
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, " ~ name ~ " ist jetzt heller.",
+        "Erledigt, " ~ name ~ " aufgehellt.",
+        "OK, " ~ name ~ " wurde heller gestellt.",
+        name ~ " ist jetzt heller.",
+        "Klar, " ~ name ~ " ist heller.",
+        "Geht klar, Helligkeit von " ~ name ~ " erhöht."
+      ] %}
+      {{ responses | random }}
+
+LightDarkerEntity:
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: >
+          {% set alias_map = {
+            'wadenlicht': 'light.h61a2_d4ea',
+            'wandlampe': 'light.h61a2_d4ea',
+            'wand licht': 'light.h61a2_d4ea',
+            'wandleuchte': 'light.h61a2_d4ea',
+            'wabellicht': 'light.h61a2_d4ea',
+            'wandel licht': 'light.h61a2_d4ea',
+            'wand leuchte': 'light.h61a2_d4ea',
+            'wand lampe': 'light.h61a2_d4ea',
+            'bürolicht': 'light.buro',
+            'arbeitszimmerlicht': 'light.buro',
+            'büro licht': 'light.buro',
+            'licht im büro': 'light.buro'
+          } %}
+          {% if name | lower in alias_map %}
+            {{ alias_map[name | lower] }}
+          {% else %}
+            {% for light in states.light %}
+              {% if light.name | lower == name | lower %}
+                {{ light.entity_id }}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+      data:
+        brightness_step_pct: -20
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, " ~ name ~ " ist jetzt dunkler.",
+        "Erledigt, " ~ name ~ " gedimmt.",
+        "OK, " ~ name ~ " wurde gedunkelt.",
+        name ~ " ist jetzt dunkler.",
+        "Klar, " ~ name ~ " abgedunkelt.",
+        "Geht klar, Helligkeit von " ~ name ~ " reduziert."
+      ] %}
+      {{ responses | random }}
+
+LightMaxEntity:
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: >
+          {% set alias_map = {
+            'wadenlicht': 'light.h61a2_d4ea',
+            'wandlampe': 'light.h61a2_d4ea',
+            'wand licht': 'light.h61a2_d4ea',
+            'wandleuchte': 'light.h61a2_d4ea',
+            'wabellicht': 'light.h61a2_d4ea',
+            'wandel licht': 'light.h61a2_d4ea',
+            'wand leuchte': 'light.h61a2_d4ea',
+            'wand lampe': 'light.h61a2_d4ea',
+            'bürolicht': 'light.buro',
+            'arbeitszimmerlicht': 'light.buro',
+            'büro licht': 'light.buro',
+            'licht im büro': 'light.buro'
+          } %}
+          {% if name | lower in alias_map %}
+            {{ alias_map[name | lower] }}
+          {% else %}
+            {% for light in states.light %}
+              {% if light.name | lower == name | lower %}
+                {{ light.entity_id }}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+      data:
+        brightness_pct: 100
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, " ~ name ~ " auf Maximum.",
+        "Erledigt, " ~ name ~ " voll aufgedreht.",
+        "OK, " ~ name ~ " auf voller Helligkeit.",
+        name ~ " strahlt jetzt auf Maximum.",
+        "Klar, " ~ name ~ " auf 100 Prozent.",
+        "Geht klar, volle Helligkeit bei " ~ name ~ "."
+      ] %}
+      {{ responses | random }}
+
+LightMinEntity:
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: >
+          {% set alias_map = {
+            'wadenlicht': 'light.h61a2_d4ea',
+            'wandlampe': 'light.h61a2_d4ea',
+            'wand licht': 'light.h61a2_d4ea',
+            'wandleuchte': 'light.h61a2_d4ea',
+            'wabellicht': 'light.h61a2_d4ea',
+            'wandel licht': 'light.h61a2_d4ea',
+            'wand leuchte': 'light.h61a2_d4ea',
+            'wand lampe': 'light.h61a2_d4ea',
+            'bürolicht': 'light.buro',
+            'arbeitszimmerlicht': 'light.buro',
+            'büro licht': 'light.buro',
+            'licht im büro': 'light.buro'
+          } %}
+          {% if name | lower in alias_map %}
+            {{ alias_map[name | lower] }}
+          {% else %}
+            {% for light in states.light %}
+              {% if light.name | lower == name | lower %}
+                {{ light.entity_id }}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+      data:
+        brightness_pct: 1
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, " ~ name ~ " auf Minimum.",
+        "Erledigt, " ~ name ~ " ganz gedimmt.",
+        "OK, " ~ name ~ " auf minimaler Helligkeit.",
+        name ~ " glimmt jetzt nur noch leicht.",
+        "Klar, " ~ name ~ " minimal.",
+        "Geht klar, dezente Beleuchtung bei " ~ name ~ "."
+      ] %}
+      {{ responses | random }}
