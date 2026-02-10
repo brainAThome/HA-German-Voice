@@ -1,0 +1,222 @@
+# ================================================================================
+# HA-GERMAN-VOICE - Deutsche Medien-Sprachbefehle
+# ================================================================================
+# State of the Art Sentence Expansion Syntax
+# ================================================================================
+
+language: de
+
+# ============================================================================
+# LISTEN
+# ============================================================================
+lists:
+  volume:
+    values:
+      - in: "(0|null)"
+        out: 0
+      - in: "(10|zehn)"
+        out: 10
+      - in: "(20|zwanzig)"
+        out: 20
+      - in: "(25|fünfundzwanzig)"
+        out: 25
+      - in: "(30|dreißig)"
+        out: 30
+      - in: "(40|vierzig)"
+        out: 40
+      - in: "(50|fünfzig|halb[e])"
+        out: 50
+      - in: "(60|sechzig)"
+        out: 60
+      - in: "(70|siebzig)"
+        out: 70
+      - in: "(75|fünfundsiebzig)"
+        out: 75
+      - in: "(80|achtzig)"
+        out: 80
+      - in: "(90|neunzig)"
+        out: 90
+      - in: "(100|hundert|voll|maximum)"
+        out: 100
+
+  media_content_type:
+    values:
+      - in: "(musik|music|lieder|songs)"
+        out: "music"
+      - in: "(radio|sender)"
+        out: "radio"
+      - in: "(podcast[s])"
+        out: "podcast"
+      - in: "(video[s]|film[e])"
+        out: "video"
+      - in: "(playlist[s]|wiedergabeliste)"
+        out: "playlist"
+      - in: "(hörbuch|hoerbuch|audiobook[s]|hörbücher)"
+        out: "audiobook"
+      - in: "(nachrichten|news)"
+        out: "news"
+
+# ============================================================================
+# STANDARD INTENTS (Home Assistant Built-in)
+# ============================================================================
+intents:
+  # --------------------------------------------------------------------------
+  # ABSPIELEN / PLAY
+  # --------------------------------------------------------------------------
+  HassMediaPause:
+    data:
+      - sentences:
+          # Wiedergabe starten
+          - "(spiel[e]|starte|play|abspielen) [bitte] [auf|am|über] {name}"
+          - "(spiel[e]|starte|play) [die] (musik|wiedergabe) [auf|am] {name}"
+          - "(media|medium|wiedergabe) (abspielen|starten) [auf|am] {name}"
+          - "{name} (abspielen|starten|play)"
+          # Fortsetzen
+          - "(weiter|fortsetzen|resume) [auf|am] {name}"
+          - "[spiel] weiter [auf|am] {name}"
+          - "(musik|wiedergabe) (fortsetzen|weiter) [auf|am] {name}"
+
+  # --------------------------------------------------------------------------
+  # PAUSE
+  # --------------------------------------------------------------------------
+  HassMediaPause:
+    data:
+      - sentences:
+          - "(pause|pausieren|stopp[e]|stop|anhalten|halt) [bitte] [auf|am|über] {name}"
+          - "(musik|wiedergabe) (pause|pausieren|stopp[en]|anhalten) [auf|am] {name}"
+          - "{name} (pause|pausieren|stopp[en]|anhalten)"
+          - "mach [bitte] [eine] pause [auf|am] {name}"
+
+  # --------------------------------------------------------------------------
+  # NÄCHSTER TITEL
+  # --------------------------------------------------------------------------
+  HassMediaNext:
+    data:
+      - sentences:
+          - "(nächst[es|er]|naechst[es|er]|weiter|skip|überspringen|ueberspringen) [(lied|titel|song|track)] [auf|am] {name}"
+          - "skip [auf|am] {name}"
+          - "(lied|titel|song|track) (überspringen|skippen) [auf|am] {name}"
+          - "{name} (skip|weiter|nächster|naechster)"
+          - "spiel [das|den] (nächsten|naechsten) [(lied|titel|song)] [auf|am] {name}"
+
+  # --------------------------------------------------------------------------
+  # VORHERIGER TITEL
+  # --------------------------------------------------------------------------
+  HassMediaPrevious:
+    data:
+      - sentences:
+          - "(vorher[iges|iger]|zurück|zurueck|letzt[es|er]) [(lied|titel|song|track)] [auf|am] {name}"
+          - "(lied|titel|song|track) (zurück|zurueck) [auf|am] {name}"
+          - "{name} (zurück|zurueck|vorher[iger])"
+          - "spiel [das|den] (vorherigen|letzten) [(lied|titel|song)] [auf|am] {name}"
+          - "nochmal [auf|am] {name}"
+
+  # --------------------------------------------------------------------------
+  # LAUTSTÄRKE SETZEN
+  # --------------------------------------------------------------------------
+  HassSetVolume:
+    data:
+      - sentences:
+          # Direkte Lautstärke
+          - "(setz[e]|stell[e]) [bitte] [die] lautstärke [auf|am|von] {name} auf {volume} [prozent]"
+          - "lautstärke [auf|am|von] {name} [auf] {volume} [prozent]"
+          - "{name} [lautstärke] [auf] {volume} [prozent]"
+          - "(volume|lautstärke) {volume} [auf|am] {name}"
+          # Lauter/Leiser relativ
+          - "(lauter|mehr|höher|hoeher) [auf|am] {name}"
+          - "(leiser|weniger|runter|runterstellen) [auf|am] {name}"
+          - "{name} (lauter|leiser)"
+          - "mach [bitte] [den|die|das] {name} (lauter|leiser)"
+
+  # --------------------------------------------------------------------------
+  # STUMM
+  # --------------------------------------------------------------------------
+  HassMediaPause:
+    data:
+      - sentences:
+          - "(stumm|stummschalten|mute) [auf|am] {name}"
+          - "{name} (stumm|mute|stummschalten)"
+          - "ton (aus|ab) [auf|am] {name}"
+          - "(ruhe|still|leise) [auf|am] {name}"
+
+  # --------------------------------------------------------------------------
+  # STUMM AUS
+  # --------------------------------------------------------------------------
+  HassMediaUnmute:
+    data:
+      - sentences:
+          - "(stumm aus|unmute|ton an|laut) [auf|am] {name}"
+          - "{name} (ton an|unmute|laut)"
+          - "ton (an|ein) [auf|am] {name}"
+
+  # --------------------------------------------------------------------------
+  # STOPP (Wiedergabe beenden)
+  # --------------------------------------------------------------------------
+  HassMediaPause:
+    data:
+      - sentences:
+          - "(stopp|stop|beenden|aufhören|aufhoeren|abbrechen) [bitte] [die] (musik|wiedergabe|abspielen) [auf|am] {name}"
+          - "(musik|wiedergabe) (stoppen|beenden|aufhören) [auf|am] {name}"
+          - "{name} (stoppen|beenden|aus)"
+          - "hör[e] auf [zu spielen] [auf|am] {name}"
+
+  # --------------------------------------------------------------------------
+  # SHUFFLE AN/AUS
+  # --------------------------------------------------------------------------
+  HassMediaShuffle:
+    data:
+      - sentences:
+          - "(shuffle|zufallswiedergabe|mischen|zufall) (an|ein|aktivieren) [auf|am] {name}"
+          - "(shuffle|zufallswiedergabe) (aus|ab|deaktivieren) [auf|am] {name}"
+          - "{name} (shuffle|mischen) (an|aus)"
+          - "(spiel[e]|wiedergabe) [auf|am] {name} (zufällig|gemischt)"
+
+  # --------------------------------------------------------------------------
+  # REPEAT AN/AUS
+  # --------------------------------------------------------------------------
+  HassMediaRepeat:
+    data:
+      - sentences:
+          - "(repeat|wiederholen|wiederholung|schleife) (an|ein|aktivieren) [auf|am] {name}"
+          - "(repeat|wiederholen|wiederholung|schleife) (aus|ab|deaktivieren) [auf|am] {name}"
+          - "{name} (repeat|wiederholen) (an|aus)"
+          - "[auf] (endlosschleife|dauerschleife) [auf|am] {name}"
+
+  # --------------------------------------------------------------------------
+  # MUSIK SUCHEN UND ABSPIELEN
+  # --------------------------------------------------------------------------
+  HassMediaSearch:
+    data:
+      - sentences:
+          - "(spiel[e]|such[e]) [bitte] {query} [auf|am|über] {name}"
+          - "spiel [mir] {query} [auf|am] {name}"
+          - "(musik|lied|song|titel) {query} [auf|am] {name}"
+          - "{query} abspielen [auf|am] {name}"
+        slots:
+          query:
+            type: text
+
+  # --------------------------------------------------------------------------
+  # RADIO-SENDER
+  # --------------------------------------------------------------------------
+  HassMediaPlay:
+    data:
+      - sentences:
+          - "(spiel[e]|starte) [bitte] [den] (radio|sender) {query} [auf|am] {name}"
+          - "(radio|sender) {query} [auf|am] {name}"
+          - "schalt[e] [auf] {query} [auf|am] {name}"
+        slots:
+          query:
+            type: text
+
+  # --------------------------------------------------------------------------
+  # WAS SPIELT
+  # --------------------------------------------------------------------------
+  HassMediaGetInfo:
+    data:
+      - sentences:
+          - "(was|welches lied|welcher song|welcher titel) (spielt|läuft) [gerad[e]] [auf|am] {name}"
+          - "(was ist|wie heißt|wie heisst) (das|der|die) [(lied|song|titel|track)] [auf|am] {name}"
+          - "{name} was (spielt|läuft)"
+          - "(aktueller|aktuelle[s]) [(lied|song|titel)] [auf|am] {name}"
+          - "(wer|welche band|welcher künstler) (spielt|ist das) [auf|am] {name}"

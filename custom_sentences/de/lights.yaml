@@ -1,0 +1,182 @@
+# ================================================================================
+# HA-GERMAN-VOICE - Deutsche Licht-Sprachbefehle
+# ================================================================================
+# State of the Art Sentence Expansion Syntax
+# ================================================================================
+
+language: de
+
+# ============================================================================
+# LISTEN
+# ============================================================================
+lists:
+  brightness:
+    values:
+      - in: "(10|zehn) [prozent]"
+        out: 10
+      - in: "(20|zwanzig) [prozent]"
+        out: 20
+      - in: "(25|fünfundzwanzig) [prozent]"
+        out: 25
+      - in: "(30|dreißig|dreissig) [prozent]"
+        out: 30
+      - in: "(40|vierzig) [prozent]"
+        out: 40
+      - in: "(50|fünfzig|fuenfzig|halb[e]) [prozent]"
+        out: 50
+      - in: "(60|sechzig) [prozent]"
+        out: 60
+      - in: "(70|siebzig) [prozent]"
+        out: 70
+      - in: "(75|fünfundsiebzig) [prozent]"
+        out: 75
+      - in: "(80|achtzig) [prozent]"
+        out: 80
+      - in: "(90|neunzig) [prozent]"
+        out: 90
+      - in: "(100|hundert|voll[e]) [prozent]"
+        out: 100
+
+  color:
+    values:
+      - in: "(rot|rotes)"
+        out: "red"
+      - in: "(grün|gruen|grünes)"
+        out: "green"
+      - in: "(blau|blaues)"
+        out: "blue"
+      - in: "(gelb|gelbes)"
+        out: "yellow"
+      - in: "(orange|oranges)"
+        out: "orange"
+      - in: "(lila|violett|violet)"
+        out: "purple"
+      - in: "(rosa|pink)"
+        out: "pink"
+      - in: "(weiß|weiss|weißes)"
+        out: "white"
+      - in: "(warm|warmweiß|warmweiss)"
+        out: "warmwhite"
+      - in: "(kalt|kaltweiß|kaltweiss)"
+        out: "coldwhite"
+      - in: "(cyan|türkis|tuerkis)"
+        out: "cyan"
+
+  color_temp:
+    values:
+      - in: "(kalt|kühles|kuehles|kaltes|kühl|kuehl|tageslicht)"
+        out: 153
+      - in: "(neutral|normales|normal)"
+        out: 300
+      - in: "(warm|warmes|gemütlich|gemuetlich|gemütliches)"
+        out: 400
+      - in: "(sehr warm|kerzen|kerzenlicht)"
+        out: 500
+
+# ============================================================================
+# STANDARD INTENTS (Home Assistant Built-in)
+# ============================================================================
+intents:
+  # --------------------------------------------------------------------------
+  # LICHT AN
+  # --------------------------------------------------------------------------
+  HassTurnOn:
+    data:
+      - sentences:
+          # Einfach
+          - "(mach[e]|schalte|stell[e]|dreh[e]|schalt[e]) [bitte] [das|die|den] {name} (an|ein)"
+          - "[das|die|den] {name} (anschalten|einschalten|anmachen|einmachen)"
+          - "(licht|lampe|beleuchtung) (an|ein) [in|im|am] {name}"
+          - "{name} (licht|lampe) (an|ein)"
+          # Einschalten im Raum
+          - "(mach[e]|schalte) [bitte] [das] licht (an|ein) (in|im) {name}"
+          - "licht (an|ein) (in|im|am) {name}"
+          - "(in|im) {name} licht (an|ein)"
+          # Höflichkeitsformen
+          - "(könntest|koenntest|kannst) du [bitte] [das|die|den] {name} (anmachen|einschalten)"
+          - "(würdest|wuerdest) du [bitte] [das|die|den] {name} (anmachen|einschalten)"
+
+  # --------------------------------------------------------------------------
+  # LICHT AUS
+  # --------------------------------------------------------------------------
+  HassTurnOff:
+    data:
+      - sentences:
+          # Einfach
+          - "(mach[e]|schalte|stell[e]|dreh[e]|schalt[e]) [bitte] [das|die|den] {name} (aus|ab)"
+          - "[das|die|den] {name} (ausschalten|abschalten|ausmachen)"
+          - "(licht|lampe|beleuchtung) (aus|ab) [in|im|am] {name}"
+          - "{name} (licht|lampe) (aus|ab)"
+          # Ausschalten im Raum
+          - "(mach[e]|schalte) [bitte] [das] licht (aus|ab) (in|im) {name}"
+          - "licht (aus|ab) (in|im|am) {name}"
+          - "(in|im) {name} licht (aus|ab)"
+          # Höflichkeitsformen
+          - "(könntest|koenntest|kannst) du [bitte] [das|die|den] {name} (ausmachen|ausschalten)"
+          - "(würdest|wuerdest) du [bitte] [das|die|den] {name} (ausmachen|ausschalten)"
+
+  # --------------------------------------------------------------------------
+  # LICHT UMSCHALTEN (Toggle)
+  # --------------------------------------------------------------------------
+  HassToggle:
+    data:
+      - sentences:
+          - "(toggle|umschalten|wechsel[e]|wechsle) [das|die|den] {name}"
+          - "[das|die|den] {name} (toggle[n]|umschalten)"
+
+  # --------------------------------------------------------------------------
+  # HELLIGKEIT SETZEN
+  # --------------------------------------------------------------------------
+  HassLightSet:
+    data:
+      - sentences:
+          # Direkt mit Prozent
+          - "(setz[e]|stell[e]) [bitte] [die] {name} [helligkeit] auf {brightness} [prozent]"
+          - "[die] {name} auf {brightness} [prozent] [setzen|stellen|dimmen]"
+          - "(dimm[e]|dimme) [bitte] [die|das|den] {name} auf {brightness} [prozent]"
+          # Mit Helligkeit-Wort
+          - "(mach[e]|stell[e]) [bitte] [die|das|den] {name} [auf] {brightness} [prozent] (hell|dunkel)"
+          - "[die] {name} helligkeit [auf] {brightness} [prozent]"
+          # Einfache Helligkeitsbefehle
+          - "(heller|mehr licht) (in|im|am) {name}"
+          - "(dunkler|weniger licht|gedimmter) (in|im|am) {name}"
+          - "[das|die|den] {name} (heller|dunkler)"
+
+  # --------------------------------------------------------------------------
+  # FARBE SETZEN
+  # --------------------------------------------------------------------------
+  HassLightSet:
+    data:
+      - sentences:
+          # Farbe direkt
+          - "(mach[e]|stell[e]|setz[e]) [bitte] [die|das|den] {name} [auf] {color}"
+          - "[die|das|den] {name} [in|auf] {color} [setzen|stellen|ändern]"
+          - "{color}[es] licht (in|im) {name}"
+          # Mit "Farbe" Wort
+          - "(änder[e]|aender[e]|wechsel[e]|wechsle) [die] farbe (von|der|des|am|in|im) {name} [auf|zu|nach] {color}"
+          - "[die] {name} farbe [auf] {color}"
+          # Farbtemperatur
+          - "(mach[e]|stell[e]) [bitte] [die|das|den] {name} [auf] {color_temp}[es] [licht]"
+          - "{color_temp}[es] licht (in|im) {name}"
+
+  # --------------------------------------------------------------------------
+  # ALLES AUS
+  # --------------------------------------------------------------------------
+  HassTurnOff:
+    data:
+      - sentences:
+          - "(mach[e]|schalte) [bitte] (alle[s]|sämtliche) (lichter|lampen|beleuchtung) (aus|ab)"
+          - "(alle[s]|sämtliche) (lichter|lampen) (aus|ausschalten)"
+          - "lichter (aus|ab)"
+          - "licht überall (aus|ab)"
+
+  # --------------------------------------------------------------------------
+  # ALLES AN
+  # --------------------------------------------------------------------------
+  HassTurnOn:
+    data:
+      - sentences:
+          - "(mach[e]|schalte) [bitte] (alle[s]|sämtliche) (lichter|lampen|beleuchtung) (an|ein)"
+          - "(alle[s]|sämtliche) (lichter|lampen) (an|einschalten)"
+          - "lichter (an|ein)"
+          - "licht überall (an|ein)"

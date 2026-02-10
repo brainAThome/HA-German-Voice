@@ -1,0 +1,277 @@
+# ================================================================================
+# HA-GERMAN-VOICE - Intent Script Handler
+# ================================================================================
+# Füge zu deiner configuration.yaml hinzu:
+# intent_script: !include intent_script.yaml
+# ================================================================================
+
+# ============================================================================
+# WETTER INTENTS
+# ============================================================================
+
+GetWeather:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% set temp = state_attr('weather.forecast_home', 'temperature') %}
+      {% set humidity = state_attr('weather.forecast_home', 'humidity') %}
+      {% set condition_map = {
+        'sunny': 'sonnig',
+        'clear-night': 'klar',
+        'partlycloudy': 'teilweise bewölkt',
+        'cloudy': 'bewölkt',
+        'rainy': 'regnerisch',
+        'pouring': 'starker Regen',
+        'snowy': 'Schnee',
+        'fog': 'neblig',
+        'windy': 'windig',
+        'lightning': 'Gewitter'
+      } %}
+      {% set cond = condition_map.get(weather, weather) %}
+      Aktuell ist es {{ cond }} bei {{ temp }}°C und {{ humidity }}% Luftfeuchtigkeit.
+
+GetTemperature:
+  speech:
+    text: >
+      {% set temp = state_attr('weather.forecast_home', 'temperature') %}
+      Es sind aktuell {{ temp }}°C.
+
+GetHumidity:
+  speech:
+    text: >
+      {% set humidity = state_attr('weather.forecast_home', 'humidity') %}
+      Die Luftfeuchtigkeit beträgt {{ humidity }}%.
+
+GetWind:
+  speech:
+    text: >
+      {% set wind = state_attr('weather.forecast_home', 'wind_speed') %}
+      {% set bearing = state_attr('weather.forecast_home', 'wind_bearing') %}
+      {% set dirs = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'] %}
+      {% set dir = dirs[((bearing + 22.5) / 45) | int % 8] %}
+      Der Wind weht aus {{ dir }} mit {{ wind }} km/h.
+
+GetWeatherForecast:
+  speech:
+    text: >
+      {% set day = day | default('morgen') %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > 0 %}
+        {% set idx = 1 if day == 'morgen' else 0 %}
+        {% set fc = forecast[idx] %}
+        {% set condition_map = {
+          'sunny': 'sonnig',
+          'partlycloudy': 'teilweise bewölkt',
+          'cloudy': 'bewölkt',
+          'rainy': 'Regen',
+          'pouring': 'starker Regen',
+          'snowy': 'Schnee'
+        } %}
+        {% set cond = condition_map.get(fc.condition, fc.condition) %}
+        {{ day | capitalize }} wird es {{ cond }} bei {{ fc.temperature }}°C.
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+# ============================================================================
+# ERINNERUNG INTENTS
+# ============================================================================
+
+SetReminderSecondsSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ seconds }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+  speech:
+    text: "OK, ich erinnere dich in {{ seconds }} Sekunden."
+
+SetReminderSeconds:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ seconds }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+  speech:
+    text: "OK, ich erinnere dich in {{ seconds }} Sekunden an {{ message }}."
+
+SetReminderMinutesSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (minutes | int) * 60 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+  speech:
+    text: "OK, ich erinnere dich in {{ minutes }} Minute{{ 'n' if minutes | int > 1 else '' }}."
+
+SetReminderMinutes:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (minutes | int) * 60 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+  speech:
+    text: "OK, ich erinnere dich in {{ minutes }} Minute{{ 'n' if minutes | int > 1 else '' }} an {{ message }}."
+
+SetReminderHoursSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (hours | int) * 3600 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+  speech:
+    text: "OK, ich erinnere dich in {{ hours }} Stunde{{ 'n' if hours | int > 1 else '' }}."
+
+SetReminderHours:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (hours | int) * 3600 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+  speech:
+    text: "OK, ich erinnere dich in {{ hours }} Stunde{{ 'n' if hours | int > 1 else '' }} an {{ message }}."
+
+SetReminderTimeSimple:
+  action:
+    - service: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.erinnerung_1_zeit
+      data:
+        datetime: >
+          {% set h = clock_hour | int %}
+          {% set m = clock_minute | default(0) | int %}
+          {{ now().strftime('%Y-%m-%d') }} {{ '%02d:%02d:00' | format(h, m) }}
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.erinnerung_1_aktiv
+  speech:
+    text: >
+      OK, ich erinnere dich um {{ clock_hour }}{% if clock_minute | int > 0 %}:{{ '%02d' | format(clock_minute | int) }}{% endif %} Uhr.
+
+SetReminderTime:
+  action:
+    - service: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.erinnerung_1_zeit
+      data:
+        datetime: >
+          {% set h = clock_hour | int %}
+          {% set m = clock_minute | default(0) | int %}
+          {{ now().strftime('%Y-%m-%d') }} {{ '%02d:%02d:00' | format(h, m) }}
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.erinnerung_1_aktiv
+  speech:
+    text: >
+      OK, ich erinnere dich um {{ clock_hour }}{% if clock_minute | int > 0 %}:{{ '%02d' | format(clock_minute | int) }}{% endif %} Uhr an {{ message }}.
+
+SetReminderSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "300"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+  speech:
+    text: "OK, ich erinnere dich in 5 Minuten an {{ message }}."
+
+GetReminders:
+  speech:
+    text: >
+      {% set active = [] %}
+      {% for i in range(1, 4) %}
+        {% set timer = 'timer.erinnerung_' ~ i %}
+        {% set msg = 'input_text.erinnerung_' ~ i ~ '_nachricht' %}
+        {% if states(timer) == 'active' %}
+          {% set active = active + [states(msg)] %}
+        {% endif %}
+      {% endfor %}
+      {% if active | length > 0 %}
+        Du hast {{ active | length }} aktive Erinnerung{{ 'en' if active | length > 1 else '' }}: {{ active | join(', ') }}.
+      {% else %}
+        Du hast keine aktiven Erinnerungen.
+      {% endif %}
+
+DeleteReminder:
+  action:
+    - service: timer.cancel
+      target:
+        entity_id:
+          - timer.erinnerung_1
+          - timer.erinnerung_2
+          - timer.erinnerung_3
+    - service: input_boolean.turn_off
+      target:
+        entity_id:
+          - input_boolean.erinnerung_1_aktiv
+          - input_boolean.erinnerung_2_aktiv
+          - input_boolean.erinnerung_3_aktiv
+  speech:
+    text: "Alle Erinnerungen wurden gelöscht."
+
+DeleteLastReminder:
+  action:
+    - service: timer.cancel
+      target:
+        entity_id: timer.erinnerung_1
+  speech:
+    text: "Die letzte Erinnerung wurde gelöscht."
+
+StopReminder:
+  action:
+    - service: media_player.media_stop
+      target:
+        entity_id: all
+  speech:
+    text: "OK"

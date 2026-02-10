@@ -1,0 +1,9 @@
+{
+  "name": "HA-German-Voice",
+  "description": "Deutsche Sprachbefehle für Home Assistant Assist - Wetter, Erinnerungen, Lichter, Medien",
+  "homeassistant": "2023.7.0",
+  "render_readme": true,
+  "content_in_root": true,
+  "filename": "custom_sentences/de/*.yaml",
+  "country": ["DE", "AT", "CH"]
+}
