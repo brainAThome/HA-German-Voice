@@ -94,7 +94,7 @@ intents:
     data:
       - sentences:
           # Expansion: wie + ist/wird + das wetter + optionale Ergänzungen
-          - "wie {weather_verb} [das] {weather_noun} [{time_prep}][draußen|drausen]"
+          - "wie <weather_verb> [das] <weather_noun> [<time_prep>][draußen|drausen]"
           - "[<polite_question>][<polite>](wetter|wetterbericht|wetterlage)"
           - "was (macht|sagt) [der wetterbericht|das wetter]"
           - "[<polite>]sag mir [bitte] [das] wetter"
@@ -110,12 +110,12 @@ intents:
   GetWeatherDay:
     data:
       - sentences:
-          - "wie {weather_verb} [das] {weather_noun} {day}"
-          - "[<polite_question>]{weather_noun} [für] {day}"
+          - "wie <weather_verb> [das] <weather_noun> {day}"
+          - "[<polite_question>]<weather_noun> [für] {day}"
           - "wettervorhersage [für] {day}"
           - "was (erwartet mich|kommt) {day} [für wetter]"
           - "wie (schaut|sieht) [es|das wetter] {day} aus"
-          - "{day} [das] {weather_noun}"
+          - "{day} [das] <weather_noun>"
           - "[<polite>]sag mir [bitte] [das] wetter [für] {day}"
 
   # --------------------------------------------------------------------------
@@ -124,10 +124,10 @@ intents:
   GetWeatherTime:
     data:
       - sentences:
-          - "wie {weather_verb} [das] {weather_noun} {day} {time}"
-          - "{weather_noun} {day} {time}"
+          - "wie <weather_verb> [das] <weather_noun> {day} {time}"
+          - "<weather_noun> {day} {time}"
           - "wie (wird|ist) es {day} {time}"
-          - "{day} {time} [das] {weather_noun}"
+          - "{day} {time} [das] <weather_noun>"
 
   # --------------------------------------------------------------------------
   # WOCHENVORHERSAGE
@@ -150,7 +150,7 @@ intents:
   GetTemperature:
     data:
       - sentences:
-          - "wie (warm|kalt|heiß) ist es [{time_prep}][draußen]"
+          - "wie (warm|kalt|heiß) ist es [<time_prep>][draußen]"
           - "[aktuelle] temperatur [draußen]"
           - "(wieviel|wie viel[e]) grad [haben wir|ist es|sind es][ draußen]"
           - "ist es (warm|kalt|heiß)[ draußen]"
@@ -180,7 +180,7 @@ intents:
   GetRain:
     data:
       - sentences:
-          - "(regnet|regnets) es [{time_prep}][draußen]"
+          - "(regnet|regnets) es [<time_prep>][draußen]"
           - "(gibt|gibts) es regen"
           - "(kommt|droht) [noch] regen"
           - "brauche ich [einen] (regenschirm|schirm)"
@@ -292,7 +292,7 @@ intents:
   GetSnow:
     data:
       - sentences:
-          - "(schneit|schneits) es [{time_prep}]"
+          - "(schneit|schneits) es [<time_prep>]"
           - "(gibt|gibts|liegt|haben wir) [es] schnee"
           - "(kommt|fällt) schnee"
           - "schnee[fall]"
