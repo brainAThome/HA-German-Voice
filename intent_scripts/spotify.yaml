@@ -1,9 +1,9 @@
-﻿# ============================================================================
+# ============================================================================
 # SPOTIFY INTENT SCRIPTS - Modulare Datei
 # ============================================================================
 # Teil von: intent_script: !include_dir_merge_named intent_scripts/
 # ============================================================================
-# Ben├Âtigt:
+# Benötigt:
 #   - shell_command.spotify_voice in configuration.yaml
 #   - input_text.spotify_query, input_text.spotify_type,
 #     input_text.spotify_device, input_text.spotify_last_played
@@ -43,7 +43,7 @@ SpotifyPlay:
       {{ responses | random }}
 
 # --------------------------------------------------------------------------
-# SUCHE + ABSPIELEN (K├╝nstler)
+# SUCHE + ABSPIELEN (Künstler)
 # --------------------------------------------------------------------------
 SpotifyPlayArtist:
   action:
@@ -134,7 +134,7 @@ SpotifyPlayAlbum:
       {{ responses | random }}
 
 # --------------------------------------------------------------------------
-# SUCHE + ABSPIELEN AUF BESTIMMTEM GER├äT
+# SUCHE + ABSPIELEN AUF BESTIMMTEM GERÄT
 # --------------------------------------------------------------------------
 SpotifyPlayOn:
   action:
@@ -158,13 +158,13 @@ SpotifyPlayOn:
     text: >
       {% set responses = [
         "OK, ich spiele " ~ query ~ " auf " ~ spotify_device ~ ".",
-        "Alles klar, suche " ~ query ~ " f├╝r " ~ spotify_device ~ ".",
+        "Alles klar, suche " ~ query ~ " für " ~ spotify_device ~ ".",
         "Verstanden, " ~ query ~ " kommt auf " ~ spotify_device ~ "."
       ] %}
       {{ responses | random }}
 
 # --------------------------------------------------------------------------
-# GER├äTEWECHSEL
+# GERÄTEWECHSEL
 # --------------------------------------------------------------------------
 SpotifyDevice:
   action:
@@ -188,7 +188,7 @@ SpotifyDevice:
     text: >
       {% set responses = [
         "OK, Spotify spielt jetzt auf " ~ spotify_device ~ ".",
-        "Alles klar, Wiedergabe wird auf " ~ spotify_device ~ " ├╝bertragen.",
+        "Alles klar, Wiedergabe wird auf " ~ spotify_device ~ " übertragen.",
         "Verstanden, Spotify wechselt zu " ~ spotify_device ~ "."
       ] %}
       {{ responses | random }}
@@ -201,6 +201,7 @@ SpotifyPause:
     - service: media_player.media_pause
       target:
         entity_id: media_player.spotify_sven
+      continue_on_error: true
   speech:
     text: >
       {% set responses = [
@@ -225,12 +226,12 @@ SpotifyResume:
         "OK, Spotify spielt weiter.",
         "Alles klar, weiter geht's.",
         "Wiedergabe fortgesetzt.",
-        "Spotify l├ñuft wieder."
+        "Spotify läuft wieder."
       ] %}
       {{ responses | random }}
 
 # --------------------------------------------------------------------------
-# N├äCHSTER TITEL
+# NÄCHSTER TITEL
 # --------------------------------------------------------------------------
 SpotifyNext:
   action:
@@ -240,9 +241,9 @@ SpotifyNext:
   speech:
     text: >
       {% set responses = [
-        "OK, n├ñchster Titel.",
-        "Alles klar, ├╝bersprungen.",
-        "N├ñchstes Lied kommt.",
+        "OK, nächster Titel.",
+        "Alles klar, übersprungen.",
+        "Nächstes Lied kommt.",
         "Skip!"
       ] %}
       {{ responses | random }}
@@ -259,7 +260,7 @@ SpotifyPrevious:
     text: >
       {% set responses = [
         "OK, vorheriger Titel.",
-        "Alles klar, zur├╝ck.",
+        "Alles klar, zurück.",
         "Letztes Lied wird gespielt."
       ] %}
       {{ responses | random }}
@@ -280,7 +281,7 @@ SpotifyShuffle:
         {% set responses = [
           "OK, Shuffle ist an.",
           "Zufallswiedergabe aktiviert.",
-          "Spotify spielt jetzt zuf├ñllig."
+          "Spotify spielt jetzt zufällig."
         ] %}
       {% else %}
         {% set responses = [
@@ -303,9 +304,9 @@ SpotifyNowPlaying:
       {% set source = state_attr('media_player.spotify_sven', 'source') %}
       {% if title and artist %}
         {% set responses = [
-          "Auf Spotify l├ñuft gerade: " ~ artist ~ " mit " ~ title ~ ".",
+          "Auf Spotify läuft gerade: " ~ artist ~ " mit " ~ title ~ ".",
           "Aktuell spielt: " ~ artist ~ " - " ~ title ~ ".",
-          "Gerade h├Ârst du: " ~ title ~ " von " ~ artist ~ "."
+          "Gerade hörst du: " ~ title ~ " von " ~ artist ~ "."
         ] %}
         {% if album %}
           {{ responses | random }} Vom Album {{ album }}.
@@ -314,7 +315,7 @@ SpotifyNowPlaying:
         {% endif %}
         {% if source %} Wiedergabe auf {{ source }}.{% endif %}
       {% elif title %}
-        Auf Spotify l├ñuft gerade: {{ title }}.
+        Auf Spotify läuft gerade: {{ title }}.
       {% else %}
         Spotify spielt gerade nichts.
       {% endif %}
@@ -327,9 +328,11 @@ GeneralStop:
     - service: media_player.media_pause
       target:
         entity_id: media_player.spotify_sven
+      continue_on_error: true
     - service: media_player.media_stop
       target:
         entity_id: media_player.vaca_362812d56_mediaplayer
+      continue_on_error: true
   speech:
     text: >
       {% set responses = [
