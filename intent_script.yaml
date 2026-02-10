@@ -90,6 +90,495 @@ GetWeatherForecast:
         Keine Vorhersage verfügbar.
       {% endif %}
 
+GetWeatherDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set condition_map = {
+          'sunny': 'sonnig',
+          'clear-night': 'klar',
+          'partlycloudy': 'teilweise bewölkt',
+          'cloudy': 'bewölkt',
+          'rainy': 'regnerisch',
+          'pouring': 'starker Regen',
+          'snowy': 'Schnee',
+          'fog': 'neblig',
+          'windy': 'windig'
+        } %}
+        {% set cond = condition_map.get(fc.condition, fc.condition) %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'In ' ~ day_slot ~ ' Tagen' %}
+        {{ day_name }} wird es {{ cond }} bei {{ fc.temperature }}°C.
+      {% else %}
+        Keine Vorhersage für diesen Tag verfügbar.
+      {% endif %}
+
+GetWeatherTime:
+  speech:
+    text: >
+      {% set day_slot = day | default(0) %}
+      {% set time_slot = time | default('nachmittags') %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set condition_map = {
+          'sunny': 'sonnig',
+          'partlycloudy': 'teilweise bewölkt',
+          'cloudy': 'bewölkt',
+          'rainy': 'regnerisch'
+        } %}
+        {% set cond = condition_map.get(fc.condition, fc.condition) %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {{ day_name }} {{ time_slot }} wird es {{ cond }} bei {{ fc.temperature }}°C.
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetWeatherWeek:
+  speech:
+    text: >
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > 0 %}
+        Die nächsten Tage: 
+        {% for fc in forecast[:5] %}
+          {{ fc.condition }} bei {{ fc.temperature }}°C{% if not loop.last %}, {% endif %}
+        {% endfor %}.
+      {% else %}
+        Keine Wochenvorhersage verfügbar.
+      {% endif %}
+
+GetTemperatureDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {{ day_name }} werden es {{ fc.temperature }}°C.
+      {% else %}
+        Keine Temperaturvorhersage verfügbar.
+      {% endif %}
+
+GetTemperatureTime:
+  speech:
+    text: >
+      {% set day_slot = day | default(0) %}
+      {% set time_slot = time | default('nachmittags') %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {{ day_name }} {{ time_slot }} werden es etwa {{ fc.temperature }}°C.
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetRain:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather in ['rainy', 'pouring'] %}
+        Ja, es regnet gerade.
+      {% else %}
+        Nein, aktuell regnet es nicht.
+      {% endif %}
+
+GetRainDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {% if fc.condition in ['rainy', 'pouring'] %}
+          Ja, {{ day_name }} wird es regnen.
+        {% else %}
+          Nein, {{ day_name }} ist kein Regen vorhergesagt.
+        {% endif %}
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetRainProbabilityDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set prob = fc.precipitation_probability | default(0) %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {{ day_name }} liegt die Regenwahrscheinlichkeit bei {{ prob }}%.
+      {% else %}
+        Keine Regenwahrscheinlichkeit verfügbar.
+      {% endif %}
+
+GetRainTime:
+  speech:
+    text: >
+      {% set day_slot = day | default(0) %}
+      {% set time_slot = time | default('nachmittags') %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {% if fc.condition in ['rainy', 'pouring'] %}
+          Ja, {{ day_name }} {{ time_slot }} könnte es regnen.
+        {% else %}
+          Nein, {{ day_name }} {{ time_slot }} ist kein Regen vorhergesagt.
+        {% endif %}
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetSun:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather in ['sunny', 'clear-night'] %}
+        Ja, die Sonne scheint gerade.
+      {% elif weather == 'partlycloudy' %}
+        Es ist teilweise sonnig.
+      {% else %}
+        Nein, die Sonne scheint aktuell nicht.
+      {% endif %}
+
+GetSunDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {% if fc.condition in ['sunny', 'clear-night'] %}
+          Ja, {{ day_name }} wird die Sonne scheinen.
+        {% elif fc.condition == 'partlycloudy' %}
+          {{ day_name }} wird es teilweise sonnig.
+        {% else %}
+          {{ day_name }} wird es eher bedeckt.
+        {% endif %}
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetWindDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set wind = fc.wind_speed | default(0) %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {{ day_name }} weht der Wind mit {{ wind }} km/h.
+      {% else %}
+        Keine Windvorhersage verfügbar.
+      {% endif %}
+
+GetClouds:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather == 'cloudy' %}
+        Ja, es ist bewölkt.
+      {% elif weather == 'partlycloudy' %}
+        Es ist teilweise bewölkt.
+      {% else %}
+        Nein, es ist kaum bewölkt.
+      {% endif %}
+
+GetCloudsDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {% if fc.condition == 'cloudy' %}
+          Ja, {{ day_name }} wird es bewölkt.
+        {% elif fc.condition == 'partlycloudy' %}
+          {{ day_name }} wird es teilweise bewölkt.
+        {% else %}
+          {{ day_name }} wird es eher klar.
+        {% endif %}
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetSnow:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather == 'snowy' %}
+        Ja, es schneit gerade.
+      {% else %}
+        Nein, aktuell schneit es nicht.
+      {% endif %}
+
+GetSnowDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {% if fc.condition == 'snowy' %}
+          Ja, {{ day_name }} könnte es schneien.
+        {% else %}
+          Nein, {{ day_name }} ist kein Schnee vorhergesagt.
+        {% endif %}
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetStorm:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather in ['lightning', 'lightning-rainy'] %}
+        Ja, es gibt aktuell ein Gewitter.
+      {% else %}
+        Nein, kein Gewitter in Sicht.
+      {% endif %}
+
+GetStormDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {% if fc.condition in ['lightning', 'lightning-rainy'] %}
+          {{ day_name }} könnte es Gewitter geben.
+        {% else %}
+          {{ day_name }} ist kein Gewitter vorhergesagt.
+        {% endif %}
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetHumidityDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set humidity = fc.humidity | default(state_attr('weather.forecast_home', 'humidity')) %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {{ day_name }} wird die Luftfeuchtigkeit bei etwa {{ humidity }}% liegen.
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetPressure:
+  speech:
+    text: >
+      {% set pressure = state_attr('weather.forecast_home', 'pressure') %}
+      Der Luftdruck liegt bei {{ pressure }} hPa.
+
+GetPressureDay:
+  speech:
+    text: >
+      {% set pressure = state_attr('weather.forecast_home', 'pressure') %}
+      Der Luftdruck liegt aktuell bei {{ pressure }} hPa. Tagesvorhersagen für Luftdruck sind nicht verfügbar.
+
+GetFog:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather == 'fog' %}
+        Ja, es ist neblig.
+      {% else %}
+        Nein, kein Nebel.
+      {% endif %}
+
+GetFogDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {% if fc.condition == 'fog' %}
+          {{ day_name }} könnte es neblig werden.
+        {% else %}
+          {{ day_name }} ist kein Nebel vorhergesagt.
+        {% endif %}
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetFeelsLike:
+  speech:
+    text: >
+      {% set temp = state_attr('weather.forecast_home', 'temperature') %}
+      {% set wind = state_attr('weather.forecast_home', 'wind_speed') | default(0) %}
+      {% set humidity = state_attr('weather.forecast_home', 'humidity') | default(50) %}
+      Es fühlt sich an wie etwa {{ temp }}°C.
+
+GetFeelsLikeDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {{ day_name }} wird es sich wie etwa {{ fc.temperature }}°C anfühlen.
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetClothingAdvice:
+  speech:
+    text: >
+      {% set temp = state_attr('weather.forecast_home', 'temperature') %}
+      {% set weather = states('weather.forecast_home') %}
+      {% if temp < 5 %}
+        Es ist kalt. Zieh eine warme Jacke, Mütze und Handschuhe an.
+      {% elif temp < 15 %}
+        Es ist kühl. Eine Jacke wäre gut.
+      {% elif temp < 25 %}
+        Angenehme Temperaturen. Leichte Kleidung reicht.
+      {% else %}
+        Es ist warm. Kurze Hosen und T-Shirt sind ideal.
+      {% endif %}
+      {% if weather in ['rainy', 'pouring'] %} Vergiss den Regenschirm nicht!{% endif %}
+
+GetClothingDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set temp = fc.temperature %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {% if temp < 5 %}
+          {{ day_name }} wird es kalt. Zieh eine warme Jacke an.
+        {% elif temp < 15 %}
+          {{ day_name }} ist es kühl. Eine Jacke wäre gut.
+        {% elif temp < 25 %}
+          {{ day_name }} sind angenehme Temperaturen. Leichte Kleidung reicht.
+        {% else %}
+          {{ day_name }} wird es warm. Kurze Sachen sind ideal.
+        {% endif %}
+        {% if fc.condition in ['rainy', 'pouring'] %} Nimm einen Regenschirm mit!{% endif %}
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetOutdoorAdvice:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% set temp = state_attr('weather.forecast_home', 'temperature') %}
+      {% if weather in ['sunny', 'partlycloudy'] and temp > 10 and temp < 30 %}
+        Ja, das Wetter ist gut für Outdoor-Aktivitäten.
+      {% elif weather in ['rainy', 'pouring', 'snowy', 'lightning'] %}
+        Du solltest besser drinnen bleiben.
+      {% elif temp < 5 %}
+        Es ist ziemlich kalt draußen. Wenn du rausgehst, zieh dich warm an.
+      {% else %}
+        Das Wetter ist okay, aber nicht ideal für draußen.
+      {% endif %}
+
+GetOutdoorDay:
+  speech:
+    text: >
+      {% set day_slot = day | default(1) %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > day_slot | int %}
+        {% set fc = forecast[day_slot | int] %}
+        {% set temp = fc.temperature %}
+        {% set day_names = ['Heute', 'Morgen', 'Übermorgen'] %}
+        {% set day_name = day_names[day_slot | int] if day_slot | int < 3 else 'An diesem Tag' %}
+        {% if fc.condition in ['sunny', 'partlycloudy'] and temp > 10 and temp < 30 %}
+          {{ day_name }} ist perfekt für Outdoor-Aktivitäten.
+        {% elif fc.condition in ['rainy', 'pouring', 'snowy', 'lightning'] %}
+          {{ day_name }} solltest du besser drinnen bleiben.
+        {% else %}
+          {{ day_name }} ist das Wetter okay.
+        {% endif %}
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetUV:
+  speech:
+    text: >
+      Der UV-Index ist leider nicht in der Standard-Wetterintegration verfügbar.
+
+GetSunrise:
+  speech:
+    text: >
+      {% set sunrise = states('sensor.sun_next_rising') | default(state_attr('sun.sun', 'next_rising')) %}
+      {% if sunrise %}
+        Der Sonnenaufgang ist um {{ as_timestamp(sunrise) | timestamp_custom('%H:%M') }} Uhr.
+      {% else %}
+        Sonnenaufgangszeit nicht verfügbar.
+      {% endif %}
+
+GetSunset:
+  speech:
+    text: >
+      {% set sunset = states('sensor.sun_next_setting') | default(state_attr('sun.sun', 'next_setting')) %}
+      {% if sunset %}
+        Der Sonnenuntergang ist um {{ as_timestamp(sunset) | timestamp_custom('%H:%M') }} Uhr.
+      {% else %}
+        Sonnenuntergangszeit nicht verfügbar.
+      {% endif %}
+
+GetPollen:
+  speech:
+    text: >
+      Polleninformationen sind leider nicht verfügbar. Dafür bräuchtest du eine spezielle Pollenflug-Integration.
+
+GetWeatherComparison:
+  speech:
+    text: >
+      {% set temp_now = state_attr('weather.forecast_home', 'temperature') %}
+      {% set forecast = state_attr('weather.forecast_home', 'forecast') %}
+      {% if forecast and forecast | length > 1 %}
+        {% set temp_tomorrow = forecast[1].temperature %}
+        {% set diff = temp_tomorrow - temp_now %}
+        {% if diff > 3 %}
+          Morgen wird es wärmer als heute, etwa {{ diff | round }}°C mehr.
+        {% elif diff < -3 %}
+          Morgen wird es kälter als heute, etwa {{ (diff * -1) | round }}°C weniger.
+        {% else %}
+          Morgen wird es ähnlich warm wie heute.
+        {% endif %}
+      {% else %}
+        Vergleich nicht möglich.
+      {% endif %}
+
 # ============================================================================
 # ERINNERUNG INTENTS
 # ============================================================================
