@@ -1,8 +1,25 @@
 # ================================================================================
 # HA-GERMAN-VOICE - Intent Script Handler
 # ================================================================================
+# TRUE STATE OF THE ART - Home Assistant 2024+
+# 
+# Diese Datei enthält nur Handler für CUSTOM INTENTS:
+# - GetWeather, GetTemperature, etc. (Weather)
+# - SetReminder*, GetReminders, etc. (Timer/Erinnerungen)
+# - SetSunProtection, SetCoverScene (Custom Cover Actions)
+#
+# Built-In Intents (HassTurnOn, HassOpenCover, etc.) werden NICHT hier
+# definiert - sie brauchen kein intent_script, da HA sie automatisch
+# verarbeitet. Responses für Built-In Intents sind in den sentence files.
+#
 # Füge zu deiner configuration.yaml hinzu:
 # intent_script: !include intent_script.yaml
+# 
+# Benötigte Entities für Erinnerungen:
+# - timer.erinnerung_1 bis timer.erinnerung_3
+# - input_text.erinnerung_1_nachricht bis input_text.erinnerung_3_nachricht  
+# - input_datetime.erinnerung_1_zeit
+# - input_boolean.erinnerung_1_aktiv bis input_boolean.erinnerung_3_aktiv
 # ================================================================================
 
 # ============================================================================

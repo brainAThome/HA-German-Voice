@@ -1,11 +1,13 @@
 # ================================================================================
 # HA-GERMAN-VOICE - Deutsche Wetter-Sprachbefehle
 # ================================================================================
-# State of the Art Sentence Expansion Syntax
-# Eine Zeile = Hunderte Varianten automatisch
+# TRUE STATE OF THE ART - Home Assistant 2024+ Syntax
+# ✅ Expansion Rules für natürliche Sprache
+# ✅ Varianten-Matching (heute/morgen/Wochentag)
+# ⚠️  Custom Intents → benötigen intent_script für Aktionen
 # ================================================================================
-# GitHub: https://github.com/YOUR_USER/ha-german-voice
-# Version: 1.0.0
+# GitHub: https://github.com/brainAThome/HA-German-Voice
+# Version: 2.0.0
 # ================================================================================
 
 language: de
@@ -14,16 +16,11 @@ language: de
 # EXPANSION RULES - Wiederverwendbare Patterns
 # ============================================================================
 expansion_rules:
-  # Höflichkeitsformen
-  polite: "(|bitte |bitte mal |mal )"
-  polite_question: "(|könntest du |kannst du |würdest du |sag mir )"
-  
-  # Wetter-Synonyme
+  polite: "[bitte|mal|doch]"
+  polite_question: "(könntest|kannst|würdest) du [bitte|mal]"
   weather_verb: "(ist|wird|macht|schaut aus)"
   weather_noun: "(wetter|wetterlage)"
-  
-  # Zeit-Präpositionen
-  time_prep: "(|gerade |aktuell |jetzt |momentan |im moment |zur zeit )"
+  time_prep: "[gerade|aktuell|jetzt|momentan|im moment|zur zeit]"
 
 # ============================================================================
 # LISTEN - Slot Mappings

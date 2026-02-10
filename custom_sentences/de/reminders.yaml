@@ -1,10 +1,19 @@
 # ================================================================================
 # HA-GERMAN-VOICE - Deutsche Erinnerungs-Sprachbefehle
 # ================================================================================
-# State of the Art Sentence Expansion Syntax
+# TRUE STATE OF THE ART - Home Assistant 2024+ Syntax
+# ✅ Alle Zeiteinheiten (Sekunden, Minuten, Stunden, Uhrzeiten)
+# ✅ Optional mit Nachricht
+# ⚠️  Custom Intents → benötigen intent_script für Timer-Aktionen
 # ================================================================================
 
 language: de
+
+# ============================================================================
+# EXPANSION RULES
+# ============================================================================
+expansion_rules:
+  polite: "[bitte|mal|doch]"
 
 # ============================================================================
 # LISTEN - Zeit-Slots
@@ -27,7 +36,7 @@ lists:
 
   minutes:
     values:
-      - in: "(1|eine[r]|eins)"
+      - in: "(1|eine|einer|eins)"
         out: 1
       - in: "(2|zwei|zwo)"
         out: 2
@@ -64,7 +73,7 @@ lists:
 
   hours:
     values:
-      - in: "(1|eine[r]|eins)"
+      - in: "(1|eine|einer|eins)"
         out: 1
       - in: "(2|zwei)"
         out: 2
@@ -164,7 +173,7 @@ lists:
         out: 55
 
 # ============================================================================
-# INTENTS - Erinnerungen
+# INTENTS - Erinnerungen/Timer
 # ============================================================================
 intents:
   # --------------------------------------------------------------------------
@@ -173,22 +182,24 @@ intents:
   SetReminderSecondsSimple:
     data:
       - sentences:
-          - "(erinner[e]|erinnerung) [mich] [bitte] in {seconds} (sekunde[n]|sek)"
-          - "[in] {seconds} (sekunde[n]|sek) (erinner[n]|erinnerung|timer)"
-          - "timer [auf] {seconds} (sekunde[n]|sek)"
-          - "(weck|meld[e]) [mich] [dich] in {seconds} sekunden"
+          - "(erinner|erinnerung) [mich] <polite> in {seconds} (sekunden|sekunde|sek)"
+          - "[in] {seconds} (sekunden|sekunde|sek) (erinnern|erinnerung|timer)"
+          - "timer [auf] {seconds} (sekunden|sekunde|sek)"
+          - "(weck|meld) [mich] [dich] in {seconds} sekunden"
+        response: "OK, Timer auf {{ slots.seconds }} Sekunden."
 
   SetReminderSeconds:
     data:
       - sentences:
-          - "(erinner[e]|erinnerung) [mich] [bitte] in {seconds} (sekunde[n]|sek) (an|ans|wegen|dass) {message}"
-          - "[in] {seconds} (sekunde[n]|sek) (erinner[n]|erinnerung) [(an|ans)] {message}"
-          - "[in] {seconds} (sekunde[n]|sek) {message}"
-          - "timer [auf] {seconds} (sekunde[n]|sek) {message}"
-          - "{seconds} (sekunde[n]|sek) {message}"
+          - "(erinner|erinnerung) [mich] <polite> in {seconds} (sekunden|sekunde|sek) (an|ans|wegen|dass) {message}"
+          - "[in] {seconds} (sekunden|sekunde|sek) (erinnern|erinnerung) [(an|ans)] {message}"
+          - "[in] {seconds} (sekunden|sekunde|sek) {message}"
+          - "timer [auf] {seconds} (sekunden|sekunde|sek) {message}"
+          - "{seconds} (sekunden|sekunde|sek) {message}"
         slots:
           message:
             type: text
+        response: "OK, Timer auf {{ slots.seconds }} Sekunden: {{ slots.message }}."
 
   # --------------------------------------------------------------------------
   # MINUTEN
@@ -196,35 +207,32 @@ intents:
   SetReminderMinutesSimple:
     data:
       - sentences:
-          - "(erinner[e]|erinnerung) [mich] [bitte] in {minutes} (minute[n]|min)"
-          - "[in] {minutes} (minute[n]|min) (erinner[n]|erinnerung|timer)"
-          - "timer [auf] {minutes} (minute[n]|min)"
-          - "(weck[er]|meld[e]) [mich] [dich] in {minutes} (minute[n]|min)"
-          - "{minutes} (minute[n]|min) (erinnerung|timer)"
-          - "[stell[e]] [einen] timer [auf] {minutes} (minute[n]|min)"
+          - "(erinner|erinnerung) [mich] <polite> in {minutes} (minuten|minute|min)"
+          - "[in] {minutes} (minuten|minute|min) (erinnern|erinnerung|timer)"
+          - "timer [auf] {minutes} (minuten|minute|min)"
+          - "(wecker|meld) [mich] [dich] in {minutes} (minuten|minute|min)"
+          - "{minutes} (minuten|minute|min) (erinnerung|timer)"
+          - "[stell] [einen] timer [auf] {minutes} (minuten|minute|min)"
+        response: "OK, Timer auf {{ slots.minutes }} Minuten."
 
   SetReminderMinutes:
     data:
       - sentences:
-          # Mit Präpositionen (an/ans/an das/an die/an den)
-          - "(erinner[e]|erinnerung) [mich] [bitte] in {minutes} (minute[n]|min) (an|ans|an das|an die|an den) {message}"
-          - "[in] {minutes} (minute[n]|min) (erinner[n]|erinnerung) (an|ans) {message}"
-          - "[in] {minutes} (minute[n]|min) (an|ans) {message} erinnern"
-          # Mit wegen/dass/daran
-          - "(erinner[e]|erinnerung) [mich] in {minutes} (minute[n]|min) (wegen|dass|daran) {message}"
-          # Kurzformen - Nachricht direkt nach Zeit
-          - "(erinner[e]|erinnerung) {minutes} (minute[n]|min) {message}"
-          - "[in] {minutes} (minute[n]|min) {message}"
-          - "{minutes} (minute[n]|min) {message}"
-          - "{minutes} (minute[n]|min) (erinnerung|timer) {message}"
-          # Timer
-          - "timer [auf] {minutes} (minute[n]|min) {message}"
-          - "[stell[e]] [einen] timer [auf] {minutes} (minute[n]|min) {message}"
-          # Wecker
-          - "(weck[er]|meld[e]) [mich] [dich] in {minutes} (minute[n]|min) {message}"
+          - "(erinner|erinnerung) [mich] <polite> in {minutes} (minuten|minute|min) (an|ans|an das|an die|an den) {message}"
+          - "[in] {minutes} (minuten|minute|min) (erinnern|erinnerung) (an|ans) {message}"
+          - "[in] {minutes} (minuten|minute|min) (an|ans) {message} erinnern"
+          - "(erinner|erinnerung) [mich] in {minutes} (minuten|minute|min) (wegen|dass|daran) {message}"
+          - "(erinner|erinnerung) {minutes} (minuten|minute|min) {message}"
+          - "[in] {minutes} (minuten|minute|min) {message}"
+          - "{minutes} (minuten|minute|min) {message}"
+          - "{minutes} (minuten|minute|min) (erinnerung|timer) {message}"
+          - "timer [auf] {minutes} (minuten|minute|min) {message}"
+          - "[stell] [einen] timer [auf] {minutes} (minuten|minute|min) {message}"
+          - "(wecker|meld) [mich] [dich] in {minutes} (minuten|minute|min) {message}"
         slots:
           message:
             type: text
+        response: "OK, Timer auf {{ slots.minutes }} Minuten: {{ slots.message }}."
 
   # --------------------------------------------------------------------------
   # STUNDEN
@@ -232,35 +240,34 @@ intents:
   SetReminderHoursSimple:
     data:
       - sentences:
-          - "(erinner[e]|erinnerung) [mich] [bitte] in {hours} (stunde[n]|std)"
-          - "(erinner[e]|erinnerung) [mich] [bitte] in einer stunde"
-          - "[in] {hours} (stunde[n]|std) (erinner[n]|erinnerung|timer)"
-          - "[in] einer stunde (erinner[n]|erinnerung|timer)"
-          - "timer [auf] {hours} (stunde[n]|std)"
+          - "(erinner|erinnerung) [mich] <polite> in {hours} (stunden|stunde|std)"
+          - "(erinner|erinnerung) [mich] <polite> in einer stunde"
+          - "[in] {hours} (stunden|stunde|std) (erinnern|erinnerung|timer)"
+          - "[in] einer stunde (erinnern|erinnerung|timer)"
+          - "timer [auf] {hours} (stunden|stunde|std)"
           - "timer [auf] eine stunde"
-          - "(weck[er]|meld[e]) [mich] [dich] in {hours} (stunde[n]|std)"
-          - "{hours} (stunde[n]|std) (erinnerung|timer)"
+          - "(wecker|meld) [mich] [dich] in {hours} (stunden|stunde|std)"
+          - "{hours} (stunden|stunde|std) (erinnerung|timer)"
+        response: "OK, Timer auf {{ slots.hours or 1 }} Stunde(n)."
 
   SetReminderHours:
     data:
       - sentences:
-          # Mit Präpositionen
-          - "(erinner[e]|erinnerung) [mich] [bitte] in {hours} (stunde[n]|std) (an|ans|wegen|dass) {message}"
-          - "(erinner[e]|erinnerung) [mich] [bitte] in einer stunde (an|ans) {message}"
-          - "[in] {hours} (stunde[n]|std) (erinner[n]|erinnerung) (an|ans) {message}"
+          - "(erinner|erinnerung) [mich] <polite> in {hours} (stunden|stunde|std) (an|ans|wegen|dass) {message}"
+          - "(erinner|erinnerung) [mich] <polite> in einer stunde (an|ans) {message}"
+          - "[in] {hours} (stunden|stunde|std) (erinnern|erinnerung) (an|ans) {message}"
           - "[in] einer stunde (an|ans) {message} erinnern"
-          # Kurzformen
-          - "(erinner[e]|erinnerung) {hours} (stunde[n]|std) {message}"
-          - "[in] {hours} (stunde[n]|std) {message}"
+          - "(erinner|erinnerung) {hours} (stunden|stunde|std) {message}"
+          - "[in] {hours} (stunden|stunde|std) {message}"
           - "[in] einer stunde {message}"
-          - "{hours} (stunde[n]|std) {message}"
+          - "{hours} (stunden|stunde|std) {message}"
           - "eine stunde {message}"
-          # Timer
-          - "timer [auf] {hours} (stunde[n]|std) {message}"
+          - "timer [auf] {hours} (stunden|stunde|std) {message}"
           - "timer [auf] eine stunde {message}"
         slots:
           message:
             type: text
+        response: "OK, Timer auf {{ slots.hours or 1 }} Stunde(n): {{ slots.message }}."
 
   # --------------------------------------------------------------------------
   # UHRZEIT
@@ -268,21 +275,23 @@ intents:
   SetReminderTimeSimple:
     data:
       - sentences:
-          - "(erinner[e]|erinnerung) [mich] [bitte] um {clock_hour} [uhr] [{clock_minute}]"
-          - "um {clock_hour} [uhr] [{clock_minute}] (erinner[n]|erinnerung)"
-          - "(weck[er]|meld[e]) [mich] [dich] um {clock_hour} [uhr]"
+          - "(erinner|erinnerung) [mich] <polite> um {clock_hour} [uhr] [{clock_minute}]"
+          - "um {clock_hour} [uhr] [{clock_minute}] (erinnern|erinnerung)"
+          - "(wecker|meld) [mich] [dich] um {clock_hour} [uhr]"
           - "{clock_hour} uhr (erinnerung|wecker)"
+        response: "OK, Erinnerung um {{ slots.clock_hour }}:{{ '%02d' | format(slots.clock_minute or 0) }} Uhr."
 
   SetReminderTime:
     data:
       - sentences:
-          - "(erinner[e]|erinnerung) [mich] [bitte] um {clock_hour} [uhr] [{clock_minute}] (an|ans|wegen|dass) {message}"
-          - "um {clock_hour} [uhr] [{clock_minute}] (erinner[n]|erinnerung) [(an|ans)] {message}"
+          - "(erinner|erinnerung) [mich] <polite> um {clock_hour} [uhr] [{clock_minute}] (an|ans|wegen|dass) {message}"
+          - "um {clock_hour} [uhr] [{clock_minute}] (erinnern|erinnerung) [(an|ans)] {message}"
           - "um {clock_hour} [uhr] {message}"
           - "{clock_hour} uhr {message}"
         slots:
           message:
             type: text
+        response: "OK, Erinnerung um {{ slots.clock_hour }}:{{ '%02d' | format(slots.clock_minute or 0) }} Uhr: {{ slots.message }}."
 
   # --------------------------------------------------------------------------
   # EINFACHE ERINNERUNG (nur Nachricht)
@@ -290,15 +299,16 @@ intents:
   SetReminderSimple:
     data:
       - sentences:
-          - "(erinner[e]|erinnerung) [mich] [bitte] (an|ans|an das|an die|an den|wegen|dass) {message}"
-          - "(merk[e]|merke) [dir] {message}"
+          - "(erinner|erinnerung) [mich] <polite> (an|ans|an das|an die|an den|wegen|dass) {message}"
+          - "(merk|merke) [dir] {message}"
           - "nicht vergessen {message}"
-          - "(denk[e]|denke) dran {message}"
+          - "(denk|denke) dran {message}"
           - "[ich] muss daran denken {message}"
           - "[neue] erinnerung {message}"
         slots:
           message:
             type: text
+        response: "OK, ich merke mir: {{ slots.message }}."
 
   # --------------------------------------------------------------------------
   # ERINNERUNGEN ABFRAGEN
@@ -308,7 +318,7 @@ intents:
       - sentences:
           - "(welche|was für|was sind) [meine] erinnerungen [habe ich|gibt es]"
           - "(habe|hab) ich erinnerungen"
-          - "(zeig[e]|liste) [mir] [meine|alle] erinnerungen [auf|an]"
+          - "(zeig|liste) [mir] [meine|alle] erinnerungen [auf|an]"
           - "erinnerungen (anzeigen|auflisten|zeigen)"
           - "was (habe|hab) ich mir gemerkt"
           - "woran (soll|muss) ich denken"
@@ -316,6 +326,7 @@ intents:
           - "welche timer (habe ich|laufen|gibt es)"
           - "(läuft|laufen) [ein] timer"
           - "timer status"
+        response: "Aktive Timer werden abgefragt..."
 
   # --------------------------------------------------------------------------
   # ALLE LÖSCHEN
@@ -323,10 +334,11 @@ intents:
   DeleteReminder:
     data:
       - sentences:
-          - "(lösch[e]|loesch[e]|entfern[e]) [bitte] alle (erinnerungen|timer)"
+          - "(lösch|loesch|entfern) <polite> alle (erinnerungen|timer)"
           - "alle (erinnerungen|timer) (löschen|loeschen|entfernen|stoppen|abbrechen)"
-          - "(stopp[e]|beende) alle (erinnerungen|timer)"
+          - "(stopp|beende) alle (erinnerungen|timer)"
           - "(erinnerungen|timer) (löschen|stoppen|abbrechen)"
+        response: "OK, alle Timer gelöscht."
 
   # --------------------------------------------------------------------------
   # LETZTE LÖSCHEN
@@ -334,10 +346,11 @@ intents:
   DeleteLastReminder:
     data:
       - sentences:
-          - "(lösch[e]|loesch[e]|entfern[e]) [bitte] [die] letzte (erinnerung|timer)"
+          - "(lösch|loesch|entfern) <polite> [die] letzte (erinnerung|timer)"
           - "[die] letzte (erinnerung|timer) (löschen|loeschen|entfernen|stoppen|abbrechen)"
-          - "(stopp[e]|beende) [den] letzten timer"
+          - "(stopp|beende) [den] letzten timer"
           - "letzten timer (löschen|stoppen|abbrechen)"
+        response: "OK, letzter Timer gelöscht."
 
   # --------------------------------------------------------------------------
   # STOPP (wenn Erinnerung gerade läuft)
@@ -345,8 +358,9 @@ intents:
   StopReminder:
     data:
       - sentences:
-          - "(stopp|stop|halt|ok[ay]|danke|verstanden|genug|ruhe|still)"
-          - "(alles klar|schon gut|is[t] gut)"
+          - "(stopp|stop|halt|okay|ok|danke|verstanden|genug|ruhe|still)"
+          - "(alles klar|schon gut|ist gut)"
           - "ich (weiß|weiss)"
           - "(hör|hoer) auf"
           - "(aufhören|aufhoeren)"
+        response: "OK."

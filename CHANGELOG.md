@@ -2,6 +2,33 @@
 
 Alle wichtigen Änderungen an diesem Projekt werden hier dokumentiert.
 
+## [2.0.0] - 2024
+
+### 🚀 TRUE STATE OF THE ART
+
+Komplett überarbeitete Syntax für Home Assistant 2024+:
+
+### Hinzugefügt
+- **Entity Slots**: `type: entity` mit `domain` für automatisches Matching
+- **Area Slots**: `type: area` für raumbasierte Steuerung
+- **Inline Responses**: Antworten direkt in Sentence-Dateien
+- **Dynamische Responses**: Jinja2-Templates in Responses
+- **Rolladen Status-Abfrage**: Dynamische Position- und Status-Anzeige
+- **Licht Status-Abfrage**: Helligkeit und Zustand abfragen
+- **Media Status-Abfrage**: "Was spielt gerade?" mit Titel/Artist
+
+### Geändert
+- **Alle Built-In Intents**: HassTurnOn, HassOpenCover, etc. mit Entity-Slots
+- **Responses**: Von intent_script.yaml in Sentence-Dateien verschoben
+- **Expansion Rules**: Vereinfacht und konsistent gemacht
+- **Minimum Version**: Home Assistant 2024.1+ erforderlich
+
+### Technische Details
+- Entity-Slots: `slots: { name: { type: entity, domain: cover } }`
+- Area-Slots: `slots: { area: { type: area } }`
+- Responses: `response: "OK, {{ slots.name }} wird geöffnet."`
+- Template-Responses: `response: >` für komplexe Jinja2
+
 ## [1.1.0] - 2024
 
 ### Hinzugefügt

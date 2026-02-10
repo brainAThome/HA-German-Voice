@@ -1,10 +1,21 @@
 # ================================================================================
 # HA-GERMAN-VOICE - Deutsche Licht-Sprachbefehle
 # ================================================================================
-# State of the Art Sentence Expansion Syntax
+# TRUE STATE OF THE ART - Home Assistant 2024+ Syntax
+# ✅ Entity Slots mit type: entity + domain filtering
+# ✅ Area Slots mit type: area
+# ✅ Responses direkt in Sentences
 # ================================================================================
 
 language: de
+
+# ============================================================================
+# EXPANSION RULES
+# ============================================================================
+expansion_rules:
+  article: "[der|die|das|den|dem]"
+  polite: "[bitte|mal|doch|eben]"
+  room_prep: "(in|im|am|vom|beim)"
 
 # ============================================================================
 # LISTEN
@@ -12,48 +23,50 @@ language: de
 lists:
   brightness:
     values:
-      - in: "(10|zehn) [prozent]"
+      - in: "(0|null|aus)"
+        out: 0
+      - in: "(10|zehn)"
         out: 10
-      - in: "(20|zwanzig) [prozent]"
+      - in: "(20|zwanzig)"
         out: 20
-      - in: "(25|fünfundzwanzig) [prozent]"
+      - in: "(25|fünfundzwanzig|viertel)"
         out: 25
-      - in: "(30|dreißig|dreissig) [prozent]"
+      - in: "(30|dreißig|dreissig)"
         out: 30
-      - in: "(40|vierzig) [prozent]"
+      - in: "(40|vierzig)"
         out: 40
-      - in: "(50|fünfzig|fuenfzig|halb[e]) [prozent]"
+      - in: "(50|fünfzig|fuenfzig|halb|halbe)"
         out: 50
-      - in: "(60|sechzig) [prozent]"
+      - in: "(60|sechzig)"
         out: 60
-      - in: "(70|siebzig) [prozent]"
+      - in: "(70|siebzig)"
         out: 70
-      - in: "(75|fünfundsiebzig) [prozent]"
+      - in: "(75|fünfundsiebzig|dreiviertel)"
         out: 75
-      - in: "(80|achtzig) [prozent]"
+      - in: "(80|achtzig)"
         out: 80
-      - in: "(90|neunzig) [prozent]"
+      - in: "(90|neunzig)"
         out: 90
-      - in: "(100|hundert|voll[e]) [prozent]"
+      - in: "(100|hundert|voll|volle|maximum)"
         out: 100
 
   color:
     values:
-      - in: "(rot|rotes)"
+      - in: "(rot|rotes|rotem)"
         out: "red"
-      - in: "(grün|gruen|grünes)"
+      - in: "(grün|gruen|grünes|grünem)"
         out: "green"
-      - in: "(blau|blaues)"
+      - in: "(blau|blaues|blauem)"
         out: "blue"
-      - in: "(gelb|gelbes)"
+      - in: "(gelb|gelbes|gelbem)"
         out: "yellow"
-      - in: "(orange|oranges)"
+      - in: "(orange|oranges|orangem)"
         out: "orange"
-      - in: "(lila|violett|violet)"
+      - in: "(lila|violett|violet|lila)"
         out: "purple"
       - in: "(rosa|pink)"
         out: "pink"
-      - in: "(weiß|weiss|weißes)"
+      - in: "(weiß|weiss|weißes|weissem)"
         out: "white"
       - in: "(warm|warmweiß|warmweiss)"
         out: "warmwhite"
@@ -74,7 +87,7 @@ lists:
         out: 500
 
 # ============================================================================
-# STANDARD INTENTS (Home Assistant Built-in)
+# INTENTS MIT ENTITY/AREA SLOTS + RESPONSES
 # ============================================================================
 intents:
   # --------------------------------------------------------------------------
@@ -82,65 +95,121 @@ intents:
   # --------------------------------------------------------------------------
   HassTurnOn:
     data:
+      # === Mit Entity-Name ===
       - sentences:
-          # Einfach
-          - "(mach[e]|schalte|stell[e]|dreh[e]|schalt[e]) [bitte] [das|die|den] {name} (an|ein)"
-          - "[das|die|den] {name} (anschalten|einschalten|anmachen|einmachen)"
-          - "(licht|lampe|beleuchtung) (an|ein) [in|im|am] {name}"
+          - "(mach|schalte|stell|dreh|schalt) <polite> <article> {name} (an|ein)"
+          - "<article> {name} (anschalten|einschalten|anmachen)"
+          - "(licht|lampe|beleuchtung) (an|ein) {name}"
           - "{name} (licht|lampe) (an|ein)"
-          # Einschalten im Raum
-          - "(mach[e]|schalte) [bitte] [das] licht (an|ein) (in|im) {name}"
-          - "licht (an|ein) (in|im|am) {name}"
-          - "(in|im) {name} licht (an|ein)"
-          # Höflichkeitsformen
-          - "(könntest|koenntest|kannst) du [bitte] [das|die|den] {name} (anmachen|einschalten)"
-          - "(würdest|wuerdest) du [bitte] [das|die|den] {name} (anmachen|einschalten)"
+          - "(könntest|kannst|würdest) du <polite> <article> {name} (anmachen|einschalten)"
+        slots:
+          name:
+            type: entity
+            domain: light
+        response: "OK, {{ slots.name }} ist an."
+      
+      # === Mit Area ===
+      - sentences:
+          - "(mach|schalte) <polite> [das] licht (an|ein) <room_prep> {area}"
+          - "licht (an|ein) <room_prep> {area}"
+          - "<room_prep> {area} licht (an|ein)"
+          - "(hell|licht) <room_prep> {area}"
+          - "{area} (beleuchten|erhellen)"
+        slots:
+          area:
+            type: area
+        response: "OK, Licht in {{ slots.area }} ist an."
 
   # --------------------------------------------------------------------------
   # LICHT AUS
   # --------------------------------------------------------------------------
   HassTurnOff:
     data:
+      # === Mit Entity-Name ===
       - sentences:
-          # Einfach
-          - "(mach[e]|schalte|stell[e]|dreh[e]|schalt[e]) [bitte] [das|die|den] {name} (aus|ab)"
-          - "[das|die|den] {name} (ausschalten|abschalten|ausmachen)"
-          - "(licht|lampe|beleuchtung) (aus|ab) [in|im|am] {name}"
+          - "(mach|schalte|stell|dreh|schalt) <polite> <article> {name} (aus|ab)"
+          - "<article> {name} (ausschalten|abschalten|ausmachen)"
+          - "(licht|lampe|beleuchtung) (aus|ab) {name}"
           - "{name} (licht|lampe) (aus|ab)"
-          # Ausschalten im Raum
-          - "(mach[e]|schalte) [bitte] [das] licht (aus|ab) (in|im) {name}"
-          - "licht (aus|ab) (in|im|am) {name}"
-          - "(in|im) {name} licht (aus|ab)"
-          # Höflichkeitsformen
-          - "(könntest|koenntest|kannst) du [bitte] [das|die|den] {name} (ausmachen|ausschalten)"
-          - "(würdest|wuerdest) du [bitte] [das|die|den] {name} (ausmachen|ausschalten)"
+          - "(könntest|kannst|würdest) du <polite> <article> {name} (ausmachen|ausschalten)"
+        slots:
+          name:
+            type: entity
+            domain: light
+        response: "OK, {{ slots.name }} ist aus."
+      
+      # === Mit Area ===
+      - sentences:
+          - "(mach|schalte) <polite> [das] licht (aus|ab) <room_prep> {area}"
+          - "licht (aus|ab) <room_prep> {area}"
+          - "<room_prep> {area} licht (aus|ab)"
+          - "{area} (abdunkeln|dunkel)"
+        slots:
+          area:
+            type: area
+        response: "OK, Licht in {{ slots.area }} ist aus."
 
   # --------------------------------------------------------------------------
-  # LICHT UMSCHALTEN (Toggle)
+  # LICHT TOGGLE
   # --------------------------------------------------------------------------
   HassToggle:
     data:
       - sentences:
-          - "(toggle|umschalten|wechsel[e]|wechsle) [das|die|den] {name}"
-          - "[das|die|den] {name} (toggle[n]|umschalten)"
+          - "(toggle|umschalten|wechsel|wechsle) <article> {name}"
+          - "<article> {name} (toggle|umschalten)"
+        slots:
+          name:
+            type: entity
+            domain: light
+        response: "OK, {{ slots.name }} umgeschaltet."
 
   # --------------------------------------------------------------------------
   # HELLIGKEIT SETZEN
   # --------------------------------------------------------------------------
   HassLightSet:
     data:
+      # === Mit Entity-Name und Brightness ===
       - sentences:
-          # Direkt mit Prozent
-          - "(setz[e]|stell[e]) [bitte] [die] {name} [helligkeit] auf {brightness} [prozent]"
-          - "[die] {name} auf {brightness} [prozent] [setzen|stellen|dimmen]"
-          - "(dimm[e]|dimme) [bitte] [die|das|den] {name} auf {brightness} [prozent]"
-          # Mit Helligkeit-Wort
-          - "(mach[e]|stell[e]) [bitte] [die|das|den] {name} [auf] {brightness} [prozent] (hell|dunkel)"
-          - "[die] {name} helligkeit [auf] {brightness} [prozent]"
-          # Einfache Helligkeitsbefehle
-          - "(heller|mehr licht) (in|im|am) {name}"
-          - "(dunkler|weniger licht|gedimmter) (in|im|am) {name}"
-          - "[das|die|den] {name} (heller|dunkler)"
+          - "(setz|stell) <polite> <article> {name} [helligkeit] auf {brightness} [prozent]"
+          - "<article> {name} auf {brightness} [prozent] [setzen|stellen|dimmen]"
+          - "(dimm|dimme) <polite> <article> {name} auf {brightness} [prozent]"
+          - "(mach|stell) <polite> <article> {name} [auf] {brightness} [prozent] [hell|dunkel]"
+          - "<article> {name} helligkeit [auf] {brightness} [prozent]"
+          - "{name} [auf] {brightness} [prozent]"
+        slots:
+          name:
+            type: entity
+            domain: light
+        response: "OK, {{ slots.name }} auf {{ slots.brightness }}%."
+      
+      # === Mit Area und Brightness ===
+      - sentences:
+          - "(setz|stell) <polite> [die] helligkeit <room_prep> {area} auf {brightness} [prozent]"
+          - "<room_prep> {area} [licht] [auf] {brightness} [prozent]"
+          - "(dimm|dimme) <polite> <room_prep> {area} auf {brightness} [prozent]"
+        slots:
+          area:
+            type: area
+        response: "OK, Licht in {{ slots.area }} auf {{ slots.brightness }}%."
+      
+      # === Heller/Dunkler mit Entity ===
+      - sentences:
+          - "<article> {name} (heller|dunkler)"
+          - "(mach|stell) <polite> <article> {name} (heller|dunkler)"
+        slots:
+          name:
+            type: entity
+            domain: light
+        response: "OK, {{ slots.name }} angepasst."
+      
+      # === Heller/Dunkler mit Area ===
+      - sentences:
+          - "(heller|mehr licht) <room_prep> {area}"
+          - "(dunkler|weniger licht|gedimmter) <room_prep> {area}"
+        slots:
+          area:
+            type: area
+        response: "OK, Helligkeit in {{ slots.area }} angepasst."
 
   # --------------------------------------------------------------------------
   # FARBE SETZEN
@@ -148,35 +217,91 @@ intents:
   HassLightSet:
     data:
       - sentences:
-          # Farbe direkt
-          - "(mach[e]|stell[e]|setz[e]) [bitte] [die|das|den] {name} [auf] {color}"
-          - "[die|das|den] {name} [in|auf] {color} [setzen|stellen|ändern]"
-          - "{color}[es] licht (in|im) {name}"
-          # Mit "Farbe" Wort
-          - "(änder[e]|aender[e]|wechsel[e]|wechsle) [die] farbe (von|der|des|am|in|im) {name} [auf|zu|nach] {color}"
-          - "[die] {name} farbe [auf] {color}"
-          # Farbtemperatur
-          - "(mach[e]|stell[e]) [bitte] [die|das|den] {name} [auf] {color_temp}[es] [licht]"
-          - "{color_temp}[es] licht (in|im) {name}"
+          - "(mach|stell|setz) <polite> <article> {name} [auf] {color}"
+          - "<article> {name} [in|auf] {color} [setzen|stellen|ändern]"
+          - "{color}[es] licht {name}"
+          - "(änder|wechsel|wechsle) [die] farbe [von|der|des|am] {name} [auf|zu|nach] {color}"
+          - "<article> {name} farbe [auf] {color}"
+        slots:
+          name:
+            type: entity
+            domain: light
+        response: "OK, {{ slots.name }} auf {{ slots.color }}."
+      
+      - sentences:
+          - "{color}[es] licht <room_prep> {area}"
+          - "(änder|wechsel) [die] farbe <room_prep> {area} [auf|zu] {color}"
+        slots:
+          area:
+            type: area
+        response: "OK, Licht in {{ slots.area }} auf {{ slots.color }}."
 
   # --------------------------------------------------------------------------
-  # ALLES AUS
+  # FARBTEMPERATUR SETZEN
+  # --------------------------------------------------------------------------
+  HassLightSet:
+    data:
+      - sentences:
+          - "(mach|stell) <polite> <article> {name} [auf] {color_temp}[es] [licht]"
+          - "<article> {name} [auf] {color_temp}"
+        slots:
+          name:
+            type: entity
+            domain: light
+        response: "OK, {{ slots.name }} auf {{ slots.color_temp }} Kelvin."
+      
+      - sentences:
+          - "{color_temp}[es] licht <room_prep> {area}"
+          - "<room_prep> {area} [licht] [auf] {color_temp}"
+        slots:
+          area:
+            type: area
+        response: "OK, Licht in {{ slots.area }} auf {{ slots.color_temp }} Kelvin."
+
+  # --------------------------------------------------------------------------
+  # ALLES AUS/AN
   # --------------------------------------------------------------------------
   HassTurnOff:
     data:
       - sentences:
-          - "(mach[e]|schalte) [bitte] (alle[s]|sämtliche) (lichter|lampen|beleuchtung) (aus|ab)"
-          - "(alle[s]|sämtliche) (lichter|lampen) (aus|ausschalten)"
+          - "(mach|schalte) <polite> (alle|alles|sämtliche) (lichter|lampen|beleuchtung) (aus|ab)"
+          - "(alle|alles|sämtliche) (lichter|lampen) (aus|ausschalten)"
           - "lichter (aus|ab)"
           - "licht überall (aus|ab)"
+          - "alles dunkel"
+        response: "OK, alle Lichter sind aus."
 
-  # --------------------------------------------------------------------------
-  # ALLES AN
-  # --------------------------------------------------------------------------
   HassTurnOn:
     data:
       - sentences:
-          - "(mach[e]|schalte) [bitte] (alle[s]|sämtliche) (lichter|lampen|beleuchtung) (an|ein)"
-          - "(alle[s]|sämtliche) (lichter|lampen) (an|einschalten)"
+          - "(mach|schalte) <polite> (alle|alles|sämtliche) (lichter|lampen|beleuchtung) (an|ein)"
+          - "(alle|alles|sämtliche) (lichter|lampen) (an|einschalten)"
           - "lichter (an|ein)"
           - "licht überall (an|ein)"
+          - "überall hell"
+        response: "OK, alle Lichter sind an."
+
+  # --------------------------------------------------------------------------
+  # LICHT STATUS
+  # --------------------------------------------------------------------------
+  GetLightState:
+    data:
+      - sentences:
+          - "(wie|was) (ist|sind) <article> {name} [(licht|lampe)]"
+          - "(ist|sind) <article> {name} (an|aus|ein)"
+          - "(status|helligkeit) [von|vom] {name}"
+          - "{name} (status|helligkeit)"
+          - "auf wieviel [prozent] (ist|steht) <article> {name}"
+        slots:
+          name:
+            type: entity
+            domain: light
+        response: >
+          {% set state = states(slots.name) %}
+          {% set brightness = state_attr(slots.name, 'brightness') | default(0) %}
+          {% set pct = (brightness / 2.55) | round %}
+          {% if state == 'on' %}
+          {{ state_attr(slots.name, 'friendly_name') }} ist an bei {{ pct }}%.
+          {% else %}
+          {{ state_attr(slots.name, 'friendly_name') }} ist aus.
+          {% endif %}

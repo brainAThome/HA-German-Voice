@@ -1,10 +1,22 @@
 # 🇩🇪 HA-German-Voice
 
-**Deutsche Sprachbefehle für Home Assistant** - Umfassende Custom Sentences für Assist/Voice Pipelines.
+**Deutsche Sprachbefehle für Home Assistant** - State of the Art Custom Sentences für Assist/Voice Pipelines.
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2023.7+-blue.svg)](https://www.home-assistant.io/)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1+-blue.svg)](https://www.home-assistant.io/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+---
+
+## 🚀 State of the Art Features
+
+Dieses Paket nutzt die **neuesten Home Assistant Intent-Features**:
+
+- ✅ **Entity Slots** mit `type: entity` und `domain` für automatisches Matching
+- ✅ **Area Slots** mit `type: area` für raumbasierte Steuerung
+- ✅ **Responses direkt in Sentences** - keine separaten Dateien nötig
+- ✅ **Expansion Rules** für natürliche Sprachvarianten
+- ✅ **Built-In Intents** (HassTurnOn, HassOpenCover, etc.) werden automatisch erkannt
 
 ---
 
@@ -24,24 +36,26 @@
 - **Abfragen**: "Welche Erinnerungen habe ich?" / "Löschen aller Timer"
 
 ### 💡 Lichter
-- **Ein/Aus**: "Mach das Licht im Wohnzimmer an"
-- **Helligkeit**: "Dimme die Küche auf 50 Prozent"
-- **Farben**: "Mach das Schlafzimmer rot"
+- **Ein/Aus**: "Mach das Licht im Wohnzimmer an" / "Licht in Küche aus"
+- **Helligkeit**: "Dimme die Lampe auf 50 Prozent"
+- **Farben**: "Mach das Schlafzimmer rot" / "Blaues Licht in Küche"
 - **Farbtemperatur**: "Warmes Licht im Büro"
+- **Raum-basiert**: "Heller im Wohnzimmer" (mit Area-Matching)
 
 ### 🎵 Medien
 - **Wiedergabe**: "Spiele Musik ab" / "Pause"
 - **Navigation**: "Nächster Titel" / "Zurück"
 - **Lautstärke**: "Lauter" / "Lautstärke auf 50%"
-- **Suche**: "Spiele Jazz auf dem Wohnzimmer-Speaker"
+- **Status**: "Was spielt gerade?" (mit dynamischer Antwort)
 
 ### 🪟 Rolladen/Jalousien
-- **Öffnen/Schließen**: "Mach die Rolladen im Wohnzimmer auf"
+- **Öffnen/Schließen**: "Wohnzimmerrollo auf" / "Rolladen im Schlafzimmer runter"
+- **Area-basiert**: "Rolladen im Wohnzimmer auf" (automatisches Matching)
 - **Position**: "Rolladen auf 50 Prozent"
 - **Lamellen**: "Lamellen auf halb"
 - **Sonnenschutz**: "Sonnenschutz aktivieren im Büro"
 - **Szenen**: "Guten Morgen" / "Kino Modus" / "Gute Nacht"
-- **Automatik**: "Rolladen Automatik an/aus"
+- **Status**: "Wie steht das Wohnzimmerrollo?" (mit dynamischer Antwort)
 
 ---
 
@@ -64,10 +78,7 @@
    ```
    config/custom_sentences/de/
    ```
-3. Kopiere den Inhalt von `custom_templates/` nach:
-   ```
-   config/custom_templates/
-   ```
+3. Kopiere `intent_script.yaml` und füge es zu deiner config hinzu
 4. **Neustart** von Home Assistant
 
 ---
@@ -76,28 +87,24 @@
 
 ### Voraussetzungen
 
-- Home Assistant 2023.7 oder neuer
-- Eine Wetter-Integration (z.B. Met.no)
+- **Home Assistant 2024.1 oder neuer** (für Entity/Area Slots)
+- Eine Wetter-Integration (z.B. Met.no, oder weather.forecast_home)
 - Assist/Voice Pipeline aktiviert
 
 ### Optionale Erweiterungen
 
+#### Intent Script (für Custom Intents)
+
+Nur nötig für Wetter, Erinnerungen und Custom Cover Szenen:
+
+```yaml
+# configuration.yaml
+intent_script: !include intent_script.yaml
+```
+
 #### Erinnerungen (Timer)
 
 Füge folgendes zu deiner `configuration.yaml` hinzu:
-
-```yaml
-timer:
-  erinnerung_1:
-    name: "Erinnerung 1"
-  erinnerung_2:
-    name: "Erinnerung 2"
-  erinnerung_3:
-    name: "Erinnerung 3"
-
-input_text:
-  erinnerung_1_nachricht:
-    name: "Erinnerung 1 Nachricht"
     max: 255
   erinnerung_2_nachricht:
     name: "Erinnerung 2 Nachricht"

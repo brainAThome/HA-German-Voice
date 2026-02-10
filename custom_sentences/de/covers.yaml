@@ -1,32 +1,26 @@
 # ================================================================================
 # HA-GERMAN-VOICE - Deutsche Rolladen/Jalousie-Sprachbefehle
 # ================================================================================
-# State of the Art Sentence Expansion Syntax
-# ALLE Variationen: Wohnzimmerrollo, Rollo im Wohnzimmer, Wohnzimmer Rollo, etc.
+# TRUE STATE OF THE ART - Home Assistant 2024+ Syntax
+# ✅ Entity Slots mit type: entity + domain filtering
+# ✅ Area Slots mit type: area
+# ✅ Responses direkt in Sentences
+# ✅ Wildcard Entity Matching
 # ================================================================================
 
 language: de
 
 # ============================================================================
-# EXPANSION RULES - Wiederverwendbare Muster
+# EXPANSION RULES
 # ============================================================================
 expansion_rules:
-  # Cover-Typen (Singular und Plural)
   cover_type: "(rolladen|rollo|jalousie|rollade|raffstore|plissee|markise|sonnenschutz|verdunklung)"
   cover_types: "(rolladen|rollos|jalousien|rolläden|raffstores|plissees|markisen)"
-  
-  # Artikel
   article: "[der|die|das|den|dem]"
-  
-  # Präpositionen für Raumbezug
   room_prep: "(in|im|am|vom|beim|fürs|für das|für den|für die)"
-  
-  # Aktionen hoch/auf
   action_open: "(auf|hoch|rauf|öffnen|oeffnen|aufmachen|hochfahren|hochziehen|aufziehen)"
   action_close: "(zu|runter|ab|schließen|schliessen|zumachen|runterfahren|runterziehen|absenken)"
   action_stop: "(stopp|stop|halt|anhalten|stehen bleiben)"
-  
-  # Höflichkeit
   polite: "[bitte|mal|doch|eben]"
   polite_question: "(könntest|koenntest|kannst|würdest|wuerdest|magst) du [bitte|mal]"
 
@@ -54,7 +48,7 @@ lists:
         out: 33
       - in: "(40|vierzig)"
         out: 40
-      - in: "(50|fünfzig|fuenfzig|halb|halb[e]|zur hälfte|zur haelfte)"
+      - in: "(50|fünfzig|fuenfzig|halb|halbe|zur hälfte|zur haelfte)"
         out: 50
       - in: "(60|sechzig)"
         out: 60
@@ -81,125 +75,93 @@ lists:
         out: 0
       - in: "(25|viertel|leicht|ein bisschen|etwas)"
         out: 25
-      - in: "(50|halb[e]|mittel|zur hälfte)"
+      - in: "(50|halbe|mittel|zur hälfte)"
         out: 50
       - in: "(75|dreiviertel|fast offen)"
         out: 75
       - in: "(100|ganz|voll|offen|hell|ganz offen|komplett)"
         out: 100
 
-  time_of_day:
-    values:
-      - in: "(morgens|morgen[s]|früh|in der früh)"
-        out: "morning"
-      - in: "(mittags|mittag|zu mittag)"
-        out: "noon"
-      - in: "(nachmittags|nachmittag|am nachmittag)"
-        out: "afternoon"
-      - in: "(abends|abend|am abend)"
-        out: "evening"
-      - in: "(nachts|nacht|in der nacht)"
-        out: "night"
-      - in: "(sonnenaufgang|sunrise|bei sonnenaufgang)"
-        out: "sunrise"
-      - in: "(sonnenuntergang|sunset|bei sonnenuntergang)"
-        out: "sunset"
-
 # ============================================================================
-# STANDARD INTENTS (Home Assistant Built-in)
+# INTENTS MIT ENTITY/AREA SLOTS + RESPONSES
 # ============================================================================
 intents:
   # --------------------------------------------------------------------------
-  # ROLLADEN ÖFFNEN - Alle Varianten
+  # ROLLADEN ÖFFNEN
   # --------------------------------------------------------------------------
   HassOpenCover:
     data:
+      # === Mit Entity-Name (HA matched automatisch gegen cover domain!) ===
       - sentences:
-          # ===== DIREKT MIT ENTITY NAME =====
-          # "Wohnzimmerrollo auf", "Schlafzimmerjalousie hoch"
           - "{name} <action_open>"
           - "<article> {name} <action_open>"
           - "<action_open> <article> {name}"
-          
-          # ===== MIT VERB =====
-          # "Öffne das Wohnzimmerrollo", "Mach den Schlafzimmerrolladen auf"
-          - "(öffne|oeffne|mach[e]|fahr[e]) <polite> <article> {name} [(auf|hoch)]"
-          - "(zieh[e]|ziehe) <polite> <article> {name} (hoch|auf|rauf)"
-          
-          # ===== MIT COVER TYPE UND RAUM =====
-          # "Rollo im Wohnzimmer auf", "Rolladen im Schlafzimmer hoch"
-          - "<cover_type> <room_prep> {name} <action_open>"
-          - "<article> <cover_type> <room_prep> {name} <action_open>"
-          - "(öffne|oeffne|mach[e]|fahr[e]) <polite> <article> <cover_type> <room_prep> {name} [(auf|hoch)]"
-          
-          # ===== RAUM MIT COVER TYPE =====
-          # "Wohnzimmer Rollo auf", "Schlafzimmer Jalousie hoch"
+          - "(öffne|oeffne|mach|fahr) <polite> <article> {name} [(auf|hoch)]"
+          - "(zieh|ziehe) <polite> <article> {name} (hoch|auf|rauf)"
           - "{name} <cover_type> <action_open>"
-          - "<article> {name} <cover_type> <action_open>"
-          - "(öffne|oeffne|mach[e]) <polite> <article> {name} <cover_type>"
-          
-          # ===== RAUM ZUERST =====
-          # "Im Wohnzimmer Rollo auf", "Im Schlafzimmer Rolladen hoch"
-          - "<room_prep> {name} [<article>] <cover_type> <action_open>"
-          - "<room_prep> {name} <action_open> [<article>] <cover_type>"
-          
-          # ===== MIT HÖFLICHKEIT =====
           - "<polite_question> <article> {name} <action_open>"
-          - "<polite_question> <article> <cover_type> <room_prep> {name} (aufmachen|öffnen|hochfahren)"
-          - "<polite_question> <room_prep> {name} <article> <cover_type> (aufmachen|öffnen)"
-          
-          # ===== IMPERATIV VARIANTEN =====
-          # "Rolladen hoch im Wohnzimmer"
-          - "<cover_type> <action_open> <room_prep> {name}"
-          - "<article> <cover_type> <action_open> <room_prep> {name}"
+        slots:
+          name:
+            type: entity
+            domain: cover
+        response: "OK, {{ slots.name }} wird geöffnet."
+      
+      # === Mit Area (alle Cover im Raum) ===
+      - sentences:
+          - "<cover_type> <room_prep> {area} <action_open>"
+          - "<article> <cover_type> <room_prep> {area} <action_open>"
+          - "(öffne|mach|fahr) <polite> <article> <cover_type> <room_prep> {area} [(auf|hoch)]"
+          - "<room_prep> {area} [<article>] <cover_type> <action_open>"
+          - "<room_prep> {area} <action_open> [<article>] <cover_type>"
+          - "<cover_type> <action_open> <room_prep> {area}"
+          - "<polite_question> <article> <cover_type> <room_prep> {area} (aufmachen|öffnen|hochfahren)"
+        slots:
+          area:
+            type: area
+        response: "OK, Rolladen in {{ slots.area }} werden geöffnet."
 
   # --------------------------------------------------------------------------
-  # ROLLADEN SCHLIESSEN - Alle Varianten
+  # ROLLADEN SCHLIESSEN
   # --------------------------------------------------------------------------
   HassCloseCover:
     data:
+      # === Mit Entity-Name ===
       - sentences:
-          # ===== DIREKT MIT ENTITY NAME =====
           - "{name} <action_close>"
           - "<article> {name} <action_close>"
           - "<action_close> <article> {name}"
-          
-          # ===== MIT VERB =====
-          - "(schließe|schliesse|mach[e]|fahr[e]) <polite> <article> {name} [(zu|runter)]"
-          - "(zieh[e]|ziehe) <polite> <article> {name} (runter|zu|ab)"
-          - "(lass[e]|lasse) <polite> <article> {name} (runter|ab)"
-          
-          # ===== MIT COVER TYPE UND RAUM =====
-          - "<cover_type> <room_prep> {name} <action_close>"
-          - "<article> <cover_type> <room_prep> {name} <action_close>"
-          - "(schließe|schliesse|mach[e]|fahr[e]) <polite> <article> <cover_type> <room_prep> {name} [(zu|runter)]"
-          
-          # ===== RAUM MIT COVER TYPE =====
-          - "{name} <cover_type> <action_close>"
-          - "<article> {name} <cover_type> <action_close>"
-          - "(schließe|schliesse|mach[e]) <polite> <article> {name} <cover_type>"
-          
-          # ===== RAUM ZUERST =====
-          - "<room_prep> {name} [<article>] <cover_type> <action_close>"
-          - "<room_prep> {name} <action_close> [<article>] <cover_type>"
-          
-          # ===== MIT HÖFLICHKEIT =====
-          - "<polite_question> <article> {name} <action_close>"
-          - "<polite_question> <article> <cover_type> <room_prep> {name} (zumachen|schließen|runterfahren)"
-          
-          # ===== VERDUNKELN =====
+          - "(schließe|schliesse|mach|fahr) <polite> <article> {name} [(zu|runter)]"
+          - "(zieh|ziehe) <polite> <article> {name} (runter|zu|ab)"
+          - "(lass|lasse) <polite> <article> {name} (runter|ab)"
           - "(verdunkle|verdunkeln) <polite> <article> {name}"
-          - "(verdunkle|verdunkeln) <polite> <room_prep> {name}"
-          - "{name} (verdunkeln|abdunkeln)"
-          - "<room_prep> {name} (verdunkeln|abdunkeln)"
-          - "(mach[e]|mache) <polite> <room_prep> {name} dunkel"
-          - "{name} dunkel [machen]"
-          
-          # ===== IMPERATIV =====
-          - "<cover_type> <action_close> <room_prep> {name}"
+          - "{name} (verdunkeln|abdunkeln|dunkel [machen])"
+          - "{name} <cover_type> <action_close>"
+          - "<polite_question> <article> {name} <action_close>"
+        slots:
+          name:
+            type: entity
+            domain: cover
+        response: "OK, {{ slots.name }} wird geschlossen."
+      
+      # === Mit Area ===
+      - sentences:
+          - "<cover_type> <room_prep> {area} <action_close>"
+          - "<article> <cover_type> <room_prep> {area} <action_close>"
+          - "(schließe|mach|fahr) <polite> <article> <cover_type> <room_prep> {area} [(zu|runter)]"
+          - "<room_prep> {area} [<article>] <cover_type> <action_close>"
+          - "<room_prep> {area} <action_close> [<article>] <cover_type>"
+          - "(verdunkle|verdunkeln) <polite> <room_prep> {area}"
+          - "<room_prep> {area} (verdunkeln|abdunkeln)"
+          - "(mach|mache) <polite> <room_prep> {area} dunkel"
+          - "{area} dunkel [machen]"
+          - "<cover_type> <action_close> <room_prep> {area}"
+        slots:
+          area:
+            type: area
+        response: "OK, Rolladen in {{ slots.area }} werden geschlossen."
 
   # --------------------------------------------------------------------------
-  # ROLLADEN STOPPEN - Alle Varianten
+  # ROLLADEN STOPPEN
   # --------------------------------------------------------------------------
   HassStopCover:
     data:
@@ -207,109 +169,109 @@ intents:
           - "<action_stop> <polite> <article> {name}"
           - "<article> {name} <action_stop>"
           - "{name} <action_stop>"
-          
-          - "<action_stop> <polite> <article> <cover_type> <room_prep> {name}"
-          - "<cover_type> <room_prep> {name} <action_stop>"
-          - "<room_prep> {name} <article> <cover_type> <action_stop>"
-          
           - "(halte|stoppe) <polite> <article> {name} an"
-          - "(halte|stoppe) <polite> <article> <cover_type> <room_prep> {name} an"
+        slots:
+          name:
+            type: entity
+            domain: cover
+        response: "OK, {{ slots.name }} gestoppt."
+      
+      - sentences:
+          - "<action_stop> <polite> <article> <cover_type> <room_prep> {area}"
+          - "<cover_type> <room_prep> {area} <action_stop>"
+          - "<room_prep> {area} <article> <cover_type> <action_stop>"
+        slots:
+          area:
+            type: area
+        response: "OK, Rolladen in {{ slots.area }} gestoppt."
 
   # --------------------------------------------------------------------------
-  # POSITION SETZEN - Alle Varianten
+  # POSITION SETZEN
   # --------------------------------------------------------------------------
   HassSetCoverPosition:
     data:
+      # === Mit Entity-Name ===
       - sentences:
-          # ===== ENTITY NAME DIREKT =====
-          # "Wohnzimmerrollo auf 50%", "Schlafzimmerrolladen 30 Prozent"
           - "{name} [auf] {position} [prozent]"
           - "<article> {name} [auf] {position} [prozent]"
           - "{name} auf {position} [prozent] (setzen|stellen|fahren)"
-          
-          # ===== MIT VERB =====
-          # "Setz das Wohnzimmerrollo auf 50"
-          - "(setz[e]|stell[e]|fahr[e]) <polite> <article> {name} auf {position} [prozent]"
-          - "(mach[e]|mache) <polite> <article> {name} [auf] {position} [prozent] [(auf|zu)]"
-          
-          # ===== MIT COVER TYPE UND RAUM =====
-          # "Rollo im Wohnzimmer auf 50%", "Rolladen im Schlafzimmer 30 Prozent"
-          - "<cover_type> <room_prep> {name} [auf] {position} [prozent]"
-          - "<article> <cover_type> <room_prep> {name} [auf] {position} [prozent]"
-          - "(setz[e]|stell[e]|fahr[e]) <polite> <article> <cover_type> <room_prep> {name} auf {position} [prozent]"
-          
-          # ===== RAUM MIT COVER TYPE =====
-          # "Wohnzimmer Rollo auf 50%"
-          - "{name} <cover_type> [auf] {position} [prozent]"
-          - "<article> {name} <cover_type> [auf] {position} [prozent]"
-          - "(setz[e]|stell[e]) <polite> <article> {name} <cover_type> auf {position} [prozent]"
-          
-          # ===== RAUM ZUERST =====
-          # "Im Wohnzimmer Rollo auf 50%"
-          - "<room_prep> {name} [<article>] <cover_type> [auf] {position} [prozent]"
-          - "<room_prep> {name} [<article>] [<cover_type>] {position} [prozent]"
-          
-          # ===== MIT HÖFLICHKEIT =====
-          - "<polite_question> <article> {name} auf {position} [prozent] (setzen|stellen|fahren)"
-          - "<polite_question> <article> <cover_type> <room_prep> {name} auf {position} [prozent] (setzen|stellen|fahren)"
-          
-          # ===== ZUR HÄLFTE etc. =====
+          - "(setz|stell|fahr) <polite> <article> {name} auf {position} [prozent]"
+          - "(mach|mache) <polite> <article> {name} [auf] {position} [prozent] [(auf|zu)]"
           - "{name} (zur hälfte|halb|halbwegs) [(auf|zu)]"
-          - "<cover_type> <room_prep> {name} (zur hälfte|halb)"
-          - "(mach[e]|mache) <polite> <article> {name} (halb auf|halb zu|zur hälfte)"
+          - "{name} <cover_type> [auf] {position} [prozent]"
+        slots:
+          name:
+            type: entity
+            domain: cover
+        response: "OK, {{ slots.name }} auf {{ slots.position or 50 }}%."
+      
+      # === Mit Area ===
+      - sentences:
+          - "<cover_type> <room_prep> {area} [auf] {position} [prozent]"
+          - "<article> <cover_type> <room_prep> {area} [auf] {position} [prozent]"
+          - "(setz|stell|fahr) <polite> <article> <cover_type> <room_prep> {area} auf {position} [prozent]"
+          - "<room_prep> {area} [<article>] <cover_type> [auf] {position} [prozent]"
+          - "<room_prep> {area} [<article>] [<cover_type>] {position} [prozent]"
+          - "<cover_type> <room_prep> {area} (zur hälfte|halb)"
+        slots:
+          area:
+            type: area
+        response: "OK, Rolladen in {{ slots.area }} auf {{ slots.position or 50 }}%."
 
   # --------------------------------------------------------------------------
-  # LAMELLEN/KIPPEN - Alle Varianten
+  # LAMELLEN/KIPPEN
   # --------------------------------------------------------------------------
   HassSetCoverTiltPosition:
     data:
       - sentences:
-          # Lamellen-Position
-          - "(kipp[e]|neig[e]|stell[e]) <polite> [die] lamellen [von|am|im] {name} auf {tilt_position} [prozent]"
+          - "(kipp|neig|stell) <polite> [die] lamellen [von|am|im] {name} auf {tilt_position} [prozent]"
           - "lamellen [von|am|im] {name} [auf] {tilt_position} [prozent]"
           - "{name} lamellen [auf] {tilt_position} [prozent]"
-          - "<cover_type> <room_prep> {name} lamellen [auf] {tilt_position} [prozent]"
-          
-          # Kippen allgemein
-          - "(kipp[e]|neig[e]) <polite> <article> {name} [auf] {tilt_position} [prozent]"
+          - "(kipp|neig) <polite> <article> {name} [auf] {tilt_position} [prozent]"
           - "<article> {name} (kippen|neigen) [auf] {tilt_position} [prozent]"
-          - "<cover_type> <room_prep> {name} (kippen|neigen) [auf] {tilt_position} [prozent]"
-          
-          # Licht reinlassen
-          - "(lass[e]|lasse) [etwas|ein bisschen] licht [rein|herein] <room_prep> {name}"
-          - "[ein bisschen|etwas] licht <room_prep> {name}"
+          - "(lass|lasse) [etwas|ein bisschen] licht [rein|herein] {name}"
+        slots:
+          name:
+            type: entity
+            domain: cover
+        response: "OK, Lamellen {{ slots.name }} auf {{ slots.tilt_position or 50 }}%."
+      
+      - sentences:
+          - "<cover_type> <room_prep> {area} lamellen [auf] {tilt_position} [prozent]"
+          - "<cover_type> <room_prep> {area} (kippen|neigen) [auf] {tilt_position} [prozent]"
+          - "[etwas|ein bisschen] licht [rein|herein] <room_prep> {area}"
+        slots:
+          area:
+            type: area
+        response: "OK, Lamellen in {{ slots.area }} auf {{ slots.tilt_position or 50 }}%."
 
   # --------------------------------------------------------------------------
-  # ALLE ROLLADEN - Globale Befehle
+  # ALLE ROLLADEN
   # --------------------------------------------------------------------------
   HassOpenCover:
     data:
       - sentences:
-          - "(öffne|oeffne|mach[e]|fahr[e]) <polite> alle <cover_types> [(auf|hoch)]"
+          - "(öffne|mach|fahr) <polite> alle <cover_types> [(auf|hoch)]"
           - "alle <cover_types> <action_open>"
           - "<cover_types> überall <action_open>"
           - "überall <cover_types> <action_open>"
           - "überall [(die|alle)] <cover_types> (auf|hoch|öffnen)"
           - "alle <cover_types> (in allen räumen|überall|im ganzen haus) <action_open>"
-          - "(mach[e]|mache) <polite> überall (hell|licht)"
+          - "(mach|mache) <polite> überall (hell|licht)"
+        response: "OK, alle Rolladen werden geöffnet."
 
   HassCloseCover:
     data:
       - sentences:
-          - "(schließe|schliesse|mach[e]|fahr[e]) <polite> alle <cover_types> [(zu|runter)]"
+          - "(schließe|mach|fahr) <polite> alle <cover_types> [(zu|runter)]"
           - "alle <cover_types> <action_close>"
           - "<cover_types> überall <action_close>"
           - "überall <cover_types> <action_close>"
-          - "überall [(die|alle)] <cover_types> (zu|runter|schließen)"
-          - "alle <cover_types> (in allen räumen|überall|im ganzen haus) <action_close>"
           - "(verdunkle|verdunkeln) <polite> (alles|überall|alle räume|das ganze haus)"
           - "(komplette|totale) verdunklung"
-          - "(mach[e]|mache) <polite> überall dunkel"
+          - "(mach|mache) <polite> überall dunkel"
           - "alles dunkel [machen]"
-
-# ============================================================================
-# CUSTOM INTENTS - Intelligente Steuerung
-# ============================================================================
+        response: "OK, alle Rolladen werden geschlossen."
 
   # --------------------------------------------------------------------------
   # SONNENSCHUTZ
@@ -317,29 +279,34 @@ intents:
   SetSunProtection:
     data:
       - sentences:
-          - "(sonnenschutz|beschattung) [aktivieren|an|ein] <room_prep> {name}"
-          - "(aktiviere|starte) <polite> [den] sonnenschutz <room_prep> {name}"
-          - "{name} (sonnenschutz|beschatten|beschattung)"
-          - "<room_prep> {name} (sonnenschutz|beschattung) [an|ein|aktivieren]"
-          - "(schütze|schuetz[e]) <polite> <article> {name} vor [der] sonne"
-          - "sonne <room_prep> {name} [(raus|ausblenden|blocken)]"
-          - "(zu viel|zuviel) sonne <room_prep> {name}"
-          - "{name} [ist] zu hell"
-          - "<room_prep> {name} [ist] zu hell"
-          - "(mach[e]|mache) <polite> <room_prep> {name} (schattiger|dunkler)"
+          - "(sonnenschutz|beschattung) [aktivieren|an|ein] <room_prep> {area}"
+          - "(aktiviere|starte) <polite> [den] sonnenschutz <room_prep> {area}"
+          - "{area} (sonnenschutz|beschatten|beschattung)"
+          - "<room_prep> {area} (sonnenschutz|beschattung) [an|ein|aktivieren]"
+          - "(schütze|schuetz) <polite> <room_prep> {area} vor [der] sonne"
+          - "sonne <room_prep> {area} [(raus|ausblenden|blocken)]"
+          - "(zu viel|zuviel) sonne <room_prep> {area}"
+          - "{area} [ist] zu hell"
+          - "<room_prep> {area} [ist] zu hell"
+          - "(mach|mache) <polite> <room_prep> {area} (schattiger|dunkler)"
+        slots:
+          area:
+            type: area
+        response: "OK, Sonnenschutz in {{ slots.area }} aktiviert."
 
-  # --------------------------------------------------------------------------
-  # SONNENSCHUTZ AUS
-  # --------------------------------------------------------------------------
   DisableSunProtection:
     data:
       - sentences:
-          - "(sonnenschutz|beschattung) [deaktivieren|aus|ab] <room_prep> {name}"
-          - "(deaktiviere|beende|stoppe) <polite> [den] sonnenschutz <room_prep> {name}"
-          - "{name} sonnenschutz (aus|deaktivieren|beenden)"
-          - "<room_prep> {name} sonnenschutz (aus|ab|deaktivieren)"
-          - "[kein|keinen] sonnenschutz [mehr] <room_prep> {name}"
-          - "(mehr|lass) licht [rein] <room_prep> {name}"
+          - "(sonnenschutz|beschattung) [deaktivieren|aus|ab] <room_prep> {area}"
+          - "(deaktiviere|beende|stoppe) <polite> [den] sonnenschutz <room_prep> {area}"
+          - "{area} sonnenschutz (aus|deaktivieren|beenden)"
+          - "<room_prep> {area} sonnenschutz (aus|ab|deaktivieren)"
+          - "[kein|keinen] sonnenschutz [mehr] <room_prep> {area}"
+          - "(mehr|lass) licht [rein] <room_prep> {area}"
+        slots:
+          area:
+            type: area
+        response: "OK, Sonnenschutz in {{ slots.area }} deaktiviert."
 
   # --------------------------------------------------------------------------
   # AUTOMATIK
@@ -347,40 +314,46 @@ intents:
   EnableCoverAutomation:
     data:
       - sentences:
-          - "<cover_type> automatik [an|ein|aktivieren] <room_prep> {name}"
-          - "(aktiviere|starte) <polite> [die] <cover_type> automatik <room_prep> {name}"
-          - "{name} <cover_type> automatik [(an|ein)]"
-          - "<room_prep> {name} <cover_type> automatik [an|ein|aktivieren]"
-          - "automatische <cover_type> steuerung <room_prep> {name}"
-          - "{name} automatisch [steuern]"
-          - "<room_prep> {name} [<cover_type>] auf automatik [stellen|setzen]"
+          - "<cover_type> automatik [an|ein|aktivieren] <room_prep> {area}"
+          - "(aktiviere|starte) <polite> [die] <cover_type> automatik <room_prep> {area}"
+          - "automatische <cover_type> steuerung <room_prep> {area}"
+          - "{area} automatisch [steuern]"
+          - "<room_prep> {area} [<cover_type>] auf automatik [stellen|setzen]"
+        slots:
+          area:
+            type: area
+        response: "OK, Automatik für {{ slots.area }} aktiviert."
 
   DisableCoverAutomation:
     data:
       - sentences:
-          - "<cover_type> automatik [aus|ab|deaktivieren] <room_prep> {name}"
-          - "(deaktiviere|beende|stoppe) <polite> [die] <cover_type> automatik <room_prep> {name}"
-          - "{name} <cover_type> automatik (aus|ab)"
-          - "<room_prep> {name} <cover_type> automatik (aus|ab|deaktivieren)"
-          - "manuelle <cover_type> steuerung <room_prep> {name}"
-          - "{name} manuell [steuern]"
-          - "<room_prep> {name} [<cover_type>] auf manuell [stellen|setzen]"
+          - "<cover_type> automatik [aus|ab|deaktivieren] <room_prep> {area}"
+          - "(deaktiviere|beende|stoppe) <polite> [die] <cover_type> automatik <room_prep> {area}"
+          - "manuelle <cover_type> steuerung <room_prep> {area}"
+          - "{area} manuell [steuern]"
+          - "<room_prep> {area} [<cover_type>] auf manuell [stellen|setzen]"
+        slots:
+          area:
+            type: area
+        response: "OK, Automatik für {{ slots.area }} deaktiviert, manueller Modus."
 
   # --------------------------------------------------------------------------
   # SZENEN/MODI
   # --------------------------------------------------------------------------
   SetCoverScene:
     data:
+      # Morgen-Modus
       - sentences:
-          # Morgen-Modus
           - "(morgen|aufwach|aufsteh)(modus|szene) [(aktivieren|starten)]"
           - "[guten] morgen [modus|szene]"
           - "<cover_types> (morgens|morgen modus)"
           - "weck mich [mit licht|sanft]"
           - "aufwachen [(modus|szene)]"
           - "guten morgen [licht|sonnenschein]"
-          
-          # Nacht-Modus
+        response: "Guten Morgen! Rolladen werden geöffnet."
+      
+      # Nacht-Modus
+      - sentences:
           - "(nacht|schlaf|schlafens)(modus|szene) [(aktivieren|starten)]"
           - "[gute] nacht [modus|szene]"
           - "<cover_types> (nachts|nacht modus)"
@@ -388,20 +361,28 @@ intents:
           - "schlafenszeit"
           - "ich gehe (schlafen|ins bett)"
           - "ab ins bett"
-          
-          # Kino-Modus
+        response: "Gute Nacht! Alle Rolladen werden geschlossen."
+      
+      # Kino-Modus
+      - sentences:
           - "(kino|film|heimkino|movie)(modus|szene) [(aktivieren|starten)]"
           - "[kino modus] (aktivieren|starten)"
           - "verdunkeln für (film|kino|filmabend)"
           - "(wir|ich) (schauen|gucken) [einen] film"
           - "filmabend"
-          
-          # Lüften
-          - "(lüften|lueften)(modus|position|szene) <room_prep> {name}"
-          - "{name} (lüften|lueften|lüftung)"
-          - "<cover_type> zum (lüften|lueften) <room_prep> {name}"
-          - "ich will (lüften|lueften) <room_prep> {name}"
-          - "<room_prep> {name} (lüften|lueften)"
+        response: "Kino-Modus aktiviert. Viel Spaß beim Film!"
+      
+      # Lüften
+      - sentences:
+          - "(lüften|lueften)(modus|position|szene) <room_prep> {area}"
+          - "{area} (lüften|lueften|lüftung)"
+          - "<cover_type> zum (lüften|lueften) <room_prep> {area}"
+          - "ich will (lüften|lueften) <room_prep> {area}"
+          - "<room_prep> {area} (lüften|lueften)"
+        slots:
+          area:
+            type: area
+        response: "OK, Lüftungsposition in {{ slots.area }}."
 
   # --------------------------------------------------------------------------
   # STATUS ABFRAGEN
@@ -411,23 +392,29 @@ intents:
       - sentences:
           - "(wie|was) (ist|sind|steht|stehen) <article> {name} [(rolladen|jalousie|rollo)]"
           - "(ist|sind) <article> {name} (offen|geschlossen|auf|zu)"
-          - "(ist|sind) <article> <cover_type> <room_prep> {name} (offen|geschlossen|auf|zu)"
-          - "<cover_type> (status|position|zustand) [<room_prep>] {name}"
           - "auf wieviel [prozent] (ist|steht) <article> {name}"
           - "(wie weit|wieviel) (ist|sind) <article> {name} (offen|auf)"
-          - "wie (steht|stehen) <article> <cover_type> <room_prep> {name}"
           - "(status|position) [von|vom] {name}"
           - "{name} (status|position|wie weit)"
-
-  # --------------------------------------------------------------------------
-  # ZEITGESTEUERT
-  # --------------------------------------------------------------------------
-  ScheduleCover:
-    data:
+        slots:
+          name:
+            type: entity
+            domain: cover
+        response: >
+          {% set pos = state_attr(slots.name, 'current_position') | default(0) %}
+          {% if states(slots.name) == 'open' %}
+          {{ state_attr(slots.name, 'friendly_name') }} ist offen bei {{ pos }}%.
+          {% elif states(slots.name) == 'closed' %}
+          {{ state_attr(slots.name, 'friendly_name') }} ist geschlossen.
+          {% else %}
+          {{ state_attr(slots.name, 'friendly_name') }}: {{ states(slots.name) }}, {{ pos }}%.
+          {% endif %}
+      
       - sentences:
-          - "(öffne|oeffne|mach[e]) <article> {name} [um|zum] {time_of_day}"
-          - "(schließe|schliesse|mach[e]) <article> {name} [um|zum] {time_of_day}"
-          - "{name} [<cover_type>] (bei|um|zum) {time_of_day} [(öffnen|schließen|auf|zu)]"
-          - "<cover_type> (bei|zum) {time_of_day} [(auf|zu)]"
-          - "<cover_types> {time_of_day} automatisch [(öffnen|schließen)]"
-          - "{time_of_day} [sollen|soll] <article> {name} [(auf|zu)] [gehen|fahren]"
+          - "(ist|sind) <article> <cover_type> <room_prep> {area} (offen|geschlossen|auf|zu)"
+          - "<cover_type> (status|position|zustand) <room_prep> {area}"
+          - "wie (steht|stehen) <article> <cover_type> <room_prep> {area}"
+        slots:
+          area:
+            type: area
+        response: "Rolladen in {{ slots.area }}: Status wird abgefragt."

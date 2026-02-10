@@ -1,10 +1,21 @@
 # ================================================================================
 # HA-GERMAN-VOICE - Deutsche Medien-Sprachbefehle
 # ================================================================================
-# State of the Art Sentence Expansion Syntax
+# TRUE STATE OF THE ART - Home Assistant 2024+ Syntax
+# ✅ Entity Slots mit type: entity + domain filtering
+# ✅ Area Slots mit type: area
+# ✅ Responses direkt in Sentences
 # ================================================================================
 
 language: de
+
+# ============================================================================
+# EXPANSION RULES
+# ============================================================================
+expansion_rules:
+  article: "[der|die|das|den|dem]"
+  polite: "[bitte|mal|doch|eben]"
+  device_prep: "(auf|am|über|mit)"
 
 # ============================================================================
 # LISTEN
@@ -12,25 +23,25 @@ language: de
 lists:
   volume:
     values:
-      - in: "(0|null)"
+      - in: "(0|null|stumm)"
         out: 0
       - in: "(10|zehn)"
         out: 10
       - in: "(20|zwanzig)"
         out: 20
-      - in: "(25|fünfundzwanzig)"
+      - in: "(25|fünfundzwanzig|viertel)"
         out: 25
       - in: "(30|dreißig)"
         out: 30
       - in: "(40|vierzig)"
         out: 40
-      - in: "(50|fünfzig|halb[e])"
+      - in: "(50|fünfzig|halb|halbe)"
         out: 50
       - in: "(60|sechzig)"
         out: 60
       - in: "(70|siebzig)"
         out: 70
-      - in: "(75|fünfundsiebzig)"
+      - in: "(75|fünfundsiebzig|dreiviertel)"
         out: 75
       - in: "(80|achtzig)"
         out: 80
@@ -45,36 +56,39 @@ lists:
         out: "music"
       - in: "(radio|sender)"
         out: "radio"
-      - in: "(podcast[s])"
+      - in: "(podcast|podcasts)"
         out: "podcast"
-      - in: "(video[s]|film[e])"
+      - in: "(video|videos|film|filme)"
         out: "video"
-      - in: "(playlist[s]|wiedergabeliste)"
+      - in: "(playlist|playlists|wiedergabeliste)"
         out: "playlist"
-      - in: "(hörbuch|hoerbuch|audiobook[s]|hörbücher)"
+      - in: "(hörbuch|hoerbuch|audiobook|audiobooks|hörbücher)"
         out: "audiobook"
       - in: "(nachrichten|news)"
         out: "news"
 
 # ============================================================================
-# STANDARD INTENTS (Home Assistant Built-in)
+# INTENTS MIT ENTITY/AREA SLOTS + RESPONSES
 # ============================================================================
 intents:
   # --------------------------------------------------------------------------
   # ABSPIELEN / PLAY
   # --------------------------------------------------------------------------
-  HassMediaPause:
+  HassMediaUnpause:
     data:
       - sentences:
-          # Wiedergabe starten
-          - "(spiel[e]|starte|play|abspielen) [bitte] [auf|am|über] {name}"
-          - "(spiel[e]|starte|play) [die] (musik|wiedergabe) [auf|am] {name}"
-          - "(media|medium|wiedergabe) (abspielen|starten) [auf|am] {name}"
+          - "(spiel|starte|play|abspielen) <polite> <device_prep> {name}"
+          - "(spiel|starte|play) [die] (musik|wiedergabe) <device_prep> {name}"
+          - "(media|medium|wiedergabe) (abspielen|starten) <device_prep> {name}"
           - "{name} (abspielen|starten|play)"
-          # Fortsetzen
-          - "(weiter|fortsetzen|resume) [auf|am] {name}"
-          - "[spiel] weiter [auf|am] {name}"
-          - "(musik|wiedergabe) (fortsetzen|weiter) [auf|am] {name}"
+          - "(weiter|fortsetzen|resume) <device_prep> {name}"
+          - "[spiel] weiter <device_prep> {name}"
+          - "(musik|wiedergabe) (fortsetzen|weiter) <device_prep> {name}"
+        slots:
+          name:
+            type: entity
+            domain: media_player
+        response: "OK, Wiedergabe gestartet auf {{ slots.name }}."
 
   # --------------------------------------------------------------------------
   # PAUSE
@@ -82,10 +96,15 @@ intents:
   HassMediaPause:
     data:
       - sentences:
-          - "(pause|pausieren|stopp[e]|stop|anhalten|halt) [bitte] [auf|am|über] {name}"
-          - "(musik|wiedergabe) (pause|pausieren|stopp[en]|anhalten) [auf|am] {name}"
-          - "{name} (pause|pausieren|stopp[en]|anhalten)"
-          - "mach [bitte] [eine] pause [auf|am] {name}"
+          - "(pause|pausieren|stopp|stop|anhalten|halt) <polite> <device_prep> {name}"
+          - "(musik|wiedergabe) (pause|pausieren|stoppen|anhalten) <device_prep> {name}"
+          - "{name} (pause|pausieren|stoppen|anhalten)"
+          - "mach <polite> [eine] pause <device_prep> {name}"
+        slots:
+          name:
+            type: entity
+            domain: media_player
+        response: "OK, {{ slots.name }} pausiert."
 
   # --------------------------------------------------------------------------
   # NÄCHSTER TITEL
@@ -93,11 +112,16 @@ intents:
   HassMediaNext:
     data:
       - sentences:
-          - "(nächst[es|er]|naechst[es|er]|weiter|skip|überspringen|ueberspringen) [(lied|titel|song|track)] [auf|am] {name}"
-          - "skip [auf|am] {name}"
-          - "(lied|titel|song|track) (überspringen|skippen) [auf|am] {name}"
+          - "(nächster|naechster|weiter|skip|überspringen|ueberspringen) [(lied|titel|song|track)] <device_prep> {name}"
+          - "skip <device_prep> {name}"
+          - "(lied|titel|song|track) (überspringen|skippen) <device_prep> {name}"
           - "{name} (skip|weiter|nächster|naechster)"
-          - "spiel [das|den] (nächsten|naechsten) [(lied|titel|song)] [auf|am] {name}"
+          - "spiel <article> (nächsten|naechsten) [(lied|titel|song)] <device_prep> {name}"
+        slots:
+          name:
+            type: entity
+            domain: media_player
+        response: "OK, nächster Titel."
 
   # --------------------------------------------------------------------------
   # VORHERIGER TITEL
@@ -105,39 +129,61 @@ intents:
   HassMediaPrevious:
     data:
       - sentences:
-          - "(vorher[iges|iger]|zurück|zurueck|letzt[es|er]) [(lied|titel|song|track)] [auf|am] {name}"
-          - "(lied|titel|song|track) (zurück|zurueck) [auf|am] {name}"
-          - "{name} (zurück|zurueck|vorher[iger])"
-          - "spiel [das|den] (vorherigen|letzten) [(lied|titel|song)] [auf|am] {name}"
-          - "nochmal [auf|am] {name}"
+          - "(vorheriger|zurück|zurueck|letzter) [(lied|titel|song|track)] <device_prep> {name}"
+          - "(lied|titel|song|track) (zurück|zurueck) <device_prep> {name}"
+          - "{name} (zurück|zurueck|vorheriger)"
+          - "spiel <article> (vorherigen|letzten) [(lied|titel|song)] <device_prep> {name}"
+          - "nochmal <device_prep> {name}"
+        slots:
+          name:
+            type: entity
+            domain: media_player
+        response: "OK, vorheriger Titel."
 
   # --------------------------------------------------------------------------
   # LAUTSTÄRKE SETZEN
   # --------------------------------------------------------------------------
   HassSetVolume:
     data:
+      # === Direkte Lautstärke ===
       - sentences:
-          # Direkte Lautstärke
-          - "(setz[e]|stell[e]) [bitte] [die] lautstärke [auf|am|von] {name} auf {volume} [prozent]"
-          - "lautstärke [auf|am|von] {name} [auf] {volume} [prozent]"
+          - "(setz|stell) <polite> [die] lautstärke <device_prep> {name} auf {volume} [prozent]"
+          - "lautstärke <device_prep> {name} [auf] {volume} [prozent]"
           - "{name} [lautstärke] [auf] {volume} [prozent]"
-          - "(volume|lautstärke) {volume} [auf|am] {name}"
-          # Lauter/Leiser relativ
-          - "(lauter|mehr|höher|hoeher) [auf|am] {name}"
-          - "(leiser|weniger|runter|runterstellen) [auf|am] {name}"
+          - "(volume|lautstärke) {volume} <device_prep> {name}"
+        slots:
+          name:
+            type: entity
+            domain: media_player
+        response: "OK, Lautstärke auf {{ slots.volume }}%."
+      
+      # === Lauter/Leiser ===
+      - sentences:
+          - "(lauter|mehr|höher|hoeher) <device_prep> {name}"
+          - "(leiser|weniger|runter|runterstellen) <device_prep> {name}"
           - "{name} (lauter|leiser)"
-          - "mach [bitte] [den|die|das] {name} (lauter|leiser)"
+          - "mach <polite> <article> {name} (lauter|leiser)"
+        slots:
+          name:
+            type: entity
+            domain: media_player
+        response: "OK, Lautstärke angepasst."
 
   # --------------------------------------------------------------------------
   # STUMM
   # --------------------------------------------------------------------------
-  HassMediaPause:
+  HassMediaMute:
     data:
       - sentences:
-          - "(stumm|stummschalten|mute) [auf|am] {name}"
+          - "(stumm|stummschalten|mute) <device_prep> {name}"
           - "{name} (stumm|mute|stummschalten)"
-          - "ton (aus|ab) [auf|am] {name}"
-          - "(ruhe|still|leise) [auf|am] {name}"
+          - "ton (aus|ab) <device_prep> {name}"
+          - "(ruhe|still|leise) <device_prep> {name}"
+        slots:
+          name:
+            type: entity
+            domain: media_player
+        response: "OK, {{ slots.name }} stumm."
 
   # --------------------------------------------------------------------------
   # STUMM AUS
@@ -145,20 +191,30 @@ intents:
   HassMediaUnmute:
     data:
       - sentences:
-          - "(stumm aus|unmute|ton an|laut) [auf|am] {name}"
+          - "(stumm aus|unmute|ton an|laut) <device_prep> {name}"
           - "{name} (ton an|unmute|laut)"
-          - "ton (an|ein) [auf|am] {name}"
+          - "ton (an|ein) <device_prep> {name}"
+        slots:
+          name:
+            type: entity
+            domain: media_player
+        response: "OK, Ton wieder an."
 
   # --------------------------------------------------------------------------
   # STOPP (Wiedergabe beenden)
   # --------------------------------------------------------------------------
-  HassMediaPause:
+  HassMediaStop:
     data:
       - sentences:
-          - "(stopp|stop|beenden|aufhören|aufhoeren|abbrechen) [bitte] [die] (musik|wiedergabe|abspielen) [auf|am] {name}"
-          - "(musik|wiedergabe) (stoppen|beenden|aufhören) [auf|am] {name}"
+          - "(stopp|stop|beenden|aufhören|aufhoeren|abbrechen) <polite> [die] (musik|wiedergabe|abspielen) <device_prep> {name}"
+          - "(musik|wiedergabe) (stoppen|beenden|aufhören) <device_prep> {name}"
           - "{name} (stoppen|beenden|aus)"
-          - "hör[e] auf [zu spielen] [auf|am] {name}"
+          - "hör auf [zu spielen] <device_prep> {name}"
+        slots:
+          name:
+            type: entity
+            domain: media_player
+        response: "OK, Wiedergabe beendet."
 
   # --------------------------------------------------------------------------
   # SHUFFLE AN/AUS
@@ -166,10 +222,15 @@ intents:
   HassMediaShuffle:
     data:
       - sentences:
-          - "(shuffle|zufallswiedergabe|mischen|zufall) (an|ein|aktivieren) [auf|am] {name}"
-          - "(shuffle|zufallswiedergabe) (aus|ab|deaktivieren) [auf|am] {name}"
+          - "(shuffle|zufallswiedergabe|mischen|zufall) (an|ein|aktivieren) <device_prep> {name}"
+          - "(shuffle|zufallswiedergabe) (aus|ab|deaktivieren) <device_prep> {name}"
           - "{name} (shuffle|mischen) (an|aus)"
-          - "(spiel[e]|wiedergabe) [auf|am] {name} (zufällig|gemischt)"
+          - "(spiel|wiedergabe) <device_prep> {name} (zufällig|gemischt)"
+        slots:
+          name:
+            type: entity
+            domain: media_player
+        response: "OK, Shuffle aktiviert."
 
   # --------------------------------------------------------------------------
   # REPEAT AN/AUS
@@ -177,46 +238,38 @@ intents:
   HassMediaRepeat:
     data:
       - sentences:
-          - "(repeat|wiederholen|wiederholung|schleife) (an|ein|aktivieren) [auf|am] {name}"
-          - "(repeat|wiederholen|wiederholung|schleife) (aus|ab|deaktivieren) [auf|am] {name}"
+          - "(repeat|wiederholen|wiederholung|schleife) (an|ein|aktivieren) <device_prep> {name}"
+          - "(repeat|wiederholen|wiederholung|schleife) (aus|ab|deaktivieren) <device_prep> {name}"
           - "{name} (repeat|wiederholen) (an|aus)"
-          - "[auf] (endlosschleife|dauerschleife) [auf|am] {name}"
-
-  # --------------------------------------------------------------------------
-  # MUSIK SUCHEN UND ABSPIELEN
-  # --------------------------------------------------------------------------
-  HassMediaSearch:
-    data:
-      - sentences:
-          - "(spiel[e]|such[e]) [bitte] {query} [auf|am|über] {name}"
-          - "spiel [mir] {query} [auf|am] {name}"
-          - "(musik|lied|song|titel) {query} [auf|am] {name}"
-          - "{query} abspielen [auf|am] {name}"
+          - "[auf] (endlosschleife|dauerschleife) <device_prep> {name}"
         slots:
-          query:
-            type: text
+          name:
+            type: entity
+            domain: media_player
+        response: "OK, Wiederholung aktiviert."
 
   # --------------------------------------------------------------------------
-  # RADIO-SENDER
+  # STATUS / WAS SPIELT
   # --------------------------------------------------------------------------
-  HassMediaPlay:
+  GetMediaState:
     data:
       - sentences:
-          - "(spiel[e]|starte) [bitte] [den] (radio|sender) {query} [auf|am] {name}"
-          - "(radio|sender) {query} [auf|am] {name}"
-          - "schalt[e] [auf] {query} [auf|am] {name}"
-        slots:
-          query:
-            type: text
-
-  # --------------------------------------------------------------------------
-  # WAS SPIELT
-  # --------------------------------------------------------------------------
-  HassMediaGetInfo:
-    data:
-      - sentences:
-          - "(was|welches lied|welcher song|welcher titel) (spielt|läuft) [gerad[e]] [auf|am] {name}"
-          - "(was ist|wie heißt|wie heisst) (das|der|die) [(lied|song|titel|track)] [auf|am] {name}"
+          - "(was|welches lied|welcher song|welcher titel) (spielt|läuft) [gerade] <device_prep> {name}"
+          - "(was ist|wie heißt|wie heisst) <article> [(lied|song|titel|track)] <device_prep> {name}"
           - "{name} was (spielt|läuft)"
-          - "(aktueller|aktuelle[s]) [(lied|song|titel)] [auf|am] {name}"
-          - "(wer|welche band|welcher künstler) (spielt|ist das) [auf|am] {name}"
+          - "(aktueller|aktuelle) [(lied|song|titel)] <device_prep> {name}"
+          - "(wer|welche band|welcher künstler) (spielt|ist das) <device_prep> {name}"
+        slots:
+          name:
+            type: entity
+            domain: media_player
+        response: >
+          {% set title = state_attr(slots.name, 'media_title') %}
+          {% set artist = state_attr(slots.name, 'media_artist') %}
+          {% if title and artist %}
+          Aktuell: {{ artist }} - {{ title }}.
+          {% elif title %}
+          Aktuell: {{ title }}.
+          {% else %}
+          Keine Wiedergabe aktiv.
+          {% endif %}
