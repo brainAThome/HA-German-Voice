@@ -1,0 +1,16 @@
+
+# CONVERSATION MEMORY LOGGING
+- id: 'log_assist_pipeline'
+  alias: 'Log Assist Pipeline Runs'
+  description: 'Logs all assist pipeline conversations to memory'
+  trigger:
+    - platform: event
+      event_type: assist_pipeline_run_end
+  action:
+    - service: shell_command.save_memory
+      data:
+        frage: "{{ trigger.event.data.stt_output.text | default(trigger.event.data.intent_input.text | default('')) }}"
+        intent: "{{ trigger.event.data.intent_output.intent.name | default('Unknown') }}"
+        antwort: "{{ trigger.event.data.tts_input.message | default('') }}"
+  mode: queued
+  max: 10

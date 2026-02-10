@@ -1,0 +1,71 @@
+
+  # --------------------------------------------------------------------------
+  # LICHT HELLER (Custom Intent fuer Entity)
+  # --------------------------------------------------------------------------
+  LightBrighterEntity:
+    data:
+      - sentences:
+          - "{name} heller [machen]"
+          - "[das|die|den] {name} heller [machen]"
+          - "(mach|mache) [das|die|den] {name} heller"
+          - "(mach|mache) heller [das|die|den] {name}"
+          - "{name} [licht] heller [machen]"
+          - "(mach|mache) [das] {name} [licht] heller"
+          - "(dimm|dimme) [das|die|den] {name} (hoch|auf)"
+          - "mehr licht [bei|am|von] {name}"
+        slots:
+          name:
+            type: entity
+            domain: light
+
+  # --------------------------------------------------------------------------
+  # LICHT DUNKLER (Custom Intent fuer Entity)
+  # --------------------------------------------------------------------------
+  LightDarkerEntity:
+    data:
+      - sentences:
+          - "{name} dunkler [machen]"
+          - "[das|die|den] {name} dunkler [machen]"
+          - "(mach|mache) [das|die|den] {name} dunkler"
+          - "(mach|mache) dunkler [das|die|den] {name}"
+          - "{name} [licht] dunkler [machen]"
+          - "(mach|mache) [das] {name} [licht] dunkler"
+          - "(dimm|dimme) [das|die|den] {name} [(runter|dunkler|ab)]"
+          - "weniger licht [bei|am|von] {name}"
+        slots:
+          name:
+            type: entity
+            domain: light
+
+  # --------------------------------------------------------------------------
+  # LICHT MAXIMUM (Custom Intent fuer Entity)
+  # --------------------------------------------------------------------------
+  LightMaxEntity:
+    data:
+      - sentences:
+          - "{name} [auf] (maximum|voll|100|100 prozent)"
+          - "[das|die|den] {name} [auf] (maximum|voll|100 prozent)"
+          - "(mach|mache|stell|stelle) [das|die|den] {name} [auf] (maximum|voll|100 prozent)"
+          - "(mach|mache) [das|die|den] {name} ganz hell"
+          - "(dreh|drehe) [das|die|den] {name} voll auf"
+          - "{name} voll aufdrehen"
+        slots:
+          name:
+            type: entity
+            domain: light
+
+  # --------------------------------------------------------------------------
+  # LICHT MINIMUM (Custom Intent fuer Entity)
+  # --------------------------------------------------------------------------
+  LightMinEntity:
+    data:
+      - sentences:
+          - "{name} [auf] (minimum|minimal|1 prozent)"
+          - "[das|die|den] {name} [auf] (minimum|minimal)"
+          - "(mach|mache|stell|stelle) [das|die|den] {name} [auf] (minimum|minimal|1 prozent)"
+          - "(mach|mache) [das|die|den] {name} ganz dunkel"
+          - "(dimm|dimme) [das|die|den] {name} ganz runter"
+        slots:
+          name:
+            type: entity
+            domain: light

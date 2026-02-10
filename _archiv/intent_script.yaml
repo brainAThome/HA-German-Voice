@@ -1,0 +1,1598 @@
+# ================================================================================
+# HA-GERMAN-VOICE - Intent Script Handler
+# ================================================================================
+# TRUE STATE OF THE ART - Home Assistant 2024+
+# 
+# Diese Datei enthält nur Handler für CUSTOM INTENTS:
+# - GetWeather, GetTemperature, etc. (Weather)
+# - SetReminder*, GetReminders, etc. (Timer/Erinnerungen)
+# - SetSunProtection, SetCoverScene (Custom Cover Actions)
+#
+# Built-In Intents (HassTurnOn, HassOpenCover, etc.) werden NICHT hier
+# definiert - sie brauchen kein intent_script, da HA sie automatisch
+# verarbeitet. Responses für Built-In Intents sind in den sentence files.
+#
+# Füge zu deiner configuration.yaml hinzu:
+# intent_script: !include intent_script.yaml
+# 
+# Benötigte Entities für Erinnerungen:
+# - timer.erinnerung_1 bis timer.erinnerung_3
+# - input_text.erinnerung_1_nachricht bis input_text.erinnerung_3_nachricht  
+# - input_datetime.erinnerung_1_zeit
+# - input_boolean.erinnerung_1_aktiv bis input_boolean.erinnerung_3_aktiv
+# ================================================================================
+
+# ============================================================================
+# WETTER INTENTS
+# ============================================================================
+
+GetWeather:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% set temp = state_attr('weather.forecast_home', 'temperature') %}
+      {% set humidity = state_attr('weather.forecast_home', 'humidity') %}
+      {% set condition_map = {
+        'sunny': 'sonnig und wunderschön',
+        'clear-night': 'klar',
+        'partlycloudy': 'leicht bewölkt',
+        'cloudy': 'eher bewölkt',
+        'rainy': 'regnerisch',
+        'pouring': 'sehr regnerisch mit starkem Niederschlag',
+        'snowy': 'winterlich mit Schnee',
+        'fog': 'neblig',
+        'windy': 'windig',
+        'lightning': 'gewitterig'
+      } %}
+      {% set cond = condition_map.get(weather, weather) %}
+      Draußen ist es gerade {{ cond }}. Das Thermometer zeigt {{ temp }} Grad und die Luftfeuchtigkeit liegt bei {{ humidity }} Prozent.
+
+GetTemperature:
+  speech:
+    text: >
+      {% set temp = state_attr('weather.forecast_home', 'temperature') %}
+      {% if temp < 0 %}
+        Es ist ziemlich frostig draußen, das Thermometer zeigt {{ temp }} Grad unter Null.
+      {% elif temp < 10 %}
+        Es ist recht frisch draußen mit {{ temp }} Grad.
+      {% elif temp < 20 %}
+        Draußen sind es angenehme {{ temp }} Grad.
+      {% elif temp < 30 %}
+        Es ist schön warm mit {{ temp }} Grad.
+      {% else %}
+        Es ist richtig heiß draußen, {{ temp }} Grad zeigt das Thermometer.
+      {% endif %}
+
+GetHumidity:
+  speech:
+    text: >
+      {% set humidity = state_attr('weather.forecast_home', 'humidity') %}
+      {% if humidity < 30 %}
+        Die Luft ist ziemlich trocken, die Luftfeuchtigkeit beträgt nur {{ humidity }} Prozent.
+      {% elif humidity < 60 %}
+        Die Luftfeuchtigkeit ist angenehm bei {{ humidity }} Prozent.
+      {% elif humidity < 80 %}
+        Es ist etwas feucht bei {{ humidity }} Prozent Luftfeuchtigkeit.
+      {% else %}
+        Die Luft ist sehr schwül, mit {{ humidity }} Prozent Luftfeuchtigkeit.
+      {% endif %}
+
+GetWind:
+  speech:
+    text: >
+      {% set wind = state_attr('weather.forecast_home', 'wind_speed') %}
+      {% set bearing = state_attr('weather.forecast_home', 'wind_bearing') %}
+      {% set dir_names = {0: 'Norden', 1: 'Nordosten', 2: 'Osten', 3: 'Südosten', 4: 'Süden', 5: 'Südwesten', 6: 'Westen', 7: 'Nordwesten'} %}
+      {% set dir_idx = ((bearing + 22.5) / 45) | int % 8 %}
+      {% set dir = dir_names.get(dir_idx, 'unbekannter Richtung') %}
+      {% if wind < 5 %}
+        Es weht praktisch kein Wind, nur {{ wind }} Kilometer pro Stunde aus {{ dir }}.
+      {% elif wind < 20 %}
+        Es gibt einen leichten Wind aus {{ dir }} mit {{ wind }} Kilometern pro Stunde.
+      {% elif wind < 40 %}
+        Es ist recht windig heute, mit {{ wind }} Kilometern pro Stunde aus {{ dir }}.
+      {% else %}
+        Es weht ein starker Wind aus {{ dir }} mit {{ wind }} Kilometern pro Stunde. Vorsicht bei lockeren Gegenständen!
+      {% endif %}
+
+GetWeatherForecast:
+  speech:
+    text: >
+      {% set day = day | default('morgen') %}
+      {% set idx = 1 if day == 'morgen' else 0 %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
+      {% set sensor = sensor_map.get(idx, 'sensor.wetter_morgen') %}
+      {% set weather = states(sensor) %}
+      {% if weather and weather != 'unknown' and weather != 'unavailable' %}
+        {{ day | capitalize }} wird es {{ weather }}.
+      {% else %}
+        Keine Vorhersage verfügbar.
+      {% endif %}
+
+GetWeatherDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set sensor_map = {
+        0: 'sensor.wetter_heute',
+        1: 'sensor.wetter_morgen',
+        2: 'sensor.wetter_uebermorgen',
+        3: 'sensor.wetter_tag_3',
+        4: 'sensor.wetter_tag_4',
+        5: 'sensor.wetter_tag_5',
+        6: 'sensor.wetter_tag_6'
+      } %}
+      {% set day_names = {
+        0: 'heute',
+        1: 'morgen',
+        2: 'übermorgen',
+        3: 'in drei Tagen',
+        4: 'in vier Tagen',
+        5: 'in fünf Tagen',
+        6: 'in sechs Tagen'
+      } %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set weather_raw = states(sensor) | lower %}
+      {% set temp = state_attr(sensor, 'temperature') %}
+      {% set templow = state_attr(sensor, 'templow') %}
+      {% set precipitation = state_attr(sensor, 'precipitation') %}
+      {% set condition_map = {
+        'sunny': 'sonnig und schön',
+        'clear-night': 'klar',
+        'partlycloudy': 'leicht bewölkt',
+        'cloudy': 'überwiegend bewölkt',
+        'rainy': 'regnerisch',
+        'pouring': 'sehr regnerisch mit starkem Niederschlag',
+        'snowy': 'winterlich mit Schneefall',
+        'fog': 'neblig',
+        'lightning': 'gewitterig',
+        'lightning-rainy': 'gewittrig mit Regen',
+        'windy': 'windig',
+        'hail': 'mit Hagel'
+      } %}
+      {% set weather_state = condition_map.get(weather_raw, weather_raw) %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% if weather_raw and weather_raw != 'unknown' and weather_raw != 'unavailable' %}
+        {% if day_slot == 0 %}
+          Heute erwartet dich {{ weather_state }}es Wetter.
+        {% else %}
+          Für {{ day_name }} sieht es nach {{ weather_state }}em Wetter aus.
+        {% endif %}
+        {% if temp is not none %}
+          Die Temperaturen liegen bei etwa {{ temp | round }} Grad{% if templow is not none %}, wobei es in der Nacht auf {{ templow | round }} Grad abkühlen kann{% endif %}.
+        {% endif %}
+        {% if precipitation is not none and precipitation > 0 %}
+          Es werden ungefähr {{ precipitation }} Millimeter Niederschlag erwartet.
+        {% endif %}
+      {% else %}
+        Leider habe ich keine Wettervorhersage für {{ day_name }} verfügbar.
+      {% endif %}
+
+GetWeatherYesterday:
+  speech:
+    text: >
+      Leider kann ich dir nicht sagen, wie das Wetter gestern war. 
+      Ich habe nur Zugriff auf aktuelle Daten und Vorhersagen, aber keine historischen Wetterdaten. 
+      Falls du eine Wetterhistorie möchtest, könnte man die History-Integration von Home Assistant dafür einrichten.
+
+GetWeatherTime:
+  speech:
+    text: >
+      {% set day_input = day | default(0) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=0) %}
+      {% endif %}
+      {% set time_slot = time | default('nachmittags') %}
+      {% set time_display = {'morgens': 'am Morgen', 'vormittags': 'am Vormittag', 'mittags': 'zur Mittagszeit', 'nachmittags': 'am Nachmittag', 'abends': 'am Abend', 'nachts': 'in der Nacht'} %}
+      {% set sensor_map = {
+        0: 'sensor.wetter_heute',
+        1: 'sensor.wetter_morgen',
+        2: 'sensor.wetter_uebermorgen'
+      } %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_heute') %}
+      {% set weather_raw = states(sensor) | lower %}
+      {% set condition_map = {
+        'sunny': 'sonnig und angenehm',
+        'clear-night': 'klar',
+        'partlycloudy': 'leicht bewölkt',
+        'cloudy': 'überwiegend bewölkt',
+        'rainy': 'regnerisch',
+        'pouring': 'sehr regnerisch',
+        'snowy': 'winterlich mit Schnee',
+        'fog': 'neblig',
+        'lightning': 'gewitterig',
+        'lightning-rainy': 'gewittrig mit Regen',
+        'windy': 'windig'
+      } %}
+      {% set weather_state = condition_map.get(weather_raw, weather_raw) %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% set time_name = time_display.get(time_slot, time_slot) %}
+      {% if weather_raw and weather_raw != 'unknown' %}
+        Für {{ day_name }} {{ time_name }} sieht es nach {{ weather_state }}em Wetter aus.
+      {% else %}
+        Leider habe ich keine genaue Vorhersage für diesen Zeitraum.
+      {% endif %}
+
+GetWeatherWeek:
+  speech:
+    text: >
+      {% set condition_map = {
+        'sunny': 'sonnig',
+        'clear-night': 'klar',
+        'partlycloudy': 'leicht bewölkt',
+        'cloudy': 'bewölkt',
+        'rainy': 'regnerisch',
+        'pouring': 'stark regnerisch',
+        'snowy': 'winterlich',
+        'fog': 'neblig',
+        'lightning': 'gewitterig',
+        'lightning-rainy': 'gewitterig',
+        'windy': 'windig'
+      } %}
+      {% set heute = states('sensor.wetter_heute') | lower %}
+      {% set morgen = states('sensor.wetter_morgen') | lower %}
+      {% set uebermorgen = states('sensor.wetter_uebermorgen') | lower %}
+      {% set tag3 = states('sensor.wetter_tag_3') | lower %}
+      {% set tag4 = states('sensor.wetter_tag_4') | lower %}
+      Hier ist die Wetterübersicht für die nächsten Tage: Heute wird es {{ condition_map.get(heute, heute) }}, morgen {{ condition_map.get(morgen, morgen) }} und übermorgen {{ condition_map.get(uebermorgen, uebermorgen) }}. Danach erwartet uns {{ condition_map.get(tag3, tag3) }}es und später {{ condition_map.get(tag4, tag4) }}es Wetter.
+
+GetTemperatureDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+        {% set day_name = day_input | capitalize %}
+      {% elif day_input == 'gestern' %}
+        {% set day_slot = -1 %}
+        {% set day_name = 'gestern' %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+        {% set day_name = {0: 'heute', 1: 'morgen', 2: 'übermorgen', 3: 'in drei Tagen', 4: 'in vier Tagen', 5: 'in fünf Tagen', 6: 'in sechs Tagen'}.get(day_slot, 'an diesem Tag') %}
+      {% endif %}
+      {% set sensor_map = {
+        0: 'sensor.wetter_heute',
+        1: 'sensor.wetter_morgen',
+        2: 'sensor.wetter_uebermorgen',
+        3: 'sensor.wetter_tag_3',
+        4: 'sensor.wetter_tag_4',
+        5: 'sensor.wetter_tag_5',
+        6: 'sensor.wetter_tag_6'
+      } %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set temp = state_attr(sensor, 'temperature') %}
+      {% set templow = state_attr(sensor, 'templow') %}
+      {% if temp is not none %}
+        {% if day_slot == 0 %}
+          Heute werden die Temperaturen bei etwa {{ temp | round }} Grad liegen{% if templow is not none %}, wobei es in der Nacht auf {{ templow | round }} Grad abkühlen wird{% endif %}.
+        {% elif day_slot == -1 %}
+          Leider habe ich keine Temperaturdaten für gestern.
+        {% else %}
+          Für {{ day_name }} erwarten wir Temperaturen um die {{ temp | round }} Grad{% if templow is not none %}, nachts sinken sie auf etwa {{ templow | round }} Grad{% endif %}.
+        {% endif %}
+      {% else %}
+        Leider habe ich keine Temperaturvorhersage für {{ day_name }} verfügbar. Meine Vorhersage reicht nur 5 Tage voraus.
+      {% endif %}
+
+GetTemperatureTime:
+  speech:
+    text: >
+      {% set day_input = day | default(0) %}
+      {% set time_slot = time | default('nachmittags') %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+        {% set day_name = day_input | capitalize %}
+      {% else %}
+        {% set day_slot = day_input | int(default=0) %}
+        {% set day_name = {0: 'heute', 1: 'morgen'}.get(day_slot, 'heute') %}
+      {% endif %}
+      {% set time_display = {'morgens': 'am Morgen', 'vormittags': 'am Vormittag', 'mittags': 'zur Mittagszeit', 'nachmittags': 'am Nachmittag', 'abends': 'am Abend', 'nachts': 'in der Nacht'} %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen', 3: 'sensor.wetter_tag_3', 4: 'sensor.wetter_tag_4', 5: 'sensor.wetter_tag_5', 6: 'sensor.wetter_tag_6'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_heute') %}
+      {% set temp = state_attr(sensor, 'temperature') %}
+      {% set time_name = time_display.get(time_slot, time_slot) %}
+      {% if temp is not none %}
+        Für {{ day_name }} {{ time_name }} rechne ich mit Temperaturen um die {{ temp | round }} Grad.
+      {% else %}
+        Leider habe ich keine genaue Vorhersage für diesen Zeitraum.
+      {% endif %}
+
+GetRain:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather in ['rainy', 'pouring'] %}
+        Ja, draußen regnet es gerade. Du solltest einen Regenschirm mitnehmen wenn du rausgehst.
+      {% elif weather == 'partlycloudy' %}
+        Momentan regnet es nicht, aber es könnte später noch Schauer geben.
+      {% else %}
+        Nein, aktuell ist es trocken und es regnet nicht.
+      {% endif %}
+
+GetRainDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+        {% set day_name = day_input | capitalize %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+        {% set day_name = {0: 'heute', 1: 'morgen', 2: 'übermorgen', 3: 'in drei Tagen'}.get(day_slot, 'an diesem Tag') %}
+      {% endif %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen', 3: 'sensor.wetter_tag_3', 4: 'sensor.wetter_tag_4', 5: 'sensor.wetter_tag_5', 6: 'sensor.wetter_tag_6'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set weather = states(sensor) | lower %}
+      {% set precipitation = state_attr(sensor, 'precipitation') %}
+      {% if weather in ['rainy', 'pouring'] %}
+        Ja, für {{ day_name }} ist leider Regen angesagt{% if precipitation is not none and precipitation > 0 %}, es werden etwa {{ precipitation }} Millimeter Niederschlag erwartet{% endif %}. Nimm am besten einen Regenschirm mit.
+      {% elif weather != 'unknown' and weather != 'unavailable' %}
+        Nein, {{ day_name }} sieht es nach trockenem Wetter aus. Du brauchst wahrscheinlich keinen Regenschirm.
+      {% else %}
+        Leider habe ich keine Vorhersage für {{ day_name }}.
+      {% endif %}
+
+GetRainProbabilityDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+        {% set day_name = day_input | capitalize %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+        {% set day_name = {0: 'heute', 1: 'morgen', 2: 'übermorgen'}.get(day_slot, 'an diesem Tag') %}
+      {% endif %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen', 3: 'sensor.wetter_tag_3', 4: 'sensor.wetter_tag_4', 5: 'sensor.wetter_tag_5', 6: 'sensor.wetter_tag_6'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set weather = states(sensor) | lower %}
+      {% set precipitation = state_attr(sensor, 'precipitation') %}
+      {% if weather in ['rainy', 'pouring'] %}
+        Für {{ day_name }} ist die Regenwahrscheinlichkeit hoch{% if precipitation is not none and precipitation > 0 %}, mit etwa {{ precipitation }} Millimeter Niederschlag{% endif %}. Pack lieber einen Schirm ein.
+      {% elif weather != 'unknown' and weather != 'unavailable' %}
+        Die Regenwahrscheinlichkeit für {{ day_name }} ist eher gering. Es sollte trocken bleiben.
+      {% else %}
+        Leider habe ich dazu keine Informationen.
+      {% endif %}
+
+GetRainTime:
+  speech:
+    text: >
+      {% set day_input = day | default(0) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=0) %}
+      {% endif %}
+      {% set time_slot = time | default('nachmittags') %}
+      {% set time_display = {'morgens': 'am Morgen', 'vormittags': 'am Vormittag', 'mittags': 'zur Mittagszeit', 'nachmittags': 'am Nachmittag', 'abends': 'am Abend', 'nachts': 'in der Nacht'} %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_heute') %}
+      {% set weather = states(sensor) | lower %}
+      {% set day_name = day_names.get(day_slot, 'heute') %}
+      {% set time_name = time_display.get(time_slot, time_slot) %}
+      {% if weather in ['rainy', 'pouring'] %}
+        Ja, {{ day_name }} {{ time_name }} könnte es regnen. Nimm sicherheitshalber einen Schirm mit.
+      {% elif weather != 'unknown' and weather != 'unavailable' %}
+        Nein, {{ day_name }} {{ time_name }} sieht es nach trockenem Wetter aus.
+      {% else %}
+        Leider habe ich keine genaue Vorhersage für diesen Zeitraum.
+      {% endif %}
+
+GetSun:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather in ['sunny', 'clear-night'] %}
+        Ja, die Sonne scheint schön! Es ist ein wunderbar sonniger Tag.
+      {% elif weather == 'partlycloudy' %}
+        Die Sonne kommt immer wieder durch, auch wenn ein paar Wolken am Himmel sind.
+      {% elif weather == 'cloudy' %}
+        Leider ist es ziemlich bewölkt und die Sonne versteckt sich hinter den Wolken.
+      {% else %}
+        Die Sonne scheint gerade nicht. Das Wetter ist {{ weather }}.
+      {% endif %}
+
+GetSunDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set weather = states(sensor) | lower %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% if weather in ['sunny', 'clear-night'] %}
+        Ja, {{ day_name }} wird ein schöner sonniger Tag! Genieß die Sonne.
+      {% elif weather == 'partlycloudy' %}
+        {{ day_name | capitalize }} wird es wechselhaft, mit Sonne und einigen Wolken. Es sollte aber überwiegend freundlich sein.
+      {% elif weather != 'unknown' and weather != 'unavailable' %}
+        Leider sieht es {{ day_name }} eher bedeckt aus. Die Sonne wird sich wohl kaum zeigen.
+      {% else %}
+        Leider habe ich keine Vorhersage für {{ day_name }}.
+      {% endif %}
+
+GetWindDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set weather = states(sensor) | lower %}
+      {% set wind = state_attr(sensor, 'wind_speed') %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% if weather == 'windy' or (wind is not none and wind > 30) %}
+        Ja, {{ day_name }} wird es ziemlich windig{% if wind is not none %}, mit Windgeschwindigkeiten um {{ wind | round }} Kilometer pro Stunde{% endif %}. Halte leichte Gegenstände fest!
+      {% elif wind is not none and wind > 15 %}
+        Es wird {{ day_name }} einen leichten bis mäßigen Wind geben, etwa {{ wind | round }} Kilometer pro Stunde.
+      {% elif weather != 'unknown' and weather != 'unavailable' %}
+        {{ day_name | capitalize }} wird es eher windstill und ruhig sein.
+      {% else %}
+        Leider habe ich keine Windinformationen für {{ day_name }}.
+      {% endif %}
+
+GetClouds:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather == 'cloudy' %}
+        Ja, der Himmel ist komplett bewölkt. Die Wolken verdecken die Sonne vollständig.
+      {% elif weather == 'partlycloudy' %}
+        Es ist wechselhaft bewölkt, aber die Sonne kommt immer wieder durch.
+      {% elif weather in ['sunny', 'clear-night'] %}
+        Nein, der Himmel ist weitgehend klar und es gibt kaum Wolken.
+      {% else %}
+        Es gibt vereinzelte Wolken, aber insgesamt ist es okay.
+      {% endif %}
+
+GetCloudsDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set weather = states(sensor) | lower %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% if weather == 'cloudy' %}
+        Ja, {{ day_name }} wird der Himmel leider stark bewölkt sein. Die Sonne zeigt sich wohl kaum.
+      {% elif weather == 'partlycloudy' %}
+        {{ day_name | capitalize }} wird es wechselhaft, mit Wolken und Sonne im Mix.
+      {% elif weather in ['sunny', 'clear-night'] %}
+        {{ day_name | capitalize }} wird der Himmel weitgehend klar sein. Ein schöner Tag steht bevor!
+      {% elif weather != 'unknown' and weather != 'unavailable' %}
+        {{ day_name | capitalize }} erwarte ich gemischte Bedingungen am Himmel.
+      {% else %}
+        Leider habe ich keine Vorhersage für {{ day_name }}.
+      {% endif %}
+
+GetSnow:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather == 'snowy' %}
+        Ja, draußen schneit es gerade! Die Schneeflocken rieseln vom Himmel. Vielleicht ein guter Tag für heißen Kakao?
+      {% elif weather == 'cloudy' %}
+        Nein, es schneit gerade nicht, aber bei diesen Wolken könnte es später noch anfangen.
+      {% else %}
+        Nein, aktuell schneit es nicht und es sieht auch nicht danach aus.
+      {% endif %}
+
+GetSnowDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set weather = states(sensor) | lower %}
+      {% set temp = state_attr(sensor, 'temperature') %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% if weather == 'snowy' %}
+        Ja, {{ day_name }} könnte es schneien! Zieh dich warm an und genieß das Winterwetter.
+      {% elif temp is not none and temp <= 2 and weather in ['rainy', 'cloudy'] %}
+        Bei den niedrigen Temperaturen {{ day_name }} könnte Schneeregen oder Schnee möglich sein.
+      {% elif weather != 'unknown' and weather != 'unavailable' %}
+        Nein, {{ day_name }} ist kein Schneefall vorhergesagt. Die Temperaturen {% if temp is not none %}liegen bei etwa {{ temp | round }} Grad{% endif %}, was zu warm für Schnee ist.
+      {% else %}
+        Leider habe ich keine Vorhersage für {{ day_name }}.
+      {% endif %}
+
+GetStorm:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather in ['lightning', 'lightning-rainy'] %}
+        Achtung, draußen gibt es gerade ein Gewitter! Bleib besser drinnen und meide offene Flächen und Bäume.
+      {% elif weather == 'windy' %}
+        Es stürmt zwar nicht, aber es ist ziemlich windig draußen.
+      {% else %}
+        Nein, aktuell ist kein Gewitter oder Sturm in Sicht. Alles ruhig.
+      {% endif %}
+
+GetStormDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set weather = states(sensor) | lower %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% if weather in ['lightning', 'lightning-rainy'] %}
+        Vorsicht, {{ day_name }} sind Gewitter vorhergesagt! Planen Sie Outdoor-Aktivitäten besser für einen anderen Tag.
+      {% elif weather != 'unknown' and weather != 'unavailable' %}
+        {{ day_name | capitalize }} sind keine Gewitter oder Stürme vorhergesagt. Das Wetter sollte ruhig bleiben.
+      {% else %}
+        Leider habe ich keine Vorhersage für {{ day_name }}.
+      {% endif %}
+
+GetHumidityDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% set humidity = state_attr('weather.forecast_home', 'humidity') | default(50) %}
+      {% if humidity > 80 %}
+        {{ day_name | capitalize }} wird es recht feucht, mit etwa {{ humidity }}% Luftfeuchtigkeit. Schweißtreibende Aktivitäten könnten sich unangenehm anfühlen.
+      {% elif humidity > 60 %}
+        Die Luftfeuchtigkeit liegt {{ day_name }} bei etwa {{ humidity }}%, was im angenehmen Bereich ist.
+      {% elif humidity > 40 %}
+        {{ day_name | capitalize }} wird die Luft ziemlich angenehm sein, mit etwa {{ humidity }}% Luftfeuchtigkeit.
+      {% else %}
+        {{ day_name | capitalize }} wird die Luft eher trocken sein, mit nur {{ humidity }}% Luftfeuchtigkeit. Vielleicht hilft ein Glas Wasser mehr.
+      {% endif %}
+
+GetPressure:
+  speech:
+    text: >
+      {% set pressure = state_attr('weather.forecast_home', 'pressure') %}
+      {% if pressure is not none %}
+        {% if pressure > 1020 %}
+          Der Luftdruck liegt bei {{ pressure }} Hektopascal, das ist ziemlich hoch. Typischerweise bedeutet das stabiles, schönes Wetter.
+        {% elif pressure < 1000 %}
+          Der Luftdruck ist mit {{ pressure }} Hektopascal eher niedrig. Das deutet oft auf unbeständiges Wetter hin.
+        {% else %}
+          Der Luftdruck liegt bei {{ pressure }} Hektopascal, was im normalen Bereich ist.
+        {% endif %}
+      {% else %}
+        Leider kann ich den Luftdruck gerade nicht abrufen.
+      {% endif %}
+
+GetPressureDay:
+  speech:
+    text: >
+      {% set pressure = state_attr('weather.forecast_home', 'pressure') %}
+      {% if pressure is not none %}
+        Der Luftdruck liegt aktuell bei {{ pressure }} Hektopascal. Leider sind Vorhersagen für den Luftdruck nicht verfügbar, aber das gibt schon mal einen Hinweis auf die Wetterlage.
+      {% else %}
+        Den Luftdruck kann ich gerade nicht abrufen.
+      {% endif %}
+
+GetFog:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% if weather == 'fog' %}
+        Ja, draußen ist es ziemlich neblig. Die Sicht ist eingeschränkt, also Vorsicht beim Autofahren!
+      {% else %}
+        Nein, aktuell ist kein Nebel gemeldet. Die Sicht ist gut.
+      {% endif %}
+
+GetFogDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set weather = states(sensor) | lower %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% if weather == 'fog' %}
+        Ja, {{ day_name }} könnte es neblig werden. Plane früh morgens oder spät abends etwas mehr Zeit fürs Fahren ein.
+      {% elif weather != 'unknown' and weather != 'unavailable' %}
+        {{ day_name | capitalize }} ist kein Nebel vorhergesagt. Die Sicht sollte gut sein.
+      {% else %}
+        Leider habe ich keine Vorhersage für {{ day_name }}.
+      {% endif %}
+
+GetFeelsLike:
+  speech:
+    text: >
+      {% set temp = state_attr('weather.forecast_home', 'temperature') %}
+      {% set wind = state_attr('weather.forecast_home', 'wind_speed') | default(0) %}
+      {% set humidity = state_attr('weather.forecast_home', 'humidity') | default(50) %}
+      {% if temp is not none %}
+        {% if wind > 20 and temp < 15 %}
+          Bei dem Wind fühlt es sich kälter an als die {{ temp }} Grad, die das Thermometer zeigt. Rechne eher mit gefühlten {{ (temp - 3) | round }} Grad.
+        {% elif humidity > 70 and temp > 25 %}
+          Bei der hohen Luftfeuchtigkeit fühlen sich die {{ temp }} Grad ziemlich schwül an. Es ist drückend.
+        {% else %}
+          Es fühlt sich draußen an wie etwa {{ temp }} Grad.
+        {% endif %}
+      {% else %}
+        Leider kann ich die gefühlte Temperatur gerade nicht ermitteln.
+      {% endif %}
+
+GetFeelsLikeDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% set temp = state_attr(sensor, 'temperature') | default(state_attr('weather.forecast_home', 'temperature')) | default(15) %}
+      {% if temp is not none %}
+        {{ day_name | capitalize }} wird es sich wie etwa {{ temp | round }} Grad anfühlen. Plane deine Kleidung entsprechend.
+      {% else %}
+        Leider habe ich keine genauen Daten für {{ day_name }}.
+      {% endif %}
+
+GetClothingAdvice:
+  speech:
+    text: >
+      {% set temp = state_attr('weather.forecast_home', 'temperature') %}
+      {% set weather = states('weather.forecast_home') %}
+      {% if temp is not none %}
+        {% if temp < 0 %}
+          Brr, es ist richtig kalt draußen! Eine warme Winterjacke, Mütze, Schal und Handschuhe sind ein Muss. Zieh dich in Schichten an.
+        {% elif temp < 5 %}
+          Es ist recht kalt. Ich empfehle eine warme Jacke, Mütze und Handschuhe.
+        {% elif temp < 15 %}
+          Kühles Wetter heute. Eine Jacke oder ein Pullover sollte dabei sein.
+        {% elif temp < 20 %}
+          Angenehme Temperaturen. Ein langarmiges Shirt oder eine leichte Jacke reicht völlig.
+        {% elif temp < 25 %}
+          Schön warm. Leichte Kleidung ist perfekt, vielleicht ein T-Shirt und eine Jeans.
+        {% else %}
+          Es ist richtig warm! Kurze Hosen, T-Shirt und Sandalen sind ideal. Vergiss die Sonnencreme nicht!
+        {% endif %}
+        {% if weather in ['rainy', 'pouring'] %} Und nimm unbedingt einen Regenschirm mit!{% endif %}
+        {% if weather == 'windy' %} Bei dem Wind wäre vielleicht eine winddichte Jacke nicht schlecht.{% endif %}
+      {% else %}
+        Leider kann ich dir ohne aktuelle Wetterdaten keinen Kleidungstipp geben.
+      {% endif %}
+
+GetClothingDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set weather = states(sensor) | lower %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% set temp = state_attr(sensor, 'temperature') | default(state_attr('weather.forecast_home', 'temperature')) | default(15) %}
+      {% if temp < 0 %}
+        {{ day_name | capitalize }} wird es eisig kalt! Pack unbedingt Winterjacke, Mütze und Handschuhe ein.
+      {% elif temp < 5 %}
+        {{ day_name | capitalize }} wird es kalt. Eine warme Jacke und Mütze sind empfehlenswert.
+      {% elif temp < 15 %}
+        Für {{ day_name }} empfehle ich eine Jacke oder einen Pullover. Es wird kühl.
+      {% elif temp < 25 %}
+        {{ day_name | capitalize }} sind angenehme Temperaturen zu erwarten. Leichte Kleidung passt perfekt.
+      {% else %}
+        {{ day_name | capitalize }} wird es sommerlich warm! Kurze Sachen sind genau richtig.
+      {% endif %}
+      {% if weather in ['rainy', 'pouring'] %} Vergiss nicht den Regenschirm!{% endif %}
+      {% if weather == 'windy' %} Bei Wind wäre eine winddichte Jacke praktisch.{% endif %}
+
+GetOutdoorAdvice:
+  speech:
+    text: >
+      {% set weather = states('weather.forecast_home') %}
+      {% set temp = state_attr('weather.forecast_home', 'temperature') %}
+      {% if weather in ['sunny', 'partlycloudy', 'clear-night'] and temp is not none and temp > 15 and temp < 28 %}
+        Das Wetter ist perfekt für Aktivitäten draußen! Genieß den Tag im Freien.
+      {% elif weather in ['sunny', 'partlycloudy'] and temp is not none and temp > 10 %}
+        Das Wetter eignet sich gut für Unternehmungen im Freien. Vielleicht ein Spaziergang oder eine Fahrradtour?
+      {% elif weather in ['rainy', 'pouring'] %}
+        Bei dem Regen würde ich eher drinnen bleiben, außer du magst es nass zu werden.
+      {% elif weather in ['snowy'] %}
+        Es schneit draußen! Perfekt für einen Schneespaziergang oder zum Schneemann bauen, aber zieh dich warm an.
+      {% elif weather in ['lightning', 'lightning-rainy'] %}
+        Bei Gewitter solltest du definitiv drinnen bleiben. Sicherheit geht vor!
+      {% elif temp is not none and temp < 0 %}
+        Bei Minusgraden solltest du gut überlegen, ob du wirklich raus willst. Wenn ja, dann richtig warm anziehen!
+      {% elif temp is not none and temp < 5 %}
+        Es ist ziemlich kalt draußen. Kurze Aktivitäten sind okay, aber zieh dich warm an.
+      {% elif temp is not none and temp > 32 %}
+        Es ist sehr heiß! Vermeide anstrengende Aktivitäten in der Mittagshitze und trink viel Wasser.
+      {% else %}
+        Das Wetter ist okay, nicht perfekt, aber machbar für draußen.
+      {% endif %}
+
+GetOutdoorDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
+      {% set weather = states(sensor) | lower %}
+      {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
+      {% set temp = state_attr(sensor, 'temperature') | default(state_attr('weather.forecast_home', 'temperature')) | default(15) %}
+      {% if weather in ['sunny', 'partlycloudy', 'clear-night'] and temp > 15 and temp < 28 %}
+        {{ day_name | capitalize }} ist ein toller Tag für Aktivitäten im Freien! Die Bedingungen sind ideal.
+      {% elif weather in ['sunny', 'partlycloudy'] and temp > 10 %}
+        {{ day_name | capitalize }} eignet sich gut für draußen. Vielleicht ein Ausflug oder Spaziergang?
+      {% elif weather in ['rainy', 'pouring'] %}
+        {{ day_name | capitalize }} würde ich Outdoor-Pläne eher verschieben, es wird nass.
+      {% elif weather in ['snowy'] %}
+        {{ day_name | capitalize }} könnte es schneien! Perfekt für Winteraktivitäten, aber warm anziehen.
+      {% elif weather in ['lightning', 'lightning-rainy'] %}
+        {{ day_name | capitalize }} sind Gewitter vorhergesagt. Bleib besser drinnen.
+      {% elif temp is not none and temp < 5 %}
+        {{ day_name | capitalize }} wird es kalt. Outdoor geht, aber nur warm eingepackt.
+      {% else %}
+        {{ day_name | capitalize }} ist das Wetter in Ordnung für draußen, nicht perfekt, aber machbar.
+      {% endif %}
+
+GetUV:
+  speech:
+    text: >
+      Der UV-Index ist leider nicht in der Standard-Wetterintegration verfügbar.
+
+GetSunrise:
+  speech:
+    text: >
+      {% set sunrise = states('sensor.sun_next_rising') | default(state_attr('sun.sun', 'next_rising')) %}
+      {% if sunrise %}
+        Die Sonne geht um {{ as_timestamp(sunrise) | timestamp_custom('%H:%M') }} Uhr auf. Perfekt um den Tag zu beginnen!
+      {% else %}
+        Die Sonnenaufgangszeit kann ich gerade leider nicht ermitteln.
+      {% endif %}
+
+GetSunset:
+  speech:
+    text: >
+      {% set sunset = states('sensor.sun_next_setting') | default(state_attr('sun.sun', 'next_setting')) %}
+      {% if sunset %}
+        Die Sonne geht um {{ as_timestamp(sunset) | timestamp_custom('%H:%M') }} Uhr unter. Zeit für einen schönen Sonnenuntergang!
+      {% else %}
+        Die Sonnenuntergangszeit kann ich gerade leider nicht ermitteln.
+      {% endif %}
+
+GetPollen:
+  speech:
+    text: >
+      Für Polleninformationen bräuchte ich eine spezielle Pollenflug-Integration. Die ist aktuell nicht eingerichtet. Schau am besten online nach dem Pollenflug in deiner Region.
+
+GetWeatherComparison:
+  speech:
+    text: >
+      {% set heute = states('sensor.wetter_heute') | lower %}
+      {% set morgen = states('sensor.wetter_morgen') | lower %}
+      {% set temp_heute = state_attr('sensor.wetter_heute', 'temperature') %}
+      {% set temp_morgen = state_attr('sensor.wetter_morgen', 'temperature') %}
+      {% set weather_de = {'sunny': 'sonnig', 'partlycloudy': 'teilweise bewölkt', 'cloudy': 'bewölkt', 'rainy': 'regnerisch', 'pouring': 'stark regnerisch', 'snowy': 'verschneit', 'windy': 'windig', 'fog': 'neblig', 'lightning': 'gewittrig', 'clear-night': 'klar'} %}
+      {% if heute != 'unknown' and morgen != 'unknown' %}
+        {% set heute_de = weather_de.get(heute, heute) %}
+        {% set morgen_de = weather_de.get(morgen, morgen) %}
+        Heute ist es {{ heute_de }}{% if temp_heute is not none %} bei etwa {{ temp_heute | round }} Grad{% endif %}.
+        Morgen wird es {{ morgen_de }}{% if temp_morgen is not none %} mit etwa {{ temp_morgen | round }} Grad{% endif %}.
+        {% if heute == morgen %}
+          Das Wetter bleibt also ähnlich.
+        {% elif heute in ['sunny', 'partlycloudy'] and morgen in ['rainy', 'pouring'] %}
+          Also ein Wetterumschwung, genieß heute noch das gute Wetter!
+        {% elif heute in ['rainy', 'cloudy'] and morgen in ['sunny', 'partlycloudy'] %}
+          Es wird also besser, morgen kannst du dich auf Sonne freuen!
+        {% endif %}
+      {% else %}
+        Leider kann ich heute und morgen gerade nicht vergleichen, da die Daten fehlen.
+      {% endif %}
+
+# ============================================================================
+# ERINNERUNG INTENTS
+# ============================================================================
+
+SetReminderSecondsSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ seconds }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, ich gebe dir in " ~ seconds ~ " Sekunden Bescheid!",
+        "Verstanden, in " ~ seconds ~ " Sekunden melde ich mich.",
+        "Geht klar, " ~ seconds ~ " Sekunden, ich bin dann da.",
+        "OK, Timer auf " ~ seconds ~ " Sekunden gestellt.",
+        "Erledigt, in " ~ seconds ~ " Sekunden gibt es eine Erinnerung."
+      ] %}
+      {{ responses | random }}
+
+SetReminderSeconds:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ seconds }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, ich erinnere dich in " ~ seconds ~ " Sekunden: " ~ message ~ ".",
+        "Verstanden, in " ~ seconds ~ " Sekunden sage ich dir Bescheid wegen: " ~ message ~ ".",
+        "Geht klar, " ~ seconds ~ " Sekunden Timer für: " ~ message ~ ".",
+        "OK, ich melde mich in " ~ seconds ~ " Sekunden mit: " ~ message ~ ".",
+        "Erledigt, Erinnerung in " ~ seconds ~ " Sekunden: " ~ message ~ "."
+      ] %}
+      {{ responses | random }}
+
+SetReminderMinutesSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (minutes | int) * 60 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+  speech:
+    text: >
+      {% set min_text = minutes ~ ' Minute' ~ ('n' if minutes | int > 1 else '') %}
+      {% set responses = [
+        "Ich merk's mir und melde mich in " ~ min_text ~ "!",
+        "Alles klar, in " ~ min_text ~ " gibt's Bescheid.",
+        "Verstanden, Timer auf " ~ min_text ~ " gestellt.",
+        "Geht klar, " ~ min_text ~ " ab jetzt.",
+        "OK, in " ~ min_text ~ " erinnere ich dich."
+      ] %}
+      {{ responses | random }}
+
+SetReminderMinutes:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (minutes | int) * 60 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+  speech:
+    text: >
+      {% set min_text = minutes ~ ' Minute' ~ ('n' if minutes | int > 1 else '') %}
+      {% set responses = [
+        "Verstanden! In " ~ min_text ~ " erinnere ich dich: " ~ message ~ ".",
+        "Alles klar, in " ~ min_text ~ " sage ich dir Bescheid wegen: " ~ message ~ ".",
+        "Geht klar, " ~ min_text ~ " Timer für: " ~ message ~ ".",
+        "OK, ich melde mich in " ~ min_text ~ " mit: " ~ message ~ ".",
+        "Erledigt, Erinnerung in " ~ min_text ~ ": " ~ message ~ "."
+      ] %}
+      {{ responses | random }}
+
+SetReminderHoursSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (hours | int) * 3600 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+  speech:
+    text: >
+      {% set hour_text = hours ~ ' Stunde' ~ ('n' if hours | int > 1 else '') %}
+      {% set responses = [
+        "Alles klar, ich melde mich in " ~ hour_text ~ " bei dir!",
+        "Verstanden, in " ~ hour_text ~ " gibt's eine Erinnerung.",
+        "Geht klar, Timer auf " ~ hour_text ~ " gestellt.",
+        "OK, in " ~ hour_text ~ " erinnere ich dich.",
+        "Erledigt, " ~ hour_text ~ " Timer läuft."
+      ] %}
+      {{ responses | random }}
+
+SetReminderHours:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "{{ (hours | int) * 3600 }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+  speech:
+    text: >
+      {% set hour_text = hours ~ ' Stunde' ~ ('n' if hours | int > 1 else '') %}
+      {% set responses = [
+        "Verstanden! In " ~ hour_text ~ " erinnere ich dich: " ~ message ~ ".",
+        "Alles klar, in " ~ hour_text ~ " sage ich dir Bescheid wegen: " ~ message ~ ".",
+        "Geht klar, " ~ hour_text ~ " Timer für: " ~ message ~ ".",
+        "OK, ich melde mich in " ~ hour_text ~ " mit: " ~ message ~ ".",
+        "Erledigt, Erinnerung in " ~ hour_text ~ ": " ~ message ~ "."
+      ] %}
+      {{ responses | random }}
+
+SetReminderTimeSimple:
+  action:
+    - service: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.erinnerung_1_zeit
+      data:
+        datetime: >
+          {% set h = clock_hour | int %}
+          {% set m = clock_minute | default(0) | int %}
+          {{ now().strftime('%Y-%m-%d') }} {{ '%02d:%02d:00' | format(h, m) }}
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "Erinnerung"
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.erinnerung_1_aktiv
+  speech:
+    text: >
+      {% set time_text = clock_hour ~ (':' ~ '%02d' | format(clock_minute | int) if clock_minute | int > 0 else '') ~ ' Uhr' %}
+      {% set responses = [
+        "Perfekt, ich erinnere dich um " ~ time_text ~ ".",
+        "Alles klar, Erinnerung für " ~ time_text ~ " gesetzt.",
+        "OK, um " ~ time_text ~ " melde ich mich.",
+        "Erledigt, Timer auf " ~ time_text ~ " gestellt.",
+        "Verstanden, um " ~ time_text ~ " gibt es eine Erinnerung."
+      ] %}
+      {{ responses | random }}
+
+SetReminderTime:
+  action:
+    - service: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.erinnerung_1_zeit
+      data:
+        datetime: >
+          {% set h = clock_hour | int %}
+          {% set m = clock_minute | default(0) | int %}
+          {{ now().strftime('%Y-%m-%d') }} {{ '%02d:%02d:00' | format(h, m) }}
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.erinnerung_1_aktiv
+  speech:
+    text: >
+      {% set time_text = clock_hour ~ (':' ~ '%02d' | format(clock_minute | int) if clock_minute | int > 0 else '') ~ ' Uhr' %}
+      {% set responses = [
+        "Gemerkt! Um " ~ time_text ~ " erinnere ich dich: " ~ message ~ ".",
+        "Alles klar, um " ~ time_text ~ " sage ich dir Bescheid wegen: " ~ message ~ ".",
+        "OK, Erinnerung für " ~ time_text ~ ": " ~ message ~ ".",
+        "Erledigt, um " ~ time_text ~ " melde ich mich mit: " ~ message ~ ".",
+        "Verstanden, " ~ time_text ~ " Erinnerung: " ~ message ~ "."
+      ] %}
+      {{ responses | random }}
+
+SetReminderSimple:
+  action:
+    - service: timer.start
+      target:
+        entity_id: timer.erinnerung_1
+      data:
+        duration: "300"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.erinnerung_1_nachricht
+      data:
+        value: "{{ message }}"
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, in 5 Minuten erinnere ich dich: " ~ message ~ ".",
+        "Verstanden, in fünf Minuten sage ich dir Bescheid wegen: " ~ message ~ ".",
+        "OK, 5 Minuten Timer für: " ~ message ~ ".",
+        "Erledigt, in 5 Minuten melde ich mich mit: " ~ message ~ ".",
+        "Geht klar, kurze Erinnerung in 5 Minuten: " ~ message ~ "."
+      ] %}
+      {{ responses | random }}
+
+GetReminders:
+  speech:
+    text: >
+      {% set active = [] %}
+      {% for i in range(1, 4) %}
+        {% set timer = 'timer.erinnerung_' ~ i %}
+        {% set msg = 'input_text.erinnerung_' ~ i ~ '_nachricht' %}
+        {% if states(timer) == 'active' %}
+          {% set active = active + [states(msg)] %}
+        {% endif %}
+      {% endfor %}
+      {% if active | length > 0 %}
+        {% set intro = [
+          "Du hast " ~ active | length ~ " aktive Erinnerung" ~ ('en' if active | length > 1 else '') ~ ": ",
+          "Aktuell laufen " ~ active | length ~ " Timer: ",
+          "Es gibt " ~ active | length ~ " aktive Erinnerung" ~ ('en' if active | length > 1 else '') ~ ": ",
+          "Folgende " ~ active | length ~ " Erinnerung" ~ ('en' if active | length > 1 else '') ~ " " ~ ('sind' if active | length > 1 else 'ist') ~ " gesetzt: "
+        ] %}
+        {{ intro | random }}{{ active | join(', ') }}.
+      {% else %}
+        {% set empty = [
+          "Im Moment hast du keine aktiven Erinnerungen gesetzt.",
+          "Aktuell laufen keine Timer.",
+          "Es sind keine Erinnerungen aktiv.",
+          "Du hast gerade keine Erinnerungen."
+        ] %}
+        {{ empty | random }}
+      {% endif %}
+
+DeleteReminder:
+  action:
+    - service: timer.cancel
+      target:
+        entity_id:
+          - timer.erinnerung_1
+          - timer.erinnerung_2
+          - timer.erinnerung_3
+    - service: input_boolean.turn_off
+      target:
+        entity_id:
+          - input_boolean.erinnerung_1_aktiv
+          - input_boolean.erinnerung_2_aktiv
+          - input_boolean.erinnerung_3_aktiv
+  speech:
+    text: >
+      {% set responses = [
+        "Erledigt, alle Erinnerungen sind gelöscht.",
+        "Alles klar, alle Timer wurden gestoppt.",
+        "OK, sämtliche Erinnerungen sind entfernt.",
+        "Geht klar, alle Erinnerungen gelöscht.",
+        "Verstanden, keine aktiven Erinnerungen mehr."
+      ] %}
+      {{ responses | random }}
+
+DeleteLastReminder:
+  action:
+    - service: timer.cancel
+      target:
+        entity_id: timer.erinnerung_1
+  speech:
+    text: >
+      {% set responses = [
+        "Die letzte Erinnerung habe ich gelöscht.",
+        "Alles klar, letzte Erinnerung entfernt.",
+        "OK, der letzte Timer wurde gestoppt.",
+        "Erledigt, die Erinnerung ist gelöscht.",
+        "Geht klar, letzte Erinnerung abgebrochen."
+      ] %}
+      {{ responses | random }}
+
+StopReminder:
+  action:
+    - service: media_player.media_stop
+      target:
+        entity_id: all
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar.",
+        "OK.",
+        "Erledigt.",
+        "Verstanden.",
+        "Geht klar."
+      ] %}
+      {{ responses | random }}
+
+# ============================================================================
+# ROLLADEN/COVER INTENTS
+# ============================================================================
+
+SetSunProtection:
+  action:
+    - service: cover.set_cover_position
+      target:
+        entity_id: "{{ 'cover.' ~ name | lower | replace(' ', '_') }}"
+      data:
+        position: 30
+  speech:
+    text: >
+      {% set responses = [
+        "Sonnenschutz für " ~ name ~ " ist jetzt aktiv. Die Rolladen fahren auf 30 Prozent.",
+        "Alles klar, Sonnenschutzmodus für " ~ name ~ " aktiviert.",
+        "OK, " ~ name ~ " Rolladen sind jetzt im Sonnenschutz.",
+        "Erledigt, " ~ name ~ " ist vor der Sonne geschützt.",
+        "Geht klar, Sonnenschutz im " ~ name ~ " ist an."
+      ] %}
+      {{ responses | random }}
+
+DisableSunProtection:
+  action:
+    - service: cover.open_cover
+      target:
+        entity_id: "{{ 'cover.' ~ name | lower | replace(' ', '_') }}"
+  speech:
+    text: >
+      {% set responses = [
+        "Sonnenschutz für " ~ name ~ " ist deaktiviert, die Rolladen fahren wieder hoch.",
+        "Alles klar, " ~ name ~ " Rolladen öffnen sich wieder.",
+        "OK, Sonnenschutz im " ~ name ~ " ist aus.",
+        "Erledigt, " ~ name ~ " Sonnenschutz wurde beendet.",
+        "Geht klar, " ~ name ~ " Rolladen gehen wieder auf."
+      ] %}
+      {{ responses | random }}
+
+EnableCoverAutomation:
+  action:
+    - service: input_boolean.turn_on
+      target:
+        entity_id: "input_boolean.rolladen_automatik_{{ name | lower | replace(' ', '_') }}"
+  speech:
+    text: >
+      {% set responses = [
+        "Die Rolladen-Automatik für " ~ name ~ " ist jetzt eingeschaltet.",
+        "Alles klar, " ~ name ~ " Automatik ist aktiv.",
+        "OK, automatische Steuerung für " ~ name ~ " läuft.",
+        "Erledigt, " ~ name ~ " wird jetzt automatisch gesteuert.",
+        "Verstanden, Rolladen-Automatik im " ~ name ~ " ist an."
+      ] %}
+      {{ responses | random }}
+
+DisableCoverAutomation:
+  action:
+    - service: input_boolean.turn_off
+      target:
+        entity_id: "input_boolean.rolladen_automatik_{{ name | lower | replace(' ', '_') }}"
+  speech:
+    text: >
+      {% set responses = [
+        "Rolladen-Automatik für " ~ name ~ " ist aus. Du kannst jetzt manuell steuern.",
+        "Alles klar, " ~ name ~ " ist jetzt auf manuelle Steuerung.",
+        "OK, Automatik für " ~ name ~ " deaktiviert.",
+        "Erledigt, " ~ name ~ " läuft jetzt ohne Automatik.",
+        "Verstanden, manuelle Kontrolle für " ~ name ~ " ist an."
+      ] %}
+      {{ responses | random }}
+
+SetCoverScene:
+  action:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ 'morgen' in trigger_sentence or 'aufwach' in trigger_sentence or 'aufsteh' in trigger_sentence }}"
+          sequence:
+            - service: cover.open_cover
+              target:
+                entity_id: all
+        - conditions:
+            - condition: template
+              value_template: "{{ 'nacht' in trigger_sentence or 'schlaf' in trigger_sentence }}"
+          sequence:
+            - service: cover.close_cover
+              target:
+                entity_id: all
+        - conditions:
+            - condition: template
+              value_template: "{{ 'kino' in trigger_sentence or 'film' in trigger_sentence or 'heimkino' in trigger_sentence }}"
+          sequence:
+            - service: cover.close_cover
+              target:
+                entity_id: all
+            - service: light.turn_off
+              target:
+                entity_id: all
+      default:
+        - service: cover.set_cover_position
+          target:
+            entity_id: all
+          data:
+            position: 50
+  speech:
+    text: >
+      {% set responses = [
+        "Die Szene ist jetzt aktiv!",
+        "Alles klar, Szene wurde aktiviert.",
+        "OK, die gewählte Szene läuft.",
+        "Erledigt, Szene ist eingestellt.",
+        "Verstanden, alles ist eingerichtet."
+      ] %}
+      {{ responses | random }}
+
+GetCoverState:
+  speech:
+    text: >
+      {% set cover = 'cover.' ~ name | lower | replace(' ', '_') %}
+      {% set state = states(cover) %}
+      {% set pos = state_attr(cover, 'current_position') | default(0) %}
+      {% if state == 'open' %}
+        {% set responses = [
+          "Die Rolladen im " ~ name ~ " sind geöffnet, aktuell bei " ~ pos ~ " Prozent.",
+          "Im " ~ name ~ " sind die Rolladen offen, Position " ~ pos ~ " Prozent.",
+          name ~ " Rolladen: offen bei " ~ pos ~ " Prozent."
+        ] %}
+        {{ responses | random }}
+      {% elif state == 'closed' %}
+        {% set responses = [
+          "Die Rolladen im " ~ name ~ " sind komplett geschlossen.",
+          "Im " ~ name ~ " sind die Rolladen zu.",
+          name ~ " Rolladen sind unten."
+        ] %}
+        {{ responses | random }}
+      {% elif state == 'opening' %}
+        {% set responses = [
+          "Die Rolladen im " ~ name ~ " fahren gerade hoch.",
+          "Im " ~ name ~ " öffnen sich die Rolladen gerade.",
+          name ~ " Rolladen sind in Bewegung nach oben."
+        ] %}
+        {{ responses | random }}
+      {% elif state == 'closing' %}
+        {% set responses = [
+          "Die Rolladen im " ~ name ~ " fahren gerade runter.",
+          "Im " ~ name ~ " schließen sich die Rolladen gerade.",
+          name ~ " Rolladen sind in Bewegung nach unten."
+        ] %}
+        {{ responses | random }}
+      {% else %}
+        {{ name }} hat den Status {{ state }} und ist bei {{ pos }} Prozent.
+      {% endif %}
+
+ScheduleCover:
+  speech:
+    text: >
+      {% set time_map = {
+        'morning': 'morgens',
+        'noon': 'mittags',
+        'evening': 'abends',
+        'night': 'nachts',
+        'sunrise': 'bei Sonnenaufgang',
+        'sunset': 'bei Sonnenuntergang'
+      } %}
+      {% set time_text = time_map.get(time_of_day, time_of_day) %}
+      {% set responses = [
+        "Perfekt, ich übernehme das! Die Rolladen werden " ~ time_text ~ " automatisch gesteuert.",
+        "Alles klar, Rolladen-Zeitplan für " ~ time_text ~ " ist gesetzt.",
+        "OK, automatische Steuerung " ~ time_text ~ " aktiviert.",
+        "Erledigt, die Rolladen fahren " ~ time_text ~ " automatisch.",
+        "Verstanden, " ~ time_text ~ " werden die Rolladen automatisch bewegt."
+      ] %}
+      {{ responses | random }}
+
+# ============================================================================
+# LICHT HELLIGKEIT (Custom Intents für relative Steuerung)
+# ============================================================================
+
+LightBrighterArea:
+  action:
+    - service: light.turn_on
+      target:
+        area_id: "{{ area_id(area) }}"
+      data:
+        brightness_step_pct: 20
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, das Licht im " ~ area ~ " ist jetzt heller.",
+        "Erledigt, ich habe das " ~ area ~ " aufgehellt.",
+        "OK, " ~ area ~ " ist jetzt heller.",
+        "Das Licht im " ~ area ~ " wurde heller gestellt.",
+        "Klar, " ~ area ~ " Licht ist jetzt heller.",
+        "Geht klar, Helligkeit im " ~ area ~ " erhöht."
+      ] %}
+      {{ responses | random }}
+
+LightDarkerArea:
+  action:
+    - service: light.turn_on
+      target:
+        area_id: "{{ area_id(area) }}"
+      data:
+        brightness_step_pct: -20
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, das Licht im " ~ area ~ " ist jetzt dunkler.",
+        "Erledigt, " ~ area ~ " ist gedimmt.",
+        "OK, " ~ area ~ " Licht wurde gedunkelt.",
+        "Das Licht im " ~ area ~ " ist jetzt gedämpfter.",
+        "Klar, ich habe das " ~ area ~ " abgedunkelt.",
+        "Geht klar, Helligkeit im " ~ area ~ " reduziert."
+      ] %}
+      {{ responses | random }}
+
+LightMaxArea:
+  action:
+    - service: light.turn_on
+      target:
+        area_id: "{{ area_id(area) }}"
+      data:
+        brightness_pct: 100
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, volle Helligkeit im " ~ area ~ ".",
+        "Erledigt, " ~ area ~ " ist jetzt voll aufgedreht.",
+        "OK, maximale Helligkeit im " ~ area ~ " aktiviert.",
+        "Das Licht im " ~ area ~ " strahlt jetzt auf Maximum.",
+        "Klar, " ~ area ~ " Licht ist jetzt auf voller Leistung.",
+        "Geht klar, " ~ area ~ " auf 100 Prozent gestellt."
+      ] %}
+      {{ responses | random }}
+
+LightMinArea:
+  action:
+    - service: light.turn_on
+      target:
+        area_id: "{{ area_id(area) }}"
+      data:
+        brightness_pct: 1
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, minimale Helligkeit im " ~ area ~ ".",
+        "Erledigt, " ~ area ~ " ist jetzt ganz gedimmt.",
+        "OK, " ~ area ~ " Licht ist auf Minimum.",
+        "Das Licht im " ~ area ~ " glimmt jetzt nur noch leicht.",
+        "Klar, " ~ area ~ " ist jetzt auf minimaler Helligkeit.",
+        "Geht klar, dezente Beleuchtung im " ~ area ~ " aktiviert."
+      ] %}
+      {{ responses | random }}
+
+# ============================================================================
+# LICHT HELLIGKEIT ENTITY (Custom Intents für einzelne Lichter)
+# ============================================================================
+
+LightBrighterEntity:
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: >
+          {% for light in states.light %}
+            {% if light.name | lower == name | lower %}
+              {{ light.entity_id }}
+            {% endif %}
+          {% endfor %}
+      data:
+        brightness_step_pct: 20
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, " ~ name ~ " ist jetzt heller.",
+        "Erledigt, " ~ name ~ " aufgehellt.",
+        "OK, " ~ name ~ " wurde heller gestellt.",
+        name ~ " ist jetzt heller.",
+        "Klar, " ~ name ~ " ist heller.",
+        "Geht klar, Helligkeit von " ~ name ~ " erhöht."
+      ] %}
+      {{ responses | random }}
+
+LightDarkerEntity:
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: >
+          {% for light in states.light %}
+            {% if light.name | lower == name | lower %}
+              {{ light.entity_id }}
+            {% endif %}
+          {% endfor %}
+      data:
+        brightness_step_pct: -20
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, " ~ name ~ " ist jetzt dunkler.",
+        "Erledigt, " ~ name ~ " gedimmt.",
+        "OK, " ~ name ~ " wurde gedunkelt.",
+        name ~ " ist jetzt dunkler.",
+        "Klar, " ~ name ~ " abgedunkelt.",
+        "Geht klar, Helligkeit von " ~ name ~ " reduziert."
+      ] %}
+      {{ responses | random }}
+
+LightMaxEntity:
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: >
+          {% for light in states.light %}
+            {% if light.name | lower == name | lower %}
+              {{ light.entity_id }}
+            {% endif %}
+          {% endfor %}
+      data:
+        brightness_pct: 100
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, " ~ name ~ " auf Maximum.",
+        "Erledigt, " ~ name ~ " voll aufgedreht.",
+        "OK, " ~ name ~ " auf voller Helligkeit.",
+        name ~ " strahlt jetzt auf Maximum.",
+        "Klar, " ~ name ~ " auf 100 Prozent.",
+        "Geht klar, volle Helligkeit bei " ~ name ~ "."
+      ] %}
+      {{ responses | random }}
+
+LightMinEntity:
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: >
+          {% for light in states.light %}
+            {% if light.name | lower == name | lower %}
+              {{ light.entity_id }}
+            {% endif %}
+          {% endfor %}
+      data:
+        brightness_pct: 1
+  speech:
+    text: >
+      {% set responses = [
+        "Alles klar, " ~ name ~ " auf Minimum.",
+        "Erledigt, " ~ name ~ " ganz gedimmt.",
+        "OK, " ~ name ~ " auf minimaler Helligkeit.",
+        name ~ " glimmt jetzt nur noch leicht.",
+        "Klar, " ~ name ~ " minimal.",
+        "Geht klar, dezente Beleuchtung bei " ~ name ~ "."
+      ] %}
+      {{ responses | random }}

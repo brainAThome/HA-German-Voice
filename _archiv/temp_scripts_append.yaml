@@ -1,0 +1,53 @@
+
+# === LICHT HELLIGKEITSSTEUERUNG SCRIPTS ===
+light_brighter_by_area:
+  alias: Licht heller (Area)
+  mode: single
+  fields:
+    target_area:
+      description: Area ID
+  sequence:
+    - service: light.turn_on
+      target:
+        area_id: "{{ target_area }}"
+      data:
+        brightness_step_pct: 20
+
+light_darker_by_area:
+  alias: Licht dunkler (Area)
+  mode: single
+  fields:
+    target_area:
+      description: Area ID
+  sequence:
+    - service: light.turn_on
+      target:
+        area_id: "{{ target_area }}"
+      data:
+        brightness_step_pct: -20
+
+light_max_by_area:
+  alias: Licht Maximum (Area)
+  mode: single
+  fields:
+    target_area:
+      description: Area ID
+  sequence:
+    - service: light.turn_on
+      target:
+        area_id: "{{ target_area }}"
+      data:
+        brightness_pct: 100
+
+light_min_by_area:
+  alias: Licht Minimum (Area)
+  mode: single
+  fields:
+    target_area:
+      description: Area ID
+  sequence:
+    - service: light.turn_on
+      target:
+        area_id: "{{ target_area }}"
+      data:
+        brightness_pct: 1
