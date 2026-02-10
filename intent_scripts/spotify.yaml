@@ -202,6 +202,10 @@ SpotifyPause:
       target:
         entity_id: media_player.spotify_sven
       continue_on_error: true
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/clock
   speech:
     text: >
       {% set responses = [
@@ -220,6 +224,11 @@ SpotifyResume:
     - service: media_player.media_play
       target:
         entity_id: media_player.spotify_sven
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/music
+        revert_timeout: 3600
   speech:
     text: >
       {% set responses = [
@@ -333,6 +342,10 @@ GeneralStop:
       target:
         entity_id: media_player.vaca_362812d56_mediaplayer
       continue_on_error: true
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/clock
   speech:
     text: >
       {% set responses = [

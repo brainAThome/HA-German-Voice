@@ -47,6 +47,11 @@ CLIENT_SECRET = "16947c1cae2f44919a31f0cdc7c76182"
 # Spotify Markt für Suchergebnisse
 MARKET = "DE"
 
+# View Assist Navigation (Music Card auf Jarvis-Display)
+VA_DEVICE = "sensor.quasselbuechse"      # View Assist Entity für Navigation
+VA_MUSIC_PATH = "/view-assist/music"     # Pfad zur Music-View
+VA_HOME_PATH = "/view-assist/clock"      # Pfad zur Startseite (Uhr)
+
 
 # ============================================================================
 # HTTP HELPER (urllib-basiert, kein requests nötig)
@@ -302,6 +307,28 @@ def ha_set_input_text(entity_id, value):
     )
 
 
+def ha_navigate(path, revert_timeout=None):
+    """Navigiert das Jarvis-Display zu einer View Assist Seite.
+    
+    Args:
+        path: Dashboard-Pfad, z.B. '/view-assist/music'
+        revert_timeout: Sekunden bis automatisch zurück zur vorherigen View.
+                        None = View Assist Default (view_timeout, z.B. 20s).
+                        Großer Wert (z.B. 3600) = bleibt so lange stehen.
+    """
+    data = {"device": VA_DEVICE, "path": path}
+    if revert_timeout is not None:
+        data["revert_timeout"] = revert_timeout
+    _, status = http_post(
+        f"{HA_API}/services/view_assist/navigate",
+        headers={"Authorization": f"Bearer {HA_TOKEN}"},
+        json_data=data,
+    )
+    if status == 200:
+        print(f"INFO:Display → {path}")
+    return status == 200
+
+
 # ============================================================================
 # ADB HELPER - Spotify auf Jarvis aufwecken (Pure Python, kein adb-Binary nötig)
 # ============================================================================
@@ -443,6 +470,7 @@ def action_search_play(token, query, content_type, device_name=""):
     if play_spotify(token, play_payload, device_id):
         print(f"OK:{display}")
         ha_set_input_text("input_text.spotify_last_played", display)
+        ha_navigate(VA_MUSIC_PATH, revert_timeout=3600)  # Music Card bleibt 1h
         return True
 
     # Fallback: Transfer + Play
@@ -452,6 +480,7 @@ def action_search_play(token, query, content_type, device_name=""):
         if play_spotify(token, play_payload, device_id):
             print(f"OK:{display} (via Transfer)")
             ha_set_input_text("input_text.spotify_last_played", display)
+            ha_navigate(VA_MUSIC_PATH, revert_timeout=3600)  # Music Card bleibt 1h
             return True
 
     print(f"ERROR:Wiedergabe von '{display}' auf Jarvis fehlgeschlagen")
