@@ -1,0 +1,320 @@
+# ============================================================================
+# SPOTIFY INTENT SCRIPTS - Modulare Datei
+# ============================================================================
+# Teil von: intent_script: !include_dir_merge_named intent_scripts/
+# ============================================================================
+# Benötigt:
+#   - shell_command.spotify_voice in configuration.yaml
+#   - input_text.spotify_query, input_text.spotify_type,
+#     input_text.spotify_device, input_text.spotify_last_played
+#   - /config/scripts/spotify_voice.py
+# ============================================================================
+
+# --------------------------------------------------------------------------
+# SUCHE + ABSPIELEN (Song/Track)
+# --------------------------------------------------------------------------
+SpotifyPlay:
+  action:
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_query
+      data:
+        value: "{{ query }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_type
+      data:
+        value: "track"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_device
+      data:
+        value: ""
+    - service: shell_command.spotify_voice
+  speech:
+    text: >
+      {% set responses = [
+        "OK, ich suche " ~ query ~ " auf Spotify.",
+        "Alles klar, " ~ query ~ " kommt gleich.",
+        "Verstanden, suche " ~ query ~ " auf Spotify.",
+        "Moment, ich suche " ~ query ~ ".",
+        "Geht klar, " ~ query ~ " wird gesucht."
+      ] %}
+      {{ responses | random }}
+
+# --------------------------------------------------------------------------
+# SUCHE + ABSPIELEN (Künstler)
+# --------------------------------------------------------------------------
+SpotifyPlayArtist:
+  action:
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_query
+      data:
+        value: "{{ query }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_type
+      data:
+        value: "artist"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_device
+      data:
+        value: ""
+    - service: shell_command.spotify_voice
+  speech:
+    text: >
+      {% set responses = [
+        "OK, ich spiele Musik von " ~ query ~ ".",
+        "Alles klar, " ~ query ~ " kommt gleich.",
+        "Verstanden, suche " ~ query ~ " auf Spotify.",
+        "Moment, ich suche " ~ query ~ " auf Spotify."
+      ] %}
+      {{ responses | random }}
+
+# --------------------------------------------------------------------------
+# SUCHE + ABSPIELEN (Playlist)
+# --------------------------------------------------------------------------
+SpotifyPlayPlaylist:
+  action:
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_query
+      data:
+        value: "{{ query }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_type
+      data:
+        value: "playlist"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_device
+      data:
+        value: ""
+    - service: shell_command.spotify_voice
+  speech:
+    text: >
+      {% set responses = [
+        "OK, ich starte die Playlist " ~ query ~ ".",
+        "Alles klar, Playlist " ~ query ~ " wird gesucht.",
+        "Verstanden, suche Playlist " ~ query ~ " auf Spotify."
+      ] %}
+      {{ responses | random }}
+
+# --------------------------------------------------------------------------
+# SUCHE + ABSPIELEN (Album)
+# --------------------------------------------------------------------------
+SpotifyPlayAlbum:
+  action:
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_query
+      data:
+        value: "{{ query }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_type
+      data:
+        value: "album"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_device
+      data:
+        value: ""
+    - service: shell_command.spotify_voice
+  speech:
+    text: >
+      {% set responses = [
+        "OK, ich spiele das Album " ~ query ~ ".",
+        "Alles klar, Album " ~ query ~ " wird gesucht.",
+        "Verstanden, suche Album " ~ query ~ " auf Spotify."
+      ] %}
+      {{ responses | random }}
+
+# --------------------------------------------------------------------------
+# SUCHE + ABSPIELEN AUF BESTIMMTEM GERÄT
+# --------------------------------------------------------------------------
+SpotifyPlayOn:
+  action:
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_query
+      data:
+        value: "{{ query }}"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_type
+      data:
+        value: "track"
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_device
+      data:
+        value: "{{ spotify_device }}"
+    - service: shell_command.spotify_voice
+  speech:
+    text: >
+      {% set responses = [
+        "OK, ich spiele " ~ query ~ " auf " ~ spotify_device ~ ".",
+        "Alles klar, suche " ~ query ~ " für " ~ spotify_device ~ ".",
+        "Verstanden, " ~ query ~ " kommt auf " ~ spotify_device ~ "."
+      ] %}
+      {{ responses | random }}
+
+# --------------------------------------------------------------------------
+# GERÄTEWECHSEL
+# --------------------------------------------------------------------------
+SpotifyDevice:
+  action:
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_query
+      data:
+        value: ""
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_type
+      data:
+        value: ""
+    - service: input_text.set_value
+      target:
+        entity_id: input_text.spotify_device
+      data:
+        value: "{{ spotify_device }}"
+    - service: shell_command.spotify_device_transfer
+  speech:
+    text: >
+      {% set responses = [
+        "OK, Spotify spielt jetzt auf " ~ spotify_device ~ ".",
+        "Alles klar, Wiedergabe wird auf " ~ spotify_device ~ " übertragen.",
+        "Verstanden, Spotify wechselt zu " ~ spotify_device ~ "."
+      ] %}
+      {{ responses | random }}
+
+# --------------------------------------------------------------------------
+# PAUSE
+# --------------------------------------------------------------------------
+SpotifyPause:
+  action:
+    - service: media_player.media_pause
+      target:
+        entity_id: media_player.spotify_sven
+  speech:
+    text: >
+      {% set responses = [
+        "OK, Spotify pausiert.",
+        "Alles klar, Pause.",
+        "Spotify ist pausiert.",
+        "Wiedergabe angehalten."
+      ] %}
+      {{ responses | random }}
+
+# --------------------------------------------------------------------------
+# WEITER / RESUME
+# --------------------------------------------------------------------------
+SpotifyResume:
+  action:
+    - service: media_player.media_play
+      target:
+        entity_id: media_player.spotify_sven
+  speech:
+    text: >
+      {% set responses = [
+        "OK, Spotify spielt weiter.",
+        "Alles klar, weiter geht's.",
+        "Wiedergabe fortgesetzt.",
+        "Spotify läuft wieder."
+      ] %}
+      {{ responses | random }}
+
+# --------------------------------------------------------------------------
+# NÄCHSTER TITEL
+# --------------------------------------------------------------------------
+SpotifyNext:
+  action:
+    - service: media_player.media_next_track
+      target:
+        entity_id: media_player.spotify_sven
+  speech:
+    text: >
+      {% set responses = [
+        "OK, nächster Titel.",
+        "Alles klar, übersprungen.",
+        "Nächstes Lied kommt.",
+        "Skip!"
+      ] %}
+      {{ responses | random }}
+
+# --------------------------------------------------------------------------
+# VORHERIGER TITEL
+# --------------------------------------------------------------------------
+SpotifyPrevious:
+  action:
+    - service: media_player.media_previous_track
+      target:
+        entity_id: media_player.spotify_sven
+  speech:
+    text: >
+      {% set responses = [
+        "OK, vorheriger Titel.",
+        "Alles klar, zurück.",
+        "Letztes Lied wird gespielt."
+      ] %}
+      {{ responses | random }}
+
+# --------------------------------------------------------------------------
+# SHUFFLE AN/AUS
+# --------------------------------------------------------------------------
+SpotifyShuffle:
+  action:
+    - service: media_player.shuffle_set
+      target:
+        entity_id: media_player.spotify_sven
+      data:
+        shuffle: "{{ shuffle_state == 'true' }}"
+  speech:
+    text: >
+      {% if shuffle_state == 'true' %}
+        {% set responses = [
+          "OK, Shuffle ist an.",
+          "Zufallswiedergabe aktiviert.",
+          "Spotify spielt jetzt zufällig."
+        ] %}
+      {% else %}
+        {% set responses = [
+          "OK, Shuffle ist aus.",
+          "Zufallswiedergabe deaktiviert.",
+          "Spotify spielt wieder der Reihe nach."
+        ] %}
+      {% endif %}
+      {{ responses | random }}
+
+# --------------------------------------------------------------------------
+# WAS SPIELT GERADE?
+# --------------------------------------------------------------------------
+SpotifyNowPlaying:
+  speech:
+    text: >
+      {% set title = state_attr('media_player.spotify_sven', 'media_title') %}
+      {% set artist = state_attr('media_player.spotify_sven', 'media_artist') %}
+      {% set album = state_attr('media_player.spotify_sven', 'media_album_name') %}
+      {% set source = state_attr('media_player.spotify_sven', 'source') %}
+      {% if title and artist %}
+        {% set responses = [
+          "Auf Spotify läuft gerade: " ~ artist ~ " mit " ~ title ~ ".",
+          "Aktuell spielt: " ~ artist ~ " - " ~ title ~ ".",
+          "Gerade hörst du: " ~ title ~ " von " ~ artist ~ "."
+        ] %}
+        {% if album %}
+          {{ responses | random }} Vom Album {{ album }}.
+        {% else %}
+          {{ responses | random }}
+        {% endif %}
+        {% if source %} Wiedergabe auf {{ source }}.{% endif %}
+      {% elif title %}
+        Auf Spotify läuft gerade: {{ title }}.
+      {% else %}
+        Spotify spielt gerade nichts.
+      {% endif %}

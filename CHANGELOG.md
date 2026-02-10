@@ -2,6 +2,37 @@
 
 Alle wichtigen Änderungen an diesem Projekt werden hier dokumentiert.
 
+## [3.1.0] - 2026-02-10
+
+### 🎵 Spotify Sprachsteuerung
+
+Vollständige Spotify-Integration per Sprachbefehl — Suche, Wiedergabe, Steuerung und Gerätewechsel.
+
+### Hinzugefügt
+- **Spotify Suche & Wiedergabe**: Per Sprache Songs, Künstler, Playlists und Alben suchen und abspielen
+  - "Spiele Highway to Hell auf Spotify"
+  - "Spiele Musik von Rammstein auf Spotify"
+  - "Spiele die Playlist Goa Trance auf Spotify"
+  - "Spiele das Album Appetite for Destruction auf Spotify"
+- **Spotify Steuerung**: Pause, Weiter, Nächstes/Vorheriges Lied, Shuffle
+  - "Spotify pause" / "Spotify weiter"
+  - "Spotify nächstes Lied" / "Spotify zurück"
+  - "Spotify Shuffle an/aus"
+- **Spotify Gerätewechsel**: Wiedergabe auf verschiedene Geräte übertragen
+  - "Spiele Spotify auf Echo Dot"
+  - Unterstützt alle Spotify Connect Geräte
+- **Spotify Now Playing**: "Was spielt gerade auf Spotify?" mit Künstler, Titel, Album
+- **`spotify_voice.py`**: Python-Skript für Spotify Web API (Suche + Wiedergabe)
+  - Automatisches Token-Management (liest aus HA-Storage, auto-refresh)
+  - Nur Python-Standardbibliotheken (urllib), keine Pip-Dependencies
+  - Geräte-Alias-Map für deutsche Bezeichnungen
+- **Neue Dateien**:
+  - `custom_sentences/de/spotify.yaml` — 13 Spotify-Intents
+  - `intent_scripts/spotify.yaml` — Intent-Skripte für alle Spotify-Befehle
+  - `scripts/spotify_voice.py` — Spotify Web API Bridge
+- **HA Konfiguration**: `shell_command.spotify_voice`, `shell_command.spotify_device_transfer`
+- **HA Helper**: `input_text.spotify_query`, `spotify_type`, `spotify_device`, `spotify_last_played`
+
 ## [3.0.0] - 2026-02-10
 
 ### 🚀 Modulare Architektur + Echo/VACA + TTS-Erinnerungen

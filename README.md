@@ -51,9 +51,21 @@
 - **Wiedergabe**: "Spiele Musik ab" / "Pause" / "Weiter"
 - **Lautstärke**: "Lauter" / "Lautstärke auf 50%"
 
+### 🎵 Spotify Sprachsteuerung
+- **Song suchen + abspielen**: "Spiele Highway to Hell auf Spotify"
+- **Künstler abspielen**: "Spiele Musik von Rammstein auf Spotify"
+- **Playlist abspielen**: "Spiele die Playlist Goa Trance auf Spotify"
+- **Album abspielen**: "Spiele das Album Appetite for Destruction auf Spotify"
+- **Pause/Weiter**: "Spotify Pause" / "Spotify weiter"
+- **Nächstes/Vorheriges**: "Spotify nächstes Lied" / "Spotify zurück"
+- **Shuffle**: "Spotify Shuffle an" / "Spotify Shuffle aus"
+- **Gerätewechsel**: "Spiele Spotify auf Echo Dot" / "Spotify auf HAL"
+- **Was spielt?**: "Was spielt gerade auf Spotify?" mit Artist, Titel, Album
+- **Spotify Web API**: Direkte Suche über die Spotify API — kein Spotcast nötig
+
 ---
 
-## � Projektstruktur
+## 📂 Projektstruktur
 
 ```
 ha-german-voice/
@@ -63,15 +75,18 @@ ha-german-voice/
 │   ├── lights.yaml          # Lichter
 │   ├── media.yaml           # Medien
 │   ├── reminders.yaml       # Erinnerungen/Timer
+│   ├── spotify.yaml         # Spotify Sprachsteuerung
 │   └── weather.yaml         # Wetter
 ├── intent_scripts/          # Intent Handler (Aktionen + Antworten)
 │   ├── covers.yaml          # Rolladen-Szenen
 │   ├── echo.yaml            # Echo/VACA Aktionen
 │   ├── lights.yaml          # Licht-Aktionen (mit Alias-Map)
 │   ├── reminders.yaml       # Timer + Watcher-Script-Aufrufe
+│   ├── spotify.yaml         # Spotify Intent-Skripte
 │   └── weather.yaml         # Wetter-Abfragen
-├── scripts/                 # HA Scripts (für Erinnerungen)
-│   └── erinnerung_scripts.yaml
+├── scripts/                 # HA Scripts
+│   ├── erinnerung_scripts.yaml
+│   └── spotify_voice.py     # Spotify Web API Bridge
 ├── conversation_logging.yaml # Konversations-Logging Config
 ├── hacs.json                # HACS-Manifest
 └── README.md
@@ -184,6 +199,50 @@ Voraussetzung: [VACA Integration](https://github.com/) mit Assist Satellite.
 
 Die Entity-IDs in `intent_scripts/echo.yaml` müssen an dein Gerät angepasst werden.
 
+### 5. Spotify Sprachsteuerung (Optional)
+
+Voraussetzungen:
+- **Spotify Integration** in HA eingerichtet (mit Application Credentials)
+- **Spotify Premium** Konto (für Playback-Steuerung)
+
+#### a) Python-Script kopieren
+
+```bash
+cp scripts/spotify_voice.py /config/scripts/
+```
+
+> ⚠️ **ANPASSEN** in `spotify_voice.py`:
+> - `HA_TOKEN` — Dein Long-Lived Access Token
+> - `CLIENT_ID` / `CLIENT_SECRET` — Deine Spotify App Credentials
+> - `SPOTIFY_ENTITY` — Dein Spotify Media Player Entity
+> - Geräte-Aliase in `find_device()` — Deine Spotify Connect Geräte
+
+#### b) Shell Commands + Helper in `configuration.yaml`
+
+```yaml
+shell_command:
+  spotify_voice: "python3 /config/scripts/spotify_voice.py --action search_play --query '{{ states('input_text.spotify_query') }}' --type '{{ states('input_text.spotify_type') }}' --device '{{ states('input_text.spotify_device') }}'"
+  spotify_device_transfer: "python3 /config/scripts/spotify_voice.py --action device --device '{{ states('input_text.spotify_device') }}'"
+
+input_text:
+  spotify_query:
+    name: Spotify Suchanfrage
+    max: 255
+    initial: ""
+  spotify_type:
+    name: Spotify Suchtyp
+    max: 20
+    initial: "track"
+  spotify_device:
+    name: Spotify Zielgerät
+    max: 100
+    initial: ""
+  spotify_last_played:
+    name: Spotify Zuletzt Gespielt
+    max: 255
+    initial: ""
+```
+
 ---
 
 ## 🗣️ Beispiele
@@ -201,6 +260,12 @@ Die Entity-IDs in `intent_scripts/echo.yaml` müssen an dein Gerät angepasst we
 | "Rolladen im Schlafzimmer zu" | Rolladen schließen |
 | "Starte Guten Morgen" | Echo Routine starten |
 | "Welche Erinnerungen habe ich?" | Aktive Timer abfragen |
+| "Spiele Enter Sandman auf Spotify" | Spotify Song suchen + abspielen |
+| "Spiele Musik von Rammstein auf Spotify" | Spotify Künstler abspielen |
+| "Spiele die Playlist Goa Trance auf Spotify" | Spotify Playlist abspielen |
+| "Spotify Pause" / "Spotify weiter" | Spotify Steuerung |
+| "Was spielt auf Spotify?" | Aktueller Spotify-Track |
+| "Spiele Spotify auf Echo Dot" | Gerätewechsel |
 
 ---
 
