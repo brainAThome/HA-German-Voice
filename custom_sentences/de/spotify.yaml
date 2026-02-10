@@ -139,6 +139,13 @@ intents:
           - "(starte|spiele) spotify [weiter]"
           - "spotify weiter[spielen]"
           - "mach <polite> spotify wieder an"
+          # Allgemeine Befehle ohne "spotify" zu sagen
+          - "mach <polite> [die] musik wieder an"
+          - "(weiter|weiter) (abspielen|spielen)"
+          - "(letzten|letztes|vorherigen) (titel|song|lied|track) [wieder|nochmal] (abspielen|spielen|starten)"
+          - "(spiel|spiele) <polite> [den] (letzten|vorherigen) (song|titel|lied|track)"
+          - "(musik|wiedergabe) wieder (abspielen|starten|an)"
+          - "play"
 
   # --------------------------------------------------------------------------
   # N├äCHSTER TITEL
