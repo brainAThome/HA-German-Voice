@@ -187,3 +187,23 @@ intents:
           - "(welches lied|welcher song|welcher titel) (spielt|l├ñuft) [auf|bei] spotify"
           - "(wer|welcher k├╝nstler|welche band) (spielt|ist das) [auf|bei] spotify"
           - "was (h├Âre|h├Âr) ich [gerade] [auf spotify]"
+
+  # --------------------------------------------------------------------------
+  # GENERAL STOP - Stoppt ALLES was auf dem Echo l├ñuft
+  # --------------------------------------------------------------------------
+  GeneralStop:
+    data:
+      - sentences:
+          # Klare "alles stoppen" Befehle
+          - "(stopp|stop|halt|beende) <polite> alles"
+          - "alles (stoppen|stopp|stop|anhalten|aus|beenden)"
+          - "mach <polite> alles (aus|still|leise)"
+          - "alles (still|leise|ruhig)"
+          # Einwort-Befehle (die nicht mit HA-Builtins kollidieren)
+          - "(aus|schluss|ende|stille)"
+          # Mehwort-Befehle
+          - "(sei|seid) <polite> (still|ruhig|leise)"
+          - "halt <polite> an"
+          - "es reicht [jetzt]"
+          - "[jetzt] (reicht|langt) es"
+          - "jetzt (schluss|ende|genug|ruhe)"
