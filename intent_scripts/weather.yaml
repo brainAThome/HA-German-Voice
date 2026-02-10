@@ -11,10 +11,10 @@ GetWeather:
       {% set temp = state_attr('weather.forecast_home', 'temperature') %}
       {% set humidity = state_attr('weather.forecast_home', 'humidity') %}
       {% set condition_map = {
-        'sunny': 'sonnig und wunderschön',
+        'sunny': 'sonnig und wundersch├Ân',
         'clear-night': 'klar',
-        'partlycloudy': 'leicht bewölkt',
-        'cloudy': 'eher bewölkt',
+        'partlycloudy': 'leicht bew├Âlkt',
+        'cloudy': 'eher bew├Âlkt',
         'rainy': 'regnerisch',
         'pouring': 'sehr regnerisch mit starkem Niederschlag',
         'snowy': 'winterlich mit Schnee',
@@ -24,12 +24,19 @@ GetWeather:
       } %}
       {% set cond = condition_map.get(weather, weather) %}
       {% set responses = [
-        "Draußen ist es gerade " ~ cond ~ ". Das Thermometer zeigt " ~ temp ~ " Grad und die Luftfeuchtigkeit liegt bei " ~ humidity ~ " Prozent.",
-        "Aktuell haben wir " ~ cond ~ "es Wetter bei " ~ temp ~ " Grad. Die Luftfeuchtigkeit beträgt " ~ humidity ~ " Prozent.",
+        "Drau├ƒen ist es gerade " ~ cond ~ ". Das Thermometer zeigt " ~ temp ~ " Grad und die Luftfeuchtigkeit liegt bei " ~ humidity ~ " Prozent.",
+        "Aktuell haben wir " ~ cond ~ "es Wetter bei " ~ temp ~ " Grad. Die Luftfeuchtigkeit betr├ñgt " ~ humidity ~ " Prozent.",
         "Im Moment ist es " ~ cond ~ ", " ~ temp ~ " Grad bei " ~ humidity ~ " Prozent Luftfeuchtigkeit.",
         "Das Wetter zeigt sich gerade " ~ cond ~ ". Bei " ~ temp ~ " Grad und " ~ humidity ~ " Prozent Luftfeuchtigkeit."
       ] %}
       {{ responses | random }}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetTemperature:
   speech:
@@ -37,40 +44,47 @@ GetTemperature:
       {% set temp = state_attr('weather.forecast_home', 'temperature') %}
       {% if temp < 0 %}
         {% set r = [
-          "Es ist ziemlich frostig draußen, das Thermometer zeigt " ~ temp ~ " Grad unter Null.",
-          "Brr, " ~ temp ~ " Grad! Ziemlich eisig da draußen.",
+          "Es ist ziemlich frostig drau├ƒen, das Thermometer zeigt " ~ temp ~ " Grad unter Null.",
+          "Brr, " ~ temp ~ " Grad! Ziemlich eisig da drau├ƒen.",
           "Das Thermometer zeigt frostige " ~ temp ~ " Grad. Warm anziehen!"
         ] %}
         {{ r | random }}
       {% elif temp < 10 %}
         {% set r = [
-          "Es ist recht frisch draußen mit " ~ temp ~ " Grad.",
-          "Draußen ist es kühl, " ~ temp ~ " Grad zeigt das Thermometer.",
+          "Es ist recht frisch drau├ƒen mit " ~ temp ~ " Grad.",
+          "Drau├ƒen ist es k├╝hl, " ~ temp ~ " Grad zeigt das Thermometer.",
           "Mit " ~ temp ~ " Grad ist es eher frisch heute."
         ] %}
         {{ r | random }}
       {% elif temp < 20 %}
         {% set r = [
-          "Draußen sind es angenehme " ~ temp ~ " Grad.",
-          "Das Thermometer zeigt gemütliche " ~ temp ~ " Grad.",
+          "Drau├ƒen sind es angenehme " ~ temp ~ " Grad.",
+          "Das Thermometer zeigt gem├╝tliche " ~ temp ~ " Grad.",
           "Mit " ~ temp ~ " Grad ist es angenehm temperiert."
         ] %}
         {{ r | random }}
       {% elif temp < 30 %}
         {% set r = [
-          "Es ist schön warm mit " ~ temp ~ " Grad.",
-          "Draußen herrschen warme " ~ temp ~ " Grad.",
-          "Bei " ~ temp ~ " Grad ist es richtig schön warm heute."
+          "Es ist sch├Ân warm mit " ~ temp ~ " Grad.",
+          "Drau├ƒen herrschen warme " ~ temp ~ " Grad.",
+          "Bei " ~ temp ~ " Grad ist es richtig sch├Ân warm heute."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Es ist richtig heiß draußen, " ~ temp ~ " Grad zeigt das Thermometer.",
-          "Holla, " ~ temp ~ " Grad! Ganz schön heiß da draußen.",
-          "Bei " ~ temp ~ " Grad ist es ordentlich heiß. Viel trinken!"
+          "Es ist richtig hei├ƒ drau├ƒen, " ~ temp ~ " Grad zeigt das Thermometer.",
+          "Holla, " ~ temp ~ " Grad! Ganz sch├Ân hei├ƒ da drau├ƒen.",
+          "Bei " ~ temp ~ " Grad ist es ordentlich hei├ƒ. Viel trinken!"
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetHumidity:
   speech:
@@ -78,7 +92,7 @@ GetHumidity:
       {% set humidity = state_attr('weather.forecast_home', 'humidity') %}
       {% if humidity < 30 %}
         {% set r = [
-          "Die Luft ist ziemlich trocken, die Luftfeuchtigkeit beträgt nur " ~ humidity ~ " Prozent.",
+          "Die Luft ist ziemlich trocken, die Luftfeuchtigkeit betr├ñgt nur " ~ humidity ~ " Prozent.",
           "Mit " ~ humidity ~ " Prozent ist die Luft sehr trocken heute.",
           "Nur " ~ humidity ~ " Prozent Luftfeuchtigkeit, das ist recht trocken."
         ] %}
@@ -86,7 +100,7 @@ GetHumidity:
       {% elif humidity < 60 %}
         {% set r = [
           "Die Luftfeuchtigkeit ist angenehm bei " ~ humidity ~ " Prozent.",
-          "Mit " ~ humidity ~ " Prozent Luftfeuchtigkeit ist alles im grünen Bereich.",
+          "Mit " ~ humidity ~ " Prozent Luftfeuchtigkeit ist alles im gr├╝nen Bereich.",
           "Die Luftfeuchtigkeit liegt bei komfortablen " ~ humidity ~ " Prozent."
         ] %}
         {{ r | random }}
@@ -94,24 +108,31 @@ GetHumidity:
         {% set r = [
           "Es ist etwas feucht bei " ~ humidity ~ " Prozent Luftfeuchtigkeit.",
           "Die Luft ist leicht feucht, " ~ humidity ~ " Prozent zeigt das Hygrometer.",
-          "Mit " ~ humidity ~ " Prozent ist die Luftfeuchtigkeit etwas erhöht."
+          "Mit " ~ humidity ~ " Prozent ist die Luftfeuchtigkeit etwas erh├Âht."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Die Luft ist sehr schwül, mit " ~ humidity ~ " Prozent Luftfeuchtigkeit.",
-          "Bei " ~ humidity ~ " Prozent Luftfeuchtigkeit ist es ordentlich schwül.",
-          "Ganz schön feucht heute, " ~ humidity ~ " Prozent Luftfeuchtigkeit."
+          "Die Luft ist sehr schw├╝l, mit " ~ humidity ~ " Prozent Luftfeuchtigkeit.",
+          "Bei " ~ humidity ~ " Prozent Luftfeuchtigkeit ist es ordentlich schw├╝l.",
+          "Ganz sch├Ân feucht heute, " ~ humidity ~ " Prozent Luftfeuchtigkeit."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetWind:
   speech:
     text: >
       {% set wind = state_attr('weather.forecast_home', 'wind_speed') %}
       {% set bearing = state_attr('weather.forecast_home', 'wind_bearing') %}
-      {% set dir_names = {0: 'Norden', 1: 'Nordosten', 2: 'Osten', 3: 'Südosten', 4: 'Süden', 5: 'Südwesten', 6: 'Westen', 7: 'Nordwesten'} %}
+      {% set dir_names = {0: 'Norden', 1: 'Nordosten', 2: 'Osten', 3: 'S├╝dosten', 4: 'S├╝den', 5: 'S├╝dwesten', 6: 'Westen', 7: 'Nordwesten'} %}
       {% set dir_idx = ((bearing + 22.5) / 45) | int % 8 %}
       {% set dir = dir_names.get(dir_idx, 'unbekannter Richtung') %}
       {% if wind < 5 %}
@@ -124,25 +145,32 @@ GetWind:
       {% elif wind < 20 %}
         {% set r = [
           "Es gibt einen leichten Wind aus " ~ dir ~ " mit " ~ wind ~ " Kilometern pro Stunde.",
-          "Ein angenehmes Lüftchen aus " ~ dir ~ ", " ~ wind ~ " km/h.",
+          "Ein angenehmes L├╝ftchen aus " ~ dir ~ ", " ~ wind ~ " km/h.",
           "Leichter Wind mit " ~ wind ~ " Kilometern pro Stunde aus " ~ dir ~ "."
         ] %}
         {{ r | random }}
       {% elif wind < 40 %}
         {% set r = [
           "Es ist recht windig heute, mit " ~ wind ~ " Kilometern pro Stunde aus " ~ dir ~ ".",
-          "Ziemlich windig, der Wind bläst mit " ~ wind ~ " km/h aus " ~ dir ~ ".",
+          "Ziemlich windig, der Wind bl├ñst mit " ~ wind ~ " km/h aus " ~ dir ~ ".",
           "Ordentlich Wind aus " ~ dir ~ " mit " ~ wind ~ " Kilometern pro Stunde."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Es weht ein starker Wind aus " ~ dir ~ " mit " ~ wind ~ " Kilometern pro Stunde. Vorsicht bei lockeren Gegenständen!",
+          "Es weht ein starker Wind aus " ~ dir ~ " mit " ~ wind ~ " Kilometern pro Stunde. Vorsicht bei lockeren Gegenst├ñnden!",
           "Starker Wind aus " ~ dir ~ "! " ~ wind ~ " km/h, da fliegt einiges durch die Gegend.",
-          "Achtung, kräftiger Wind mit " ~ wind ~ " Kilometern pro Stunde aus " ~ dir ~ "!"
+          "Achtung, kr├ñftiger Wind mit " ~ wind ~ " Kilometern pro Stunde aus " ~ dir ~ "!"
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetWeatherForecast:
   speech:
@@ -155,18 +183,25 @@ GetWeatherForecast:
       {% if weather and weather != 'unknown' and weather != 'unavailable' %}
         {% set r = [
           day | capitalize ~ " wird es " ~ weather ~ ".",
-          "Für " ~ day ~ " ist " ~ weather ~ "es Wetter angesagt.",
-          "Die Vorhersage für " ~ day ~ ": " ~ weather ~ "."
+          "F├╝r " ~ day ~ " ist " ~ weather ~ "es Wetter angesagt.",
+          "Die Vorhersage f├╝r " ~ day ~ ": " ~ weather ~ "."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Keine Vorhersage verfügbar.",
+          "Keine Vorhersage verf├╝gbar.",
           "Leider habe ich dazu keine Daten.",
           "Die Vorhersage ist gerade nicht abrufbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetWeatherDay:
   speech:
@@ -194,10 +229,10 @@ GetWeatherDay:
       {% set day_names = {
         0: 'heute',
         1: 'morgen',
-        2: 'übermorgen',
+        2: '├╝bermorgen',
         3: 'in drei Tagen',
         4: 'in vier Tagen',
-        5: 'in fünf Tagen',
+        5: 'in f├╝nf Tagen',
         6: 'in sechs Tagen'
       } %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
@@ -206,10 +241,10 @@ GetWeatherDay:
       {% set templow = state_attr(sensor, 'templow') %}
       {% set precipitation = state_attr(sensor, 'precipitation') %}
       {% set condition_map = {
-        'sunny': 'sonnig und schön',
+        'sunny': 'sonnig und sch├Ân',
         'clear-night': 'klar',
-        'partlycloudy': 'leicht bewölkt',
-        'cloudy': 'überwiegend bewölkt',
+        'partlycloudy': 'leicht bew├Âlkt',
+        'cloudy': '├╝berwiegend bew├Âlkt',
         'rainy': 'regnerisch',
         'pouring': 'sehr regnerisch mit starkem Niederschlag',
         'snowy': 'winterlich mit Schneefall',
@@ -225,15 +260,15 @@ GetWeatherDay:
         {% if day_slot == 0 %}
           {% set r = [
             "Heute erwartet dich " ~ weather_state ~ "es Wetter.",
-            "Für heute sieht es " ~ weather_state ~ " aus.",
+            "F├╝r heute sieht es " ~ weather_state ~ " aus.",
             "Das Wetter heute: " ~ weather_state ~ "."
           ] %}
           {{ r | random }}
         {% else %}
           {% set r = [
-            "Für " ~ day_name ~ " sieht es nach " ~ weather_state ~ "em Wetter aus.",
+            "F├╝r " ~ day_name ~ " sieht es nach " ~ weather_state ~ "em Wetter aus.",
             day_name | capitalize ~ " wird es voraussichtlich " ~ weather_state ~ ".",
-            "Die Vorhersage für " ~ day_name ~ ": " ~ weather_state ~ "es Wetter."
+            "Die Vorhersage f├╝r " ~ day_name ~ ": " ~ weather_state ~ "es Wetter."
           ] %}
           {{ r | random }}
         {% endif %}
@@ -243,24 +278,31 @@ GetWeatherDay:
             " Es werden rund " ~ (temp | round) ~ " Grad erwartet",
             " Mit etwa " ~ (temp | round) ~ " Grad"
           ] %}
-          {{ t | random }}{% if templow is not none %}, wobei es in der Nacht auf {{ templow | round }} Grad abkühlen kann{% endif %}.
+          {{ t | random }}{% if templow is not none %}, wobei es in der Nacht auf {{ templow | round }} Grad abk├╝hlen kann{% endif %}.
         {% endif %}
         {% if precipitation is not none and precipitation > 0 %}
           {% set p = [
-            " Es werden ungefähr " ~ precipitation ~ " Millimeter Niederschlag erwartet.",
+            " Es werden ungef├ñhr " ~ precipitation ~ " Millimeter Niederschlag erwartet.",
             " Dazu kommen etwa " ~ precipitation ~ " Millimeter Niederschlag.",
-            " An Niederschlag sind rund " ~ precipitation ~ " Millimeter möglich."
+            " An Niederschlag sind rund " ~ precipitation ~ " Millimeter m├Âglich."
           ] %}
           {{ p | random }}
         {% endif %}
       {% else %}
         {% set r = [
-          "Leider habe ich keine Wettervorhersage für " ~ day_name ~ " verfügbar.",
-          "Für " ~ day_name ~ " liegen mir leider keine Wetterdaten vor.",
-          "Die Vorhersage für " ~ day_name ~ " ist gerade nicht abrufbar."
+          "Leider habe ich keine Wettervorhersage f├╝r " ~ day_name ~ " verf├╝gbar.",
+          "F├╝r " ~ day_name ~ " liegen mir leider keine Wetterdaten vor.",
+          "Die Vorhersage f├╝r " ~ day_name ~ " ist gerade nicht abrufbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetWeatherYesterday:
   speech:
@@ -271,6 +313,13 @@ GetWeatherYesterday:
         "Gestern? Da muss ich leider passen, ich speichere keine vergangenen Wetterdaten."
       ] %}
       {{ r | random }}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetWeatherTime:
   speech:
@@ -293,14 +342,14 @@ GetWeatherTime:
         1: 'sensor.wetter_morgen',
         2: 'sensor.wetter_uebermorgen'
       } %}
-      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_heute') %}
       {% set weather_raw = states(sensor) | lower %}
       {% set condition_map = {
         'sunny': 'sonnig und angenehm',
         'clear-night': 'klar',
-        'partlycloudy': 'leicht bewölkt',
-        'cloudy': 'überwiegend bewölkt',
+        'partlycloudy': 'leicht bew├Âlkt',
+        'cloudy': '├╝berwiegend bew├Âlkt',
         'rainy': 'regnerisch',
         'pouring': 'sehr regnerisch',
         'snowy': 'winterlich mit Schnee',
@@ -314,19 +363,26 @@ GetWeatherTime:
       {% set time_name = time_display.get(time_slot, time_slot) %}
       {% if weather_raw and weather_raw != 'unknown' %}
         {% set r = [
-          "Für " ~ day_name ~ " " ~ time_name ~ " sieht es nach " ~ weather_state ~ "em Wetter aus.",
+          "F├╝r " ~ day_name ~ " " ~ time_name ~ " sieht es nach " ~ weather_state ~ "em Wetter aus.",
           day_name | capitalize ~ " " ~ time_name ~ " erwarte ich " ~ weather_state ~ "es Wetter.",
-          "Die Vorhersage für " ~ day_name ~ " " ~ time_name ~ ": " ~ weather_state ~ "."
+          "Die Vorhersage f├╝r " ~ day_name ~ " " ~ time_name ~ ": " ~ weather_state ~ "."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Leider habe ich keine genaue Vorhersage für diesen Zeitraum.",
-          "Für diesen Zeitraum liegen mir keine Daten vor.",
-          "Da muss ich leider passen, keine Vorhersage verfügbar."
+          "Leider habe ich keine genaue Vorhersage f├╝r diesen Zeitraum.",
+          "F├╝r diesen Zeitraum liegen mir keine Daten vor.",
+          "Da muss ich leider passen, keine Vorhersage verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetWeatherWeek:
   speech:
@@ -334,8 +390,8 @@ GetWeatherWeek:
       {% set condition_map = {
         'sunny': 'sonnig',
         'clear-night': 'klar',
-        'partlycloudy': 'leicht bewölkt',
-        'cloudy': 'bewölkt',
+        'partlycloudy': 'leicht bew├Âlkt',
+        'cloudy': 'bew├Âlkt',
         'rainy': 'regnerisch',
         'pouring': 'stark regnerisch',
         'snowy': 'winterlich',
@@ -350,11 +406,18 @@ GetWeatherWeek:
       {% set tag3 = states('sensor.wetter_tag_3') | lower %}
       {% set tag4 = states('sensor.wetter_tag_4') | lower %}
       {% set r = [
-        "Hier ist die Wetterübersicht für die nächsten Tage: Heute wird es " ~ condition_map.get(heute, heute) ~ ", morgen " ~ condition_map.get(morgen, morgen) ~ " und übermorgen " ~ condition_map.get(uebermorgen, uebermorgen) ~ ". Danach erwartet uns " ~ condition_map.get(tag3, tag3) ~ "es und später " ~ condition_map.get(tag4, tag4) ~ "es Wetter.",
-        "Die Wochenübersicht: Heute " ~ condition_map.get(heute, heute) ~ ", morgen " ~ condition_map.get(morgen, morgen) ~ ", übermorgen " ~ condition_map.get(uebermorgen, uebermorgen) ~ ". Dann wird es " ~ condition_map.get(tag3, tag3) ~ " und danach " ~ condition_map.get(tag4, tag4) ~ ".",
-        "Ein Blick auf die kommenden Tage: Heute " ~ condition_map.get(heute, heute) ~ ", morgen " ~ condition_map.get(morgen, morgen) ~ ", übermorgen " ~ condition_map.get(uebermorgen, uebermorgen) ~ ". Im weiteren Verlauf " ~ condition_map.get(tag3, tag3) ~ " bis " ~ condition_map.get(tag4, tag4) ~ "."
+        "Hier ist die Wetter├╝bersicht f├╝r die n├ñchsten Tage: Heute wird es " ~ condition_map.get(heute, heute) ~ ", morgen " ~ condition_map.get(morgen, morgen) ~ " und ├╝bermorgen " ~ condition_map.get(uebermorgen, uebermorgen) ~ ". Danach erwartet uns " ~ condition_map.get(tag3, tag3) ~ "es und sp├ñter " ~ condition_map.get(tag4, tag4) ~ "es Wetter.",
+        "Die Wochen├╝bersicht: Heute " ~ condition_map.get(heute, heute) ~ ", morgen " ~ condition_map.get(morgen, morgen) ~ ", ├╝bermorgen " ~ condition_map.get(uebermorgen, uebermorgen) ~ ". Dann wird es " ~ condition_map.get(tag3, tag3) ~ " und danach " ~ condition_map.get(tag4, tag4) ~ ".",
+        "Ein Blick auf die kommenden Tage: Heute " ~ condition_map.get(heute, heute) ~ ", morgen " ~ condition_map.get(morgen, morgen) ~ ", ├╝bermorgen " ~ condition_map.get(uebermorgen, uebermorgen) ~ ". Im weiteren Verlauf " ~ condition_map.get(tag3, tag3) ~ " bis " ~ condition_map.get(tag4, tag4) ~ "."
       ] %}
       {{ r | random }}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetTemperatureDay:
   speech:
@@ -373,7 +436,7 @@ GetTemperatureDay:
         {% set day_name = 'gestern' %}
       {% else %}
         {% set day_slot = day_input | int(default=1) %}
-        {% set day_name = {0: 'heute', 1: 'morgen', 2: 'übermorgen', 3: 'in drei Tagen', 4: 'in vier Tagen', 5: 'in fünf Tagen', 6: 'in sechs Tagen'}.get(day_slot, 'an diesem Tag') %}
+        {% set day_name = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen', 3: 'in drei Tagen', 4: 'in vier Tagen', 5: 'in f├╝nf Tagen', 6: 'in sechs Tagen'}.get(day_slot, 'an diesem Tag') %}
       {% endif %}
       {% set sensor_map = {
         0: 'sensor.wetter_heute',
@@ -391,20 +454,20 @@ GetTemperatureDay:
         {% if day_slot == 0 %}
           {% set r = [
             "Heute werden die Temperaturen bei etwa " ~ (temp | round) ~ " Grad liegen",
-            "Für heute sind rund " ~ (temp | round) ~ " Grad angesagt",
+            "F├╝r heute sind rund " ~ (temp | round) ~ " Grad angesagt",
             "Das Thermometer zeigt heute etwa " ~ (temp | round) ~ " Grad"
           ] %}
-          {{ r | random }}{% if templow is not none %}, wobei es in der Nacht auf {{ templow | round }} Grad abkühlen wird{% endif %}.
+          {{ r | random }}{% if templow is not none %}, wobei es in der Nacht auf {{ templow | round }} Grad abk├╝hlen wird{% endif %}.
         {% elif day_slot == -1 %}
           {% set r = [
-            "Leider habe ich keine Temperaturdaten für gestern.",
-            "Für gestern liegen mir keine Temperaturen vor.",
+            "Leider habe ich keine Temperaturdaten f├╝r gestern.",
+            "F├╝r gestern liegen mir keine Temperaturen vor.",
             "Vergangene Temperaturdaten habe ich leider nicht."
           ] %}
           {{ r | random }}
         {% else %}
           {% set r = [
-            "Für " ~ day_name ~ " erwarten wir Temperaturen um die " ~ (temp | round) ~ " Grad",
+            "F├╝r " ~ day_name ~ " erwarten wir Temperaturen um die " ~ (temp | round) ~ " Grad",
             day_name | capitalize ~ " werden es voraussichtlich " ~ (temp | round) ~ " Grad",
             "Die Temperaturen " ~ day_name ~ " liegen bei etwa " ~ (temp | round) ~ " Grad"
           ] %}
@@ -412,12 +475,19 @@ GetTemperatureDay:
         {% endif %}
       {% else %}
         {% set r = [
-          "Leider habe ich keine Temperaturvorhersage für " ~ day_name ~ " verfügbar. Meine Vorhersage reicht nur 5 Tage voraus.",
-          "Für " ~ day_name ~ " liegen mir keine Temperaturdaten vor.",
-          "Die Temperaturvorhersage für " ~ day_name ~ " ist leider nicht verfügbar."
+          "Leider habe ich keine Temperaturvorhersage f├╝r " ~ day_name ~ " verf├╝gbar. Meine Vorhersage reicht nur 5 Tage voraus.",
+          "F├╝r " ~ day_name ~ " liegen mir keine Temperaturdaten vor.",
+          "Die Temperaturvorhersage f├╝r " ~ day_name ~ " ist leider nicht verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetTemperatureTime:
   speech:
@@ -443,19 +513,26 @@ GetTemperatureTime:
       {% set time_name = time_display.get(time_slot, time_slot) %}
       {% if temp is not none %}
         {% set r = [
-          "Für " ~ day_name ~ " " ~ time_name ~ " rechne ich mit Temperaturen um die " ~ (temp | round) ~ " Grad.",
+          "F├╝r " ~ day_name ~ " " ~ time_name ~ " rechne ich mit Temperaturen um die " ~ (temp | round) ~ " Grad.",
           day_name | capitalize ~ " " ~ time_name ~ " werden es voraussichtlich " ~ (temp | round) ~ " Grad.",
           "Die Temperatur " ~ day_name ~ " " ~ time_name ~ " liegt bei etwa " ~ (temp | round) ~ " Grad."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Leider habe ich keine genaue Vorhersage für diesen Zeitraum.",
-          "Für diesen Zeitraum liegen mir keine Temperaturdaten vor.",
-          "Die Temperaturvorhersage für diesen Zeitraum ist nicht verfügbar."
+          "Leider habe ich keine genaue Vorhersage f├╝r diesen Zeitraum.",
+          "F├╝r diesen Zeitraum liegen mir keine Temperaturdaten vor.",
+          "Die Temperaturvorhersage f├╝r diesen Zeitraum ist nicht verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetRain:
   speech:
@@ -463,15 +540,15 @@ GetRain:
       {% set weather = states('weather.forecast_home') %}
       {% if weather in ['rainy', 'pouring'] %}
         {% set r = [
-          "Ja, draußen regnet es gerade. Du solltest einen Regenschirm mitnehmen wenn du rausgehst.",
-          "Es regnet tatsächlich. Ohne Schirm würde ich nicht rausgehen.",
-          "Ja, es ist gerade nass draußen. Regenschirm nicht vergessen!"
+          "Ja, drau├ƒen regnet es gerade. Du solltest einen Regenschirm mitnehmen wenn du rausgehst.",
+          "Es regnet tats├ñchlich. Ohne Schirm w├╝rde ich nicht rausgehen.",
+          "Ja, es ist gerade nass drau├ƒen. Regenschirm nicht vergessen!"
         ] %}
         {{ r | random }}
       {% elif weather == 'partlycloudy' %}
         {% set r = [
-          "Momentan regnet es nicht, aber es könnte später noch Schauer geben.",
-          "Aktuell ist es trocken, aber bei den Wolken könnte noch was kommen.",
+          "Momentan regnet es nicht, aber es k├Ânnte sp├ñter noch Schauer geben.",
+          "Aktuell ist es trocken, aber bei den Wolken k├Ânnte noch was kommen.",
           "Gerade regnet es nicht, ein Schirm zur Sicherheit schadet aber nicht."
         ] %}
         {{ r | random }}
@@ -479,10 +556,17 @@ GetRain:
         {% set r = [
           "Nein, aktuell ist es trocken und es regnet nicht.",
           "Kein Regen in Sicht, du kannst beruhigt ohne Schirm los.",
-          "Nein, draußen ist es trocken. Kein Regen."
+          "Nein, drau├ƒen ist es trocken. Kein Regen."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetRainDay:
   speech:
@@ -498,7 +582,7 @@ GetRainDay:
         {% set day_name = day_input | capitalize %}
       {% else %}
         {% set day_slot = day_input | int(default=1) %}
-        {% set day_name = {0: 'heute', 1: 'morgen', 2: 'übermorgen', 3: 'in drei Tagen'}.get(day_slot, 'an diesem Tag') %}
+        {% set day_name = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen', 3: 'in drei Tagen'}.get(day_slot, 'an diesem Tag') %}
       {% endif %}
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen', 3: 'sensor.wetter_tag_3', 4: 'sensor.wetter_tag_4', 5: 'sensor.wetter_tag_5', 6: 'sensor.wetter_tag_6'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
@@ -506,7 +590,7 @@ GetRainDay:
       {% set precipitation = state_attr(sensor, 'precipitation') %}
       {% if weather in ['rainy', 'pouring'] %}
         {% set r = [
-          "Ja, für " ~ day_name ~ " ist leider Regen angesagt",
+          "Ja, f├╝r " ~ day_name ~ " ist leider Regen angesagt",
           "Sieht nach Regen aus " ~ day_name,
           day_name | capitalize ~ " wird es wohl regnen"
         ] %}
@@ -520,12 +604,19 @@ GetRainDay:
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Leider habe ich keine Vorhersage für " ~ day_name ~ ".",
-          "Für " ~ day_name ~ " liegen mir keine Daten vor.",
-          "Da muss ich passen, keine Vorhersage für " ~ day_name ~ "."
+          "Leider habe ich keine Vorhersage f├╝r " ~ day_name ~ ".",
+          "F├╝r " ~ day_name ~ " liegen mir keine Daten vor.",
+          "Da muss ich passen, keine Vorhersage f├╝r " ~ day_name ~ "."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetRainProbabilityDay:
   speech:
@@ -541,7 +632,7 @@ GetRainProbabilityDay:
         {% set day_name = day_input | capitalize %}
       {% else %}
         {% set day_slot = day_input | int(default=1) %}
-        {% set day_name = {0: 'heute', 1: 'morgen', 2: 'übermorgen'}.get(day_slot, 'an diesem Tag') %}
+        {% set day_name = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'}.get(day_slot, 'an diesem Tag') %}
       {% endif %}
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen', 3: 'sensor.wetter_tag_3', 4: 'sensor.wetter_tag_4', 5: 'sensor.wetter_tag_5', 6: 'sensor.wetter_tag_6'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
@@ -549,26 +640,33 @@ GetRainProbabilityDay:
       {% set precipitation = state_attr(sensor, 'precipitation') %}
       {% if weather in ['rainy', 'pouring'] %}
         {% set r = [
-          "Für " ~ day_name ~ " ist die Regenwahrscheinlichkeit hoch",
-          "Die Regenwahrscheinlichkeit " ~ day_name ~ " ist leider erhöht",
+          "F├╝r " ~ day_name ~ " ist die Regenwahrscheinlichkeit hoch",
+          "Die Regenwahrscheinlichkeit " ~ day_name ~ " ist leider erh├Âht",
           day_name | capitalize ~ " sieht es nach einer hohen Regenwahrscheinlichkeit aus"
         ] %}
         {{ r | random }}{% if precipitation is not none and precipitation > 0 %}, mit etwa {{ precipitation }} Millimeter Niederschlag{% endif %}. Pack lieber einen Schirm ein.
       {% elif weather != 'unknown' and weather != 'unavailable' %}
         {% set r = [
-          "Die Regenwahrscheinlichkeit für " ~ day_name ~ " ist eher gering. Es sollte trocken bleiben.",
+          "Die Regenwahrscheinlichkeit f├╝r " ~ day_name ~ " ist eher gering. Es sollte trocken bleiben.",
           "Sieht gut aus! " ~ day_name | capitalize ~ " bleibt es voraussichtlich trocken.",
-          day_name | capitalize ~ " ist die Regenwahrscheinlichkeit niedrig. Kein Schirm nötig."
+          day_name | capitalize ~ " ist die Regenwahrscheinlichkeit niedrig. Kein Schirm n├Âtig."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
           "Leider habe ich dazu keine Informationen.",
           "Dazu liegen mir keine Daten vor.",
-          "Die Regenwahrscheinlichkeit kann ich für diesen Tag nicht ermitteln."
+          "Die Regenwahrscheinlichkeit kann ich f├╝r diesen Tag nicht ermitteln."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetRainTime:
   speech:
@@ -594,9 +692,9 @@ GetRainTime:
       {% set time_name = time_display.get(time_slot, time_slot) %}
       {% if weather in ['rainy', 'pouring'] %}
         {% set r = [
-          "Ja, " ~ day_name ~ " " ~ time_name ~ " könnte es regnen. Nimm sicherheitshalber einen Schirm mit.",
+          "Ja, " ~ day_name ~ " " ~ time_name ~ " k├Ânnte es regnen. Nimm sicherheitshalber einen Schirm mit.",
           "Sieht nach Regen aus " ~ day_name ~ " " ~ time_name ~ ". Schirm einpacken!",
-          day_name | capitalize ~ " " ~ time_name ~ " ist Regen möglich. Lieber vorbereitet sein."
+          day_name | capitalize ~ " " ~ time_name ~ " ist Regen m├Âglich. Lieber vorbereitet sein."
         ] %}
         {{ r | random }}
       {% elif weather != 'unknown' and weather != 'unavailable' %}
@@ -608,12 +706,19 @@ GetRainTime:
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Leider habe ich keine genaue Vorhersage für diesen Zeitraum.",
-          "Für diesen Zeitraum liegen mir keine Regendaten vor.",
-          "Da muss ich passen, keine Vorhersage verfügbar."
+          "Leider habe ich keine genaue Vorhersage f├╝r diesen Zeitraum.",
+          "F├╝r diesen Zeitraum liegen mir keine Regendaten vor.",
+          "Da muss ich passen, keine Vorhersage verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetSun:
   speech:
@@ -621,9 +726,9 @@ GetSun:
       {% set weather = states('weather.forecast_home') %}
       {% if weather in ['sunny', 'clear-night'] %}
         {% set r = [
-          "Ja, die Sonne scheint schön! Es ist ein wunderbar sonniger Tag.",
-          "Strahlender Sonnenschein! Ein toller Tag draußen.",
-          "Die Sonne gibt alles heute, richtig schönes Wetter!"
+          "Ja, die Sonne scheint sch├Ân! Es ist ein wunderbar sonniger Tag.",
+          "Strahlender Sonnenschein! Ein toller Tag drau├ƒen.",
+          "Die Sonne gibt alles heute, richtig sch├Ânes Wetter!"
         ] %}
         {{ r | random }}
       {% elif weather == 'partlycloudy' %}
@@ -635,7 +740,7 @@ GetSun:
         {{ r | random }}
       {% elif weather == 'cloudy' %}
         {% set r = [
-          "Leider ist es ziemlich bewölkt und die Sonne versteckt sich hinter den Wolken.",
+          "Leider ist es ziemlich bew├Âlkt und die Sonne versteckt sich hinter den Wolken.",
           "Die Wolken dominieren heute, die Sonne kommt kaum durch.",
           "Eher grau heute, die Sonne zeigt sich leider nicht."
         ] %}
@@ -648,6 +753,13 @@ GetSun:
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetSunDay:
   speech:
@@ -664,20 +776,20 @@ GetSunDay:
         {% set day_slot = day_input | int(default=1) %}
       {% endif %}
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
-      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
       {% set weather = states(sensor) | lower %}
       {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
       {% if weather in ['sunny', 'clear-night'] %}
         {% set r = [
-          "Ja, " ~ day_name ~ " wird ein schöner sonniger Tag! Genieß die Sonne.",
+          "Ja, " ~ day_name ~ " wird ein sch├Âner sonniger Tag! Genie├ƒ die Sonne.",
           day_name | capitalize ~ " erwartet dich strahlender Sonnenschein!",
           "Tolle Nachrichten, " ~ day_name ~ " wird es sonnig!"
         ] %}
         {{ r | random }}
       {% elif weather == 'partlycloudy' %}
         {% set r = [
-          day_name | capitalize ~ " wird es wechselhaft, mit Sonne und einigen Wolken. Es sollte aber überwiegend freundlich sein.",
+          day_name | capitalize ~ " wird es wechselhaft, mit Sonne und einigen Wolken. Es sollte aber ├╝berwiegend freundlich sein.",
           "Mal Sonne, mal Wolken " ~ day_name ~ ". Insgesamt aber ganz okay.",
           day_name | capitalize ~ " zeigt sich die Sonne zwischendurch, dazwischen Wolken."
         ] %}
@@ -691,12 +803,19 @@ GetSunDay:
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Leider habe ich keine Vorhersage für " ~ day_name ~ ".",
-          "Für " ~ day_name ~ " liegen mir keine Daten vor.",
-          "Die Vorhersage für " ~ day_name ~ " ist nicht verfügbar."
+          "Leider habe ich keine Vorhersage f├╝r " ~ day_name ~ ".",
+          "F├╝r " ~ day_name ~ " liegen mir keine Daten vor.",
+          "Die Vorhersage f├╝r " ~ day_name ~ " ist nicht verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetWindDay:
   speech:
@@ -713,7 +832,7 @@ GetWindDay:
         {% set day_slot = day_input | int(default=1) %}
       {% endif %}
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
-      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
       {% set weather = states(sensor) | lower %}
       {% set wind = state_attr(sensor, 'wind_speed') %}
@@ -721,32 +840,39 @@ GetWindDay:
       {% if weather == 'windy' or (wind is not none and wind > 30) %}
         {% set r = [
           "Ja, " ~ day_name ~ " wird es ziemlich windig",
-          day_name | capitalize ~ " weht ein kräftiger Wind",
+          day_name | capitalize ~ " weht ein kr├ñftiger Wind",
           "Achtung, " ~ day_name ~ " wird es ordentlich windig"
         ] %}
-        {{ r | random }}{% if wind is not none %}, mit Windgeschwindigkeiten um {{ wind | round }} Kilometer pro Stunde{% endif %}. Halte leichte Gegenstände fest!
+        {{ r | random }}{% if wind is not none %}, mit Windgeschwindigkeiten um {{ wind | round }} Kilometer pro Stunde{% endif %}. Halte leichte Gegenst├ñnde fest!
       {% elif wind is not none and wind > 15 %}
         {% set r = [
-          "Es wird " ~ day_name ~ " einen leichten bis mäßigen Wind geben, etwa " ~ (wind | round) ~ " Kilometer pro Stunde.",
+          "Es wird " ~ day_name ~ " einen leichten bis m├ñ├ƒigen Wind geben, etwa " ~ (wind | round) ~ " Kilometer pro Stunde.",
           day_name | capitalize ~ " weht ein leichter Wind mit " ~ (wind | round) ~ " km/h.",
-          "Mäßiger Wind " ~ day_name ~ " mit rund " ~ (wind | round) ~ " km/h."
+          "M├ñ├ƒiger Wind " ~ day_name ~ " mit rund " ~ (wind | round) ~ " km/h."
         ] %}
         {{ r | random }}
       {% elif weather != 'unknown' and weather != 'unavailable' %}
         {% set r = [
           day_name | capitalize ~ " wird es eher windstill und ruhig sein.",
-          "Kaum Wind " ~ day_name ~ ", schön ruhig.",
+          "Kaum Wind " ~ day_name ~ ", sch├Ân ruhig.",
           day_name | capitalize ~ " bleibt es windtechnisch entspannt."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Leider habe ich keine Windinformationen für " ~ day_name ~ ".",
-          "Für " ~ day_name ~ " liegen mir keine Winddaten vor.",
-          "Winddaten für " ~ day_name ~ " sind nicht verfügbar."
+          "Leider habe ich keine Windinformationen f├╝r " ~ day_name ~ ".",
+          "F├╝r " ~ day_name ~ " liegen mir keine Winddaten vor.",
+          "Winddaten f├╝r " ~ day_name ~ " sind nicht verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetClouds:
   speech:
@@ -754,22 +880,22 @@ GetClouds:
       {% set weather = states('weather.forecast_home') %}
       {% if weather == 'cloudy' %}
         {% set r = [
-          "Ja, der Himmel ist komplett bewölkt. Die Wolken verdecken die Sonne vollständig.",
-          "Ziemlich zugezogen da draußen, durchgehend bewölkt.",
+          "Ja, der Himmel ist komplett bew├Âlkt. Die Wolken verdecken die Sonne vollst├ñndig.",
+          "Ziemlich zugezogen da drau├ƒen, durchgehend bew├Âlkt.",
           "Alles voller Wolken, die Sonne hat heute keine Chance."
         ] %}
         {{ r | random }}
       {% elif weather == 'partlycloudy' %}
         {% set r = [
-          "Es ist wechselhaft bewölkt, aber die Sonne kommt immer wieder durch.",
+          "Es ist wechselhaft bew├Âlkt, aber die Sonne kommt immer wieder durch.",
           "Ein paar Wolken, aber dazwischen blitzt die Sonne hervor.",
-          "Teils bewölkt, teils sonnig. Ganz gemischter Himmel."
+          "Teils bew├Âlkt, teils sonnig. Ganz gemischter Himmel."
         ] %}
         {{ r | random }}
       {% elif weather in ['sunny', 'clear-night'] %}
         {% set r = [
           "Nein, der Himmel ist weitgehend klar und es gibt kaum Wolken.",
-          "Kaum eine Wolke am Himmel, richtig schön klar!",
+          "Kaum eine Wolke am Himmel, richtig sch├Ân klar!",
           "Blauer Himmel, fast wolkenfrei heute."
         ] %}
         {{ r | random }}
@@ -777,10 +903,17 @@ GetClouds:
         {% set r = [
           "Es gibt vereinzelte Wolken, aber insgesamt ist es okay.",
           "Ein paar Wolken hier und da, aber nichts Dramatisches.",
-          "Vereinzelt bewölkt, insgesamt aber in Ordnung."
+          "Vereinzelt bew├Âlkt, insgesamt aber in Ordnung."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetCloudsDay:
   speech:
@@ -797,14 +930,14 @@ GetCloudsDay:
         {% set day_slot = day_input | int(default=1) %}
       {% endif %}
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
-      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
       {% set weather = states(sensor) | lower %}
       {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
       {% if weather == 'cloudy' %}
         {% set r = [
-          "Ja, " ~ day_name ~ " wird der Himmel leider stark bewölkt sein. Die Sonne zeigt sich wohl kaum.",
-          day_name | capitalize ~ " wird es durchgehend bewölkt sein.",
+          "Ja, " ~ day_name ~ " wird der Himmel leider stark bew├Âlkt sein. Die Sonne zeigt sich wohl kaum.",
+          day_name | capitalize ~ " wird es durchgehend bew├Âlkt sein.",
           "Leider viele Wolken " ~ day_name ~ ", die Sonne hat wenig Chancen."
         ] %}
         {{ r | random }}
@@ -817,7 +950,7 @@ GetCloudsDay:
         {{ r | random }}
       {% elif weather in ['sunny', 'clear-night'] %}
         {% set r = [
-          day_name | capitalize ~ " wird der Himmel weitgehend klar sein. Ein schöner Tag steht bevor!",
+          day_name | capitalize ~ " wird der Himmel weitgehend klar sein. Ein sch├Âner Tag steht bevor!",
           "Kaum Wolken " ~ day_name ~ ", es wird ein klarer Tag!",
           day_name | capitalize ~ " erwartet dich ein weitgehend wolkenfreier Himmel."
         ] %}
@@ -825,18 +958,25 @@ GetCloudsDay:
       {% elif weather != 'unknown' and weather != 'unavailable' %}
         {% set r = [
           day_name | capitalize ~ " erwarte ich gemischte Bedingungen am Himmel.",
-          "Wechselhafte Bewölkung " ~ day_name ~ ".",
+          "Wechselhafte Bew├Âlkung " ~ day_name ~ ".",
           day_name | capitalize ~ " wird es am Himmel abwechslungsreich."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Leider habe ich keine Vorhersage für " ~ day_name ~ ".",
-          "Für " ~ day_name ~ " liegen mir keine Daten vor.",
-          "Die Wolkenvorhersage für " ~ day_name ~ " ist nicht verfügbar."
+          "Leider habe ich keine Vorhersage f├╝r " ~ day_name ~ ".",
+          "F├╝r " ~ day_name ~ " liegen mir keine Daten vor.",
+          "Die Wolkenvorhersage f├╝r " ~ day_name ~ " ist nicht verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetSnow:
   speech:
@@ -844,16 +984,16 @@ GetSnow:
       {% set weather = states('weather.forecast_home') %}
       {% if weather == 'snowy' %}
         {% set r = [
-          "Ja, draußen schneit es gerade! Die Schneeflocken rieseln vom Himmel. Vielleicht ein guter Tag für heißen Kakao?",
-          "Es schneit tatsächlich! Ab auf die Couch mit einem heißen Getränk.",
-          "Winterwunderland! Draußen rieselt der Schnee."
+          "Ja, drau├ƒen schneit es gerade! Die Schneeflocken rieseln vom Himmel. Vielleicht ein guter Tag f├╝r hei├ƒen Kakao?",
+          "Es schneit tats├ñchlich! Ab auf die Couch mit einem hei├ƒen Getr├ñnk.",
+          "Winterwunderland! Drau├ƒen rieselt der Schnee."
         ] %}
         {{ r | random }}
       {% elif weather == 'cloudy' %}
         {% set r = [
-          "Nein, es schneit gerade nicht, aber bei diesen Wolken könnte es später noch anfangen.",
+          "Nein, es schneit gerade nicht, aber bei diesen Wolken k├Ânnte es sp├ñter noch anfangen.",
           "Aktuell kein Schnee, aber die Wolken sehen vielversprechend aus.",
-          "Noch kein Schnee, aber ausschließen kann man es bei dem Himmel nicht."
+          "Noch kein Schnee, aber ausschlie├ƒen kann man es bei dem Himmel nicht."
         ] %}
         {{ r | random }}
       {% else %}
@@ -864,6 +1004,13 @@ GetSnow:
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetSnowDay:
   speech:
@@ -880,23 +1027,23 @@ GetSnowDay:
         {% set day_slot = day_input | int(default=1) %}
       {% endif %}
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
-      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
       {% set weather = states(sensor) | lower %}
       {% set temp = state_attr(sensor, 'temperature') %}
       {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
       {% if weather == 'snowy' %}
         {% set r = [
-          "Ja, " ~ day_name ~ " könnte es schneien! Zieh dich warm an und genieß das Winterwetter.",
+          "Ja, " ~ day_name ~ " k├Ânnte es schneien! Zieh dich warm an und genie├ƒ das Winterwetter.",
           "Schnee ist " ~ day_name ~ " angesagt! Perfektes Winterwetter.",
-          day_name | capitalize ~ " wird weiß! Schneeflocken sind vorhergesagt."
+          day_name | capitalize ~ " wird wei├ƒ! Schneeflocken sind vorhergesagt."
         ] %}
         {{ r | random }}
       {% elif temp is not none and temp <= 2 and weather in ['rainy', 'cloudy'] %}
         {% set r = [
-          "Bei den niedrigen Temperaturen " ~ day_name ~ " könnte Schneeregen oder Schnee möglich sein.",
-          "Knapp an der Schneegrenze " ~ day_name ~ ", Schneeregen ist möglich.",
-          day_name | capitalize ~ " könnte es bei den Temperaturen schneien oder regnen."
+          "Bei den niedrigen Temperaturen " ~ day_name ~ " k├Ânnte Schneeregen oder Schnee m├Âglich sein.",
+          "Knapp an der Schneegrenze " ~ day_name ~ ", Schneeregen ist m├Âglich.",
+          day_name | capitalize ~ " k├Ânnte es bei den Temperaturen schneien oder regnen."
         ] %}
         {{ r | random }}
       {% elif weather != 'unknown' and weather != 'unavailable' %}
@@ -909,12 +1056,19 @@ GetSnowDay:
         {% if temp is not none %} Die Temperaturen liegen bei etwa {{ temp | round }} Grad.{% endif %}
       {% else %}
         {% set r = [
-          "Leider habe ich keine Vorhersage für " ~ day_name ~ ".",
-          "Für " ~ day_name ~ " liegen mir keine Schneedaten vor.",
-          "Keine Vorhersage für " ~ day_name ~ " verfügbar."
+          "Leider habe ich keine Vorhersage f├╝r " ~ day_name ~ ".",
+          "F├╝r " ~ day_name ~ " liegen mir keine Schneedaten vor.",
+          "Keine Vorhersage f├╝r " ~ day_name ~ " verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetStorm:
   speech:
@@ -922,16 +1076,16 @@ GetStorm:
       {% set weather = states('weather.forecast_home') %}
       {% if weather in ['lightning', 'lightning-rainy'] %}
         {% set r = [
-          "Achtung, draußen gibt es gerade ein Gewitter! Bleib besser drinnen und meide offene Flächen und Bäume.",
-          "Gewitter! Bitte drinnen bleiben und Fenster schließen.",
-          "Es gewittert gerade draußen. Sicherheit geht vor, bleib im Haus!"
+          "Achtung, drau├ƒen gibt es gerade ein Gewitter! Bleib besser drinnen und meide offene Fl├ñchen und B├ñume.",
+          "Gewitter! Bitte drinnen bleiben und Fenster schlie├ƒen.",
+          "Es gewittert gerade drau├ƒen. Sicherheit geht vor, bleib im Haus!"
         ] %}
         {{ r | random }}
       {% elif weather == 'windy' %}
         {% set r = [
-          "Es stürmt zwar nicht, aber es ist ziemlich windig draußen.",
-          "Kein Gewitter, aber ordentlich Wind da draußen.",
-          "Sturm nicht, aber der Wind ist kräftig."
+          "Es st├╝rmt zwar nicht, aber es ist ziemlich windig drau├ƒen.",
+          "Kein Gewitter, aber ordentlich Wind da drau├ƒen.",
+          "Sturm nicht, aber der Wind ist kr├ñftig."
         ] %}
         {{ r | random }}
       {% else %}
@@ -942,6 +1096,13 @@ GetStorm:
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetStormDay:
   speech:
@@ -958,32 +1119,39 @@ GetStormDay:
         {% set day_slot = day_input | int(default=1) %}
       {% endif %}
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
-      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
       {% set weather = states(sensor) | lower %}
       {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
       {% if weather in ['lightning', 'lightning-rainy'] %}
         {% set r = [
-          "Vorsicht, " ~ day_name ~ " sind Gewitter vorhergesagt! Plane Outdoor-Aktivitäten besser für einen anderen Tag.",
+          "Vorsicht, " ~ day_name ~ " sind Gewitter vorhergesagt! Plane Outdoor-Aktivit├ñten besser f├╝r einen anderen Tag.",
           "Achtung, " ~ day_name ~ " wird es gewittern! Besser drinnen bleiben.",
           day_name | capitalize ~ " sind Gewitter angesagt. Vorsicht ist geboten!"
         ] %}
         {{ r | random }}
       {% elif weather != 'unknown' and weather != 'unavailable' %}
         {% set r = [
-          day_name | capitalize ~ " sind keine Gewitter oder Stürme vorhergesagt. Das Wetter sollte ruhig bleiben.",
+          day_name | capitalize ~ " sind keine Gewitter oder St├╝rme vorhergesagt. Das Wetter sollte ruhig bleiben.",
           "Kein Gewitter " ~ day_name ~ " in Sicht. Alles entspannt.",
           day_name | capitalize ~ " bleibt es sturmfrei."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Leider habe ich keine Vorhersage für " ~ day_name ~ ".",
-          "Für " ~ day_name ~ " liegen mir keine Sturmdaten vor.",
-          "Keine Gewittervorhersage für " ~ day_name ~ " verfügbar."
+          "Leider habe ich keine Vorhersage f├╝r " ~ day_name ~ ".",
+          "F├╝r " ~ day_name ~ " liegen mir keine Sturmdaten vor.",
+          "Keine Gewittervorhersage f├╝r " ~ day_name ~ " verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetHumidityDay:
   speech:
@@ -999,13 +1167,13 @@ GetHumidityDay:
       {% else %}
         {% set day_slot = day_input | int(default=1) %}
       {% endif %}
-      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'} %}
       {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
       {% set humidity = state_attr('weather.forecast_home', 'humidity') | default(50) %}
       {% if humidity > 80 %}
         {% set r = [
-          day_name | capitalize ~ " wird es recht feucht, mit etwa " ~ humidity ~ "% Luftfeuchtigkeit. Schweißtreibende Aktivitäten könnten sich unangenehm anfühlen.",
-          "Ganz schön schwül " ~ day_name ~ ", " ~ humidity ~ "% Luftfeuchtigkeit.",
+          day_name | capitalize ~ " wird es recht feucht, mit etwa " ~ humidity ~ "% Luftfeuchtigkeit. Schwei├ƒtreibende Aktivit├ñten k├Ânnten sich unangenehm anf├╝hlen.",
+          "Ganz sch├Ân schw├╝l " ~ day_name ~ ", " ~ humidity ~ "% Luftfeuchtigkeit.",
           "Die Luft wird " ~ day_name ~ " ziemlich feucht sein, rund " ~ humidity ~ "%."
         ] %}
         {{ r | random }}
@@ -1031,6 +1199,13 @@ GetHumidityDay:
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetPressure:
   speech:
@@ -1039,22 +1214,22 @@ GetPressure:
       {% if pressure is not none %}
         {% if pressure > 1020 %}
           {% set r = [
-            "Der Luftdruck liegt bei " ~ pressure ~ " Hektopascal, das ist ziemlich hoch. Typischerweise bedeutet das stabiles, schönes Wetter.",
-            "Hoher Luftdruck mit " ~ pressure ~ " hPa, das spricht für beständiges Wetter.",
-            pressure ~ " Hektopascal, das ist ein schöner Hochdruckwert!"
+            "Der Luftdruck liegt bei " ~ pressure ~ " Hektopascal, das ist ziemlich hoch. Typischerweise bedeutet das stabiles, sch├Ânes Wetter.",
+            "Hoher Luftdruck mit " ~ pressure ~ " hPa, das spricht f├╝r best├ñndiges Wetter.",
+            pressure ~ " Hektopascal, das ist ein sch├Âner Hochdruckwert!"
           ] %}
           {{ r | random }}
         {% elif pressure < 1000 %}
           {% set r = [
-            "Der Luftdruck ist mit " ~ pressure ~ " Hektopascal eher niedrig. Das deutet oft auf unbeständiges Wetter hin.",
-            "Niedriger Luftdruck, " ~ pressure ~ " hPa. Könnte wechselhaft werden.",
-            "Mit " ~ pressure ~ " Hektopascal ist der Luftdruck eher gering, typisch für unbeständiges Wetter."
+            "Der Luftdruck ist mit " ~ pressure ~ " Hektopascal eher niedrig. Das deutet oft auf unbest├ñndiges Wetter hin.",
+            "Niedriger Luftdruck, " ~ pressure ~ " hPa. K├Ânnte wechselhaft werden.",
+            "Mit " ~ pressure ~ " Hektopascal ist der Luftdruck eher gering, typisch f├╝r unbest├ñndiges Wetter."
           ] %}
           {{ r | random }}
         {% else %}
           {% set r = [
             "Der Luftdruck liegt bei " ~ pressure ~ " Hektopascal, was im normalen Bereich ist.",
-            "Normaler Luftdruck mit " ~ pressure ~ " hPa, alles im grünen Bereich.",
+            "Normaler Luftdruck mit " ~ pressure ~ " hPa, alles im gr├╝nen Bereich.",
             pressure ~ " Hektopascal, das ist ein ganz normaler Wert."
           ] %}
           {{ r | random }}
@@ -1062,11 +1237,18 @@ GetPressure:
       {% else %}
         {% set r = [
           "Leider kann ich den Luftdruck gerade nicht abrufen.",
-          "Der Luftdruck ist momentan nicht verfügbar.",
+          "Der Luftdruck ist momentan nicht verf├╝gbar.",
           "Keine Luftdruckdaten im Moment."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetPressureDay:
   speech:
@@ -1074,19 +1256,26 @@ GetPressureDay:
       {% set pressure = state_attr('weather.forecast_home', 'pressure') %}
       {% if pressure is not none %}
         {% set r = [
-          "Der Luftdruck liegt aktuell bei " ~ pressure ~ " Hektopascal. Leider sind Vorhersagen für den Luftdruck nicht verfügbar, aber das gibt schon mal einen Hinweis auf die Wetterlage.",
+          "Der Luftdruck liegt aktuell bei " ~ pressure ~ " Hektopascal. Leider sind Vorhersagen f├╝r den Luftdruck nicht verf├╝gbar, aber das gibt schon mal einen Hinweis auf die Wetterlage.",
           "Aktuell " ~ pressure ~ " hPa. Eine tagesbasierte Luftdruckvorhersage habe ich leider nicht.",
-          "Momentan liegt der Luftdruck bei " ~ pressure ~ " Hektopascal. Vorhersagen dazu sind nicht verfügbar."
+          "Momentan liegt der Luftdruck bei " ~ pressure ~ " Hektopascal. Vorhersagen dazu sind nicht verf├╝gbar."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
           "Den Luftdruck kann ich gerade nicht abrufen.",
-          "Luftdruckdaten sind momentan nicht verfügbar.",
+          "Luftdruckdaten sind momentan nicht verf├╝gbar.",
           "Leider kann ich den Luftdruck gerade nicht ermitteln."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetFog:
   speech:
@@ -1094,9 +1283,9 @@ GetFog:
       {% set weather = states('weather.forecast_home') %}
       {% if weather == 'fog' %}
         {% set r = [
-          "Ja, draußen ist es ziemlich neblig. Die Sicht ist eingeschränkt, also Vorsicht beim Autofahren!",
-          "Dichter Nebel draußen! Fahr vorsichtig und mach die Nebelscheinwerfer an.",
-          "Es ist neblig, die Sicht ist stark eingeschränkt."
+          "Ja, drau├ƒen ist es ziemlich neblig. Die Sicht ist eingeschr├ñnkt, also Vorsicht beim Autofahren!",
+          "Dichter Nebel drau├ƒen! Fahr vorsichtig und mach die Nebelscheinwerfer an.",
+          "Es ist neblig, die Sicht ist stark eingeschr├ñnkt."
         ] %}
         {{ r | random }}
       {% else %}
@@ -1107,6 +1296,13 @@ GetFog:
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetFogDay:
   speech:
@@ -1123,15 +1319,15 @@ GetFogDay:
         {% set day_slot = day_input | int(default=1) %}
       {% endif %}
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
-      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
       {% set weather = states(sensor) | lower %}
       {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
       {% if weather == 'fog' %}
         {% set r = [
-          "Ja, " ~ day_name ~ " könnte es neblig werden. Plane früh morgens oder spät abends etwas mehr Zeit fürs Fahren ein.",
+          "Ja, " ~ day_name ~ " k├Ânnte es neblig werden. Plane fr├╝h morgens oder sp├ñt abends etwas mehr Zeit f├╝rs Fahren ein.",
           day_name | capitalize ~ " ist mit Nebel zu rechnen. Vorsichtig fahren!",
-          "Nebel ist " ~ day_name ~ " möglich, besonders morgens."
+          "Nebel ist " ~ day_name ~ " m├Âglich, besonders morgens."
         ] %}
         {{ r | random }}
       {% elif weather != 'unknown' and weather != 'unavailable' %}
@@ -1143,12 +1339,19 @@ GetFogDay:
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Leider habe ich keine Vorhersage für " ~ day_name ~ ".",
-          "Für " ~ day_name ~ " liegen mir keine Nebeldaten vor.",
-          "Keine Nebelvorhersage für " ~ day_name ~ " verfügbar."
+          "Leider habe ich keine Vorhersage f├╝r " ~ day_name ~ ".",
+          "F├╝r " ~ day_name ~ " liegen mir keine Nebeldaten vor.",
+          "Keine Nebelvorhersage f├╝r " ~ day_name ~ " verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetFeelsLike:
   speech:
@@ -1159,34 +1362,41 @@ GetFeelsLike:
       {% if temp is not none %}
         {% if wind > 20 and temp < 15 %}
           {% set r = [
-            "Bei dem Wind fühlt es sich kälter an als die " ~ temp ~ " Grad, die das Thermometer zeigt. Rechne eher mit gefühlten " ~ ((temp - 3) | round) ~ " Grad.",
-            "Durch den Wind fühlt es sich eher wie " ~ ((temp - 3) | round) ~ " Grad an, obwohl das Thermometer " ~ temp ~ " zeigt.",
-            "Der Windchill lässt es kälter wirken, gefühlt eher " ~ ((temp - 3) | round) ~ " statt " ~ temp ~ " Grad."
+            "Bei dem Wind f├╝hlt es sich k├ñlter an als die " ~ temp ~ " Grad, die das Thermometer zeigt. Rechne eher mit gef├╝hlten " ~ ((temp - 3) | round) ~ " Grad.",
+            "Durch den Wind f├╝hlt es sich eher wie " ~ ((temp - 3) | round) ~ " Grad an, obwohl das Thermometer " ~ temp ~ " zeigt.",
+            "Der Windchill l├ñsst es k├ñlter wirken, gef├╝hlt eher " ~ ((temp - 3) | round) ~ " statt " ~ temp ~ " Grad."
           ] %}
           {{ r | random }}
         {% elif humidity > 70 and temp > 25 %}
           {% set r = [
-            "Bei der hohen Luftfeuchtigkeit fühlen sich die " ~ temp ~ " Grad ziemlich schwül an. Es ist drückend.",
-            "Schwül! Die " ~ temp ~ " Grad fühlen sich durch die Feuchtigkeit wärmer an.",
-            "Drückende Hitze, bei " ~ humidity ~ "% Luftfeuchtigkeit fühlen sich " ~ temp ~ " Grad noch heißer an."
+            "Bei der hohen Luftfeuchtigkeit f├╝hlen sich die " ~ temp ~ " Grad ziemlich schw├╝l an. Es ist dr├╝ckend.",
+            "Schw├╝l! Die " ~ temp ~ " Grad f├╝hlen sich durch die Feuchtigkeit w├ñrmer an.",
+            "Dr├╝ckende Hitze, bei " ~ humidity ~ "% Luftfeuchtigkeit f├╝hlen sich " ~ temp ~ " Grad noch hei├ƒer an."
           ] %}
           {{ r | random }}
         {% else %}
           {% set r = [
-            "Es fühlt sich draußen an wie etwa " ~ temp ~ " Grad.",
-            "Gefühlt sind es " ~ temp ~ " Grad draußen.",
-            "Die gefühlte Temperatur entspricht ungefähr den " ~ temp ~ " Grad."
+            "Es f├╝hlt sich drau├ƒen an wie etwa " ~ temp ~ " Grad.",
+            "Gef├╝hlt sind es " ~ temp ~ " Grad drau├ƒen.",
+            "Die gef├╝hlte Temperatur entspricht ungef├ñhr den " ~ temp ~ " Grad."
           ] %}
           {{ r | random }}
         {% endif %}
       {% else %}
         {% set r = [
-          "Leider kann ich die gefühlte Temperatur gerade nicht ermitteln.",
-          "Die gefühlte Temperatur ist gerade nicht abrufbar.",
-          "Keine Daten zur gefühlten Temperatur im Moment."
+          "Leider kann ich die gef├╝hlte Temperatur gerade nicht ermitteln.",
+          "Die gef├╝hlte Temperatur ist gerade nicht abrufbar.",
+          "Keine Daten zur gef├╝hlten Temperatur im Moment."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetFeelsLikeDay:
   speech:
@@ -1203,25 +1413,32 @@ GetFeelsLikeDay:
         {% set day_slot = day_input | int(default=1) %}
       {% endif %}
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
-      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
       {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
       {% set temp = state_attr(sensor, 'temperature') | default(state_attr('weather.forecast_home', 'temperature')) | default(15) %}
       {% if temp is not none %}
         {% set r = [
-          day_name | capitalize ~ " wird es sich wie etwa " ~ (temp | round) ~ " Grad anfühlen. Plane deine Kleidung entsprechend.",
-          "Gefühlt werden es " ~ day_name ~ " rund " ~ (temp | round) ~ " Grad sein.",
-          "Die gefühlte Temperatur " ~ day_name ~ ": etwa " ~ (temp | round) ~ " Grad."
+          day_name | capitalize ~ " wird es sich wie etwa " ~ (temp | round) ~ " Grad anf├╝hlen. Plane deine Kleidung entsprechend.",
+          "Gef├╝hlt werden es " ~ day_name ~ " rund " ~ (temp | round) ~ " Grad sein.",
+          "Die gef├╝hlte Temperatur " ~ day_name ~ ": etwa " ~ (temp | round) ~ " Grad."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Leider habe ich keine genauen Daten für " ~ day_name ~ ".",
-          "Für " ~ day_name ~ " ist die gefühlte Temperatur nicht verfügbar.",
-          "Die gefühlte Temperatur für " ~ day_name ~ " kann ich nicht ermitteln."
+          "Leider habe ich keine genauen Daten f├╝r " ~ day_name ~ ".",
+          "F├╝r " ~ day_name ~ " ist die gef├╝hlte Temperatur nicht verf├╝gbar.",
+          "Die gef├╝hlte Temperatur f├╝r " ~ day_name ~ " kann ich nicht ermitteln."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetClothingAdvice:
   speech:
@@ -1231,57 +1448,64 @@ GetClothingAdvice:
       {% if temp is not none %}
         {% if temp < 0 %}
           {% set r = [
-            "Brr, es ist richtig kalt draußen! Eine warme Winterjacke, Mütze, Schal und Handschuhe sind ein Muss.",
-            "Bei der Kälte: Winterjacke, Mütze, Schal, Handschuhe. Am besten in Schichten anziehen!",
-            "Volle Winterausrüstung! Bei dem Frost brauchst du alles: Jacke, Mütze, Schal, Handschuhe."
+            "Brr, es ist richtig kalt drau├ƒen! Eine warme Winterjacke, M├╝tze, Schal und Handschuhe sind ein Muss.",
+            "Bei der K├ñlte: Winterjacke, M├╝tze, Schal, Handschuhe. Am besten in Schichten anziehen!",
+            "Volle Winterausr├╝stung! Bei dem Frost brauchst du alles: Jacke, M├╝tze, Schal, Handschuhe."
           ] %}
           {{ r | random }}
         {% elif temp < 5 %}
           {% set r = [
-            "Es ist recht kalt. Ich empfehle eine warme Jacke, Mütze und Handschuhe.",
-            "Warm anziehen! Jacke und Mütze sind heute Pflicht.",
-            "Bei der Kälte: warme Jacke und am besten auch Handschuhe."
+            "Es ist recht kalt. Ich empfehle eine warme Jacke, M├╝tze und Handschuhe.",
+            "Warm anziehen! Jacke und M├╝tze sind heute Pflicht.",
+            "Bei der K├ñlte: warme Jacke und am besten auch Handschuhe."
           ] %}
           {{ r | random }}
         {% elif temp < 15 %}
           {% set r = [
-            "Kühles Wetter heute. Eine Jacke oder ein Pullover sollte dabei sein.",
-            "Pack dir eine Jacke ein, es ist frisch draußen.",
-            "Ein Pullover oder eine leichte Jacke wäre heute ideal."
+            "K├╝hles Wetter heute. Eine Jacke oder ein Pullover sollte dabei sein.",
+            "Pack dir eine Jacke ein, es ist frisch drau├ƒen.",
+            "Ein Pullover oder eine leichte Jacke w├ñre heute ideal."
           ] %}
           {{ r | random }}
         {% elif temp < 20 %}
           {% set r = [
-            "Angenehme Temperaturen. Ein langarmiges Shirt oder eine leichte Jacke reicht völlig.",
-            "Schönes Wetter für Langarm-Shirt oder leichte Jacke.",
-            "Angenehm mild, ein langärmeliges Oberteil passt perfekt."
+            "Angenehme Temperaturen. Ein langarmiges Shirt oder eine leichte Jacke reicht v├Âllig.",
+            "Sch├Ânes Wetter f├╝r Langarm-Shirt oder leichte Jacke.",
+            "Angenehm mild, ein lang├ñrmeliges Oberteil passt perfekt."
           ] %}
           {{ r | random }}
         {% elif temp < 25 %}
           {% set r = [
-            "Schön warm. Leichte Kleidung ist perfekt, vielleicht ein T-Shirt und eine Jeans.",
+            "Sch├Ân warm. Leichte Kleidung ist perfekt, vielleicht ein T-Shirt und eine Jeans.",
             "T-Shirt Wetter! Leichte Kleidung ist ideal.",
-            "Warm genug für kurze Ärmel und leichte Sachen."
+            "Warm genug f├╝r kurze ├ärmel und leichte Sachen."
           ] %}
           {{ r | random }}
         {% else %}
           {% set r = [
             "Es ist richtig warm! Kurze Hosen, T-Shirt und Sandalen sind ideal. Vergiss die Sonnencreme nicht!",
             "Sommer pur! Kurze Sachen, Sandalen und unbedingt Sonnencreme.",
-            "Bei der Hitze: so wenig wie möglich anziehen und Sonnencreme drauf!"
+            "Bei der Hitze: so wenig wie m├Âglich anziehen und Sonnencreme drauf!"
           ] %}
           {{ r | random }}
         {% endif %}
         {% if weather in ['rainy', 'pouring'] %} Und nimm unbedingt einen Regenschirm mit!{% endif %}
-        {% if weather == 'windy' %} Bei dem Wind wäre vielleicht eine winddichte Jacke nicht schlecht.{% endif %}
+        {% if weather == 'windy' %} Bei dem Wind w├ñre vielleicht eine winddichte Jacke nicht schlecht.{% endif %}
       {% else %}
         {% set r = [
           "Leider kann ich dir ohne aktuelle Wetterdaten keinen Kleidungstipp geben.",
           "Ohne Wetterdaten ist ein Kleidungstipp schwierig.",
-          "Die Wetterdaten fehlen leider, daher kein Kleidungstipp möglich."
+          "Die Wetterdaten fehlen leider, daher kein Kleidungstipp m├Âglich."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetClothingDay:
   speech:
@@ -1298,28 +1522,28 @@ GetClothingDay:
         {% set day_slot = day_input | int(default=1) %}
       {% endif %}
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
-      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
       {% set weather = states(sensor) | lower %}
       {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
       {% set temp = state_attr(sensor, 'temperature') | default(state_attr('weather.forecast_home', 'temperature')) | default(15) %}
       {% if temp < 0 %}
         {% set r = [
-          day_name | capitalize ~ " wird es eisig kalt! Pack unbedingt Winterjacke, Mütze und Handschuhe ein.",
-          "Volle Winterausrüstung " ~ day_name ~ "! Es wird eiskalt.",
-          "Bei dem Frost " ~ day_name ~ ": Winterjacke, Mütze, Schal sind Pflicht."
+          day_name | capitalize ~ " wird es eisig kalt! Pack unbedingt Winterjacke, M├╝tze und Handschuhe ein.",
+          "Volle Winterausr├╝stung " ~ day_name ~ "! Es wird eiskalt.",
+          "Bei dem Frost " ~ day_name ~ ": Winterjacke, M├╝tze, Schal sind Pflicht."
         ] %}
         {{ r | random }}
       {% elif temp < 5 %}
         {% set r = [
-          day_name | capitalize ~ " wird es kalt. Eine warme Jacke und Mütze sind empfehlenswert.",
-          "Warm anziehen " ~ day_name ~ "! Jacke und Mütze nicht vergessen.",
+          day_name | capitalize ~ " wird es kalt. Eine warme Jacke und M├╝tze sind empfehlenswert.",
+          "Warm anziehen " ~ day_name ~ "! Jacke und M├╝tze nicht vergessen.",
           day_name | capitalize ~ " brauchst du warme Kleidung."
         ] %}
         {{ r | random }}
       {% elif temp < 15 %}
         {% set r = [
-          "Für " ~ day_name ~ " empfehle ich eine Jacke oder einen Pullover. Es wird kühl.",
+          "F├╝r " ~ day_name ~ " empfehle ich eine Jacke oder einen Pullover. Es wird k├╝hl.",
           "Pack dir " ~ day_name ~ " eine Jacke ein.",
           day_name | capitalize ~ " reicht ein Pullover oder eine leichte Jacke."
         ] %}
@@ -1340,7 +1564,14 @@ GetClothingDay:
         {{ r | random }}
       {% endif %}
       {% if weather in ['rainy', 'pouring'] %} Vergiss nicht den Regenschirm!{% endif %}
-      {% if weather == 'windy' %} Bei Wind wäre eine winddichte Jacke praktisch.{% endif %}
+      {% if weather == 'windy' %} Bei Wind w├ñre eine winddichte Jacke praktisch.{% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetOutdoorAdvice:
   speech:
@@ -1349,28 +1580,28 @@ GetOutdoorAdvice:
       {% set temp = state_attr('weather.forecast_home', 'temperature') %}
       {% if weather in ['sunny', 'partlycloudy', 'clear-night'] and temp is not none and temp > 15 and temp < 28 %}
         {% set r = [
-          "Das Wetter ist perfekt für Aktivitäten draußen! Genieß den Tag im Freien.",
-          "Ideales Outdoor-Wetter! Raus mit dir und genieß es.",
-          "Perfekte Bedingungen für draußen. Ab in die Natur!"
+          "Das Wetter ist perfekt f├╝r Aktivit├ñten drau├ƒen! Genie├ƒ den Tag im Freien.",
+          "Ideales Outdoor-Wetter! Raus mit dir und genie├ƒ es.",
+          "Perfekte Bedingungen f├╝r drau├ƒen. Ab in die Natur!"
         ] %}
         {{ r | random }}
       {% elif weather in ['sunny', 'partlycloudy'] and temp is not none and temp > 10 %}
         {% set r = [
-          "Das Wetter eignet sich gut für Unternehmungen im Freien. Vielleicht ein Spaziergang oder eine Fahrradtour?",
-          "Gut genug für draußen! Wie wärs mit einem Spaziergang?",
-          "Das Wetter lädt ein, ein bisschen raus zu gehen."
+          "Das Wetter eignet sich gut f├╝r Unternehmungen im Freien. Vielleicht ein Spaziergang oder eine Fahrradtour?",
+          "Gut genug f├╝r drau├ƒen! Wie w├ñrs mit einem Spaziergang?",
+          "Das Wetter l├ñdt ein, ein bisschen raus zu gehen."
         ] %}
         {{ r | random }}
       {% elif weather in ['rainy', 'pouring'] %}
         {% set r = [
-          "Bei dem Regen würde ich eher drinnen bleiben, außer du magst es nass zu werden.",
+          "Bei dem Regen w├╝rde ich eher drinnen bleiben, au├ƒer du magst es nass zu werden.",
           "Eher ein Indoor-Tag heute. Es regnet ordentlich.",
           "Regenwetter, besser drinnen bleiben oder Regenjacke anziehen."
         ] %}
         {{ r | random }}
       {% elif weather in ['snowy'] %}
         {% set r = [
-          "Es schneit draußen! Perfekt für einen Schneespaziergang oder zum Schneemann bauen, aber zieh dich warm an.",
+          "Es schneit drau├ƒen! Perfekt f├╝r einen Schneespaziergang oder zum Schneemann bauen, aber zieh dich warm an.",
           "Winterwonderland! Ab raus in den Schnee, aber warm anziehen.",
           "Schneewetter! Schneemann bauen oder Spaziergang im Schnee?"
         ] %}
@@ -1384,33 +1615,40 @@ GetOutdoorAdvice:
         {{ r | random }}
       {% elif temp is not none and temp < 0 %}
         {% set r = [
-          "Bei Minusgraden solltest du gut überlegen, ob du wirklich raus willst. Wenn ja, dann richtig warm anziehen!",
-          "Eiskalt! Nur raus, wenn wirklich nötig, und dann warm einpacken.",
+          "Bei Minusgraden solltest du gut ├╝berlegen, ob du wirklich raus willst. Wenn ja, dann richtig warm anziehen!",
+          "Eiskalt! Nur raus, wenn wirklich n├Âtig, und dann warm einpacken.",
           "Bei dem Frost lieber drinnen bleiben oder extrem warm anziehen."
         ] %}
         {{ r | random }}
       {% elif temp is not none and temp < 5 %}
         {% set r = [
-          "Es ist ziemlich kalt draußen. Kurze Aktivitäten sind okay, aber zieh dich warm an.",
-          "Kalt, aber machbar. Für einen kurzen Spaziergang warm anziehen.",
-          "Bei der Kälte gehen kurze Outdoor-Aktivitäten, aber nicht zu lange."
+          "Es ist ziemlich kalt drau├ƒen. Kurze Aktivit├ñten sind okay, aber zieh dich warm an.",
+          "Kalt, aber machbar. F├╝r einen kurzen Spaziergang warm anziehen.",
+          "Bei der K├ñlte gehen kurze Outdoor-Aktivit├ñten, aber nicht zu lange."
         ] %}
         {{ r | random }}
       {% elif temp is not none and temp > 32 %}
         {% set r = [
-          "Es ist sehr heiß! Vermeide anstrengende Aktivitäten in der Mittagshitze und trink viel Wasser.",
+          "Es ist sehr hei├ƒ! Vermeide anstrengende Aktivit├ñten in der Mittagshitze und trink viel Wasser.",
           "Extreme Hitze! Nur im Schatten und mit viel Wasser rausgehen.",
           "Bei der Hitze lieber im Schatten bleiben und viel trinken."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          "Das Wetter ist okay, nicht perfekt, aber machbar für draußen.",
+          "Das Wetter ist okay, nicht perfekt, aber machbar f├╝r drau├ƒen.",
           "Geht so, kein ideales aber auch kein schlechtes Outdoor-Wetter.",
-          "Mittelprächtig, aber draußen geht es."
+          "Mittelpr├ñchtig, aber drau├ƒen geht es."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetOutdoorDay:
   speech:
@@ -1427,71 +1665,85 @@ GetOutdoorDay:
         {% set day_slot = day_input | int(default=1) %}
       {% endif %}
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
-      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: '├╝bermorgen'} %}
       {% set sensor = sensor_map.get(day_slot, 'sensor.wetter_morgen') %}
       {% set weather = states(sensor) | lower %}
       {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
       {% set temp = state_attr(sensor, 'temperature') | default(state_attr('weather.forecast_home', 'temperature')) | default(15) %}
       {% if weather in ['sunny', 'partlycloudy', 'clear-night'] and temp > 15 and temp < 28 %}
         {% set r = [
-          day_name | capitalize ~ " ist ein toller Tag für Aktivitäten im Freien! Die Bedingungen sind ideal.",
+          day_name | capitalize ~ " ist ein toller Tag f├╝r Aktivit├ñten im Freien! Die Bedingungen sind ideal.",
           "Perfektes Outdoor-Wetter " ~ day_name ~ "! Nutze das aus.",
-          day_name | capitalize ~ " wird ideal für draußen. Genieß es!"
+          day_name | capitalize ~ " wird ideal f├╝r drau├ƒen. Genie├ƒ es!"
         ] %}
         {{ r | random }}
       {% elif weather in ['sunny', 'partlycloudy'] and temp > 10 %}
         {% set r = [
-          day_name | capitalize ~ " eignet sich gut für draußen. Vielleicht ein Ausflug oder Spaziergang?",
-          "Gut genug für draußen " ~ day_name ~ "! Ein Spaziergang bietet sich an.",
-          day_name | capitalize ~ " lädt ein, etwas draußen zu unternehmen."
+          day_name | capitalize ~ " eignet sich gut f├╝r drau├ƒen. Vielleicht ein Ausflug oder Spaziergang?",
+          "Gut genug f├╝r drau├ƒen " ~ day_name ~ "! Ein Spaziergang bietet sich an.",
+          day_name | capitalize ~ " l├ñdt ein, etwas drau├ƒen zu unternehmen."
         ] %}
         {{ r | random }}
       {% elif weather in ['rainy', 'pouring'] %}
         {% set r = [
-          day_name | capitalize ~ " würde ich Outdoor-Pläne eher verschieben, es wird nass.",
-          "Lieber Indoor-Aktivitäten " ~ day_name ~ " planen, Regen ist angesagt.",
+          day_name | capitalize ~ " w├╝rde ich Outdoor-Pl├ñne eher verschieben, es wird nass.",
+          "Lieber Indoor-Aktivit├ñten " ~ day_name ~ " planen, Regen ist angesagt.",
           day_name | capitalize ~ " wird es regnen, besser drinnen planen."
         ] %}
         {{ r | random }}
       {% elif weather in ['snowy'] %}
         {% set r = [
-          day_name | capitalize ~ " könnte es schneien! Perfekt für Winteraktivitäten, aber warm anziehen.",
-          "Schnee " ~ day_name ~ "! Ideal für Winterfreunde, warm einpacken.",
-          day_name | capitalize ~ " wird es winterlich, perfekt für einen Schneespaziergang."
+          day_name | capitalize ~ " k├Ânnte es schneien! Perfekt f├╝r Winteraktivit├ñten, aber warm anziehen.",
+          "Schnee " ~ day_name ~ "! Ideal f├╝r Winterfreunde, warm einpacken.",
+          day_name | capitalize ~ " wird es winterlich, perfekt f├╝r einen Schneespaziergang."
         ] %}
         {{ r | random }}
       {% elif weather in ['lightning', 'lightning-rainy'] %}
         {% set r = [
           day_name | capitalize ~ " sind Gewitter vorhergesagt. Bleib besser drinnen.",
-          "Achtung, Gewitter " ~ day_name ~ "! Outdoor-Pläne verschieben.",
+          "Achtung, Gewitter " ~ day_name ~ "! Outdoor-Pl├ñne verschieben.",
           day_name | capitalize ~ " lieber drinnen bleiben, Gewitter erwartet."
         ] %}
         {{ r | random }}
       {% elif temp is not none and temp < 5 %}
         {% set r = [
           day_name | capitalize ~ " wird es kalt. Outdoor geht, aber nur warm eingepackt.",
-          "Kalt " ~ day_name ~ ", aber mit der richtigen Kleidung geht draußen.",
-          day_name | capitalize ~ " ist es frisch. Warm anziehen für draußen."
+          "Kalt " ~ day_name ~ ", aber mit der richtigen Kleidung geht drau├ƒen.",
+          day_name | capitalize ~ " ist es frisch. Warm anziehen f├╝r drau├ƒen."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
-          day_name | capitalize ~ " ist das Wetter in Ordnung für draußen, nicht perfekt, aber machbar.",
-          "Wetter " ~ day_name ~ " ist akzeptabel für Outdoor-Aktivitäten.",
-          day_name | capitalize ~ " geht es draußen, auch wenn es nicht perfekt ist."
+          day_name | capitalize ~ " ist das Wetter in Ordnung f├╝r drau├ƒen, nicht perfekt, aber machbar.",
+          "Wetter " ~ day_name ~ " ist akzeptabel f├╝r Outdoor-Aktivit├ñten.",
+          day_name | capitalize ~ " geht es drau├ƒen, auch wenn es nicht perfekt ist."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetUV:
   speech:
     text: >
       {% set r = [
-        "Der UV-Index ist leider nicht in der Standard-Wetterintegration verfügbar.",
-        "Leider habe ich keine UV-Daten. Dafür bräuchte ich eine zusätzliche Integration.",
+        "Der UV-Index ist leider nicht in der Standard-Wetterintegration verf├╝gbar.",
+        "Leider habe ich keine UV-Daten. Daf├╝r br├ñuchte ich eine zus├ñtzliche Integration.",
         "UV-Index ist aktuell nicht abrufbar. Schau am besten online nach."
       ] %}
       {{ r | random }}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetSunrise:
   speech:
@@ -1501,7 +1753,7 @@ GetSunrise:
         {% set time = as_timestamp(sunrise) | timestamp_custom('%H:%M') %}
         {% set r = [
           "Die Sonne geht um " ~ time ~ " Uhr auf. Perfekt um den Tag zu beginnen!",
-          "Sonnenaufgang ist um " ~ time ~ " Uhr. Früh aufstehen lohnt sich!",
+          "Sonnenaufgang ist um " ~ time ~ " Uhr. Fr├╝h aufstehen lohnt sich!",
           "Um " ~ time ~ " Uhr geht die Sonne auf."
         ] %}
         {{ r | random }}
@@ -1509,10 +1761,17 @@ GetSunrise:
         {% set r = [
           "Die Sonnenaufgangszeit kann ich gerade leider nicht ermitteln.",
           "Leider habe ich keine Sonnenaufgangsdaten im Moment.",
-          "Die Sonnenaufgangszeit ist gerade nicht verfügbar."
+          "Die Sonnenaufgangszeit ist gerade nicht verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetSunset:
   speech:
@@ -1521,8 +1780,8 @@ GetSunset:
       {% if sunset %}
         {% set time = as_timestamp(sunset) | timestamp_custom('%H:%M') %}
         {% set r = [
-          "Die Sonne geht um " ~ time ~ " Uhr unter. Zeit für einen schönen Sonnenuntergang!",
-          "Sonnenuntergang ist um " ~ time ~ " Uhr. Genieß das Abendlicht!",
+          "Die Sonne geht um " ~ time ~ " Uhr unter. Zeit f├╝r einen sch├Ânen Sonnenuntergang!",
+          "Sonnenuntergang ist um " ~ time ~ " Uhr. Genie├ƒ das Abendlicht!",
           "Um " ~ time ~ " Uhr geht die Sonne unter."
         ] %}
         {{ r | random }}
@@ -1530,20 +1789,34 @@ GetSunset:
         {% set r = [
           "Die Sonnenuntergangszeit kann ich gerade leider nicht ermitteln.",
           "Leider habe ich keine Sonnenuntergangsdaten im Moment.",
-          "Die Sonnenuntergangszeit ist gerade nicht verfügbar."
+          "Die Sonnenuntergangszeit ist gerade nicht verf├╝gbar."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetPollen:
   speech:
     text: >
       {% set r = [
-        "Für Polleninformationen bräuchte ich eine spezielle Pollenflug-Integration. Schau am besten online nach dem Pollenflug in deiner Region.",
-        "Leider habe ich keine Pollenflugdaten. Eine spezielle Integration wäre nötig.",
-        "Pollendaten sind nicht verfügbar. Am besten online nachschauen."
+        "F├╝r Polleninformationen br├ñuchte ich eine spezielle Pollenflug-Integration. Schau am besten online nach dem Pollenflug in deiner Region.",
+        "Leider habe ich keine Pollenflugdaten. Eine spezielle Integration w├ñre n├Âtig.",
+        "Pollendaten sind nicht verf├╝gbar. Am besten online nachschauen."
       ] %}
       {{ r | random }}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+
 
 GetWeatherComparison:
   speech:
@@ -1552,40 +1825,40 @@ GetWeatherComparison:
       {% set morgen = states('sensor.wetter_morgen') | lower %}
       {% set temp_heute = state_attr('sensor.wetter_heute', 'temperature') %}
       {% set temp_morgen = state_attr('sensor.wetter_morgen', 'temperature') %}
-      {% set weather_de = {'sunny': 'sonnig', 'partlycloudy': 'teilweise bewölkt', 'cloudy': 'bewölkt', 'rainy': 'regnerisch', 'pouring': 'stark regnerisch', 'snowy': 'verschneit', 'windy': 'windig', 'fog': 'neblig', 'lightning': 'gewittrig', 'clear-night': 'klar'} %}
+      {% set weather_de = {'sunny': 'sonnig', 'partlycloudy': 'teilweise bew├Âlkt', 'cloudy': 'bew├Âlkt', 'rainy': 'regnerisch', 'pouring': 'stark regnerisch', 'snowy': 'verschneit', 'windy': 'windig', 'fog': 'neblig', 'lightning': 'gewittrig', 'clear-night': 'klar'} %}
       {% if heute != 'unknown' and morgen != 'unknown' %}
         {% set heute_de = weather_de.get(heute, heute) %}
         {% set morgen_de = weather_de.get(morgen, morgen) %}
         {% set r = [
           "Heute ist es " ~ heute_de,
           "Aktuell haben wir " ~ heute_de ~ "es Wetter",
-          "Für heute: " ~ heute_de
+          "F├╝r heute: " ~ heute_de
         ] %}
         {{ r | random }}{% if temp_heute is not none %} bei etwa {{ temp_heute | round }} Grad{% endif %}.
         {% set r2 = [
           "Morgen wird es " ~ morgen_de,
-          "Die Vorhersage für morgen: " ~ morgen_de,
+          "Die Vorhersage f├╝r morgen: " ~ morgen_de,
           "Morgen erwartet uns " ~ morgen_de ~ "es Wetter"
         ] %}
         {{ r2 | random }}{% if temp_morgen is not none %} mit etwa {{ temp_morgen | round }} Grad{% endif %}.
         {% if heute == morgen %}
           {% set same = [
-            "Das Wetter bleibt also ähnlich.",
-            "Kaum Veränderung in Sicht.",
+            "Das Wetter bleibt also ├ñhnlich.",
+            "Kaum Ver├ñnderung in Sicht.",
             "Bleibt also gleich."
           ] %}
           {{ same | random }}
         {% elif heute in ['sunny', 'partlycloudy'] and morgen in ['rainy', 'pouring'] %}
           {% set worse = [
-            "Also ein Wetterumschwung, genieß heute noch das gute Wetter!",
+            "Also ein Wetterumschwung, genie├ƒ heute noch das gute Wetter!",
             "Wetterumschwung steht bevor! Nutze den heutigen Tag.",
-            "Es wird leider schlechter, heute noch das Wetter genießen!"
+            "Es wird leider schlechter, heute noch das Wetter genie├ƒen!"
           ] %}
           {{ worse | random }}
         {% elif heute in ['rainy', 'cloudy'] and morgen in ['sunny', 'partlycloudy'] %}
           {% set better = [
             "Es wird also besser, morgen kannst du dich auf Sonne freuen!",
-            "Aufwärtstrend! Morgen wird es schöner.",
+            "Aufw├ñrtstrend! Morgen wird es sch├Âner.",
             "Gute Nachrichten, morgen wird das Wetter besser!"
           ] %}
           {{ better | random }}
@@ -1593,8 +1866,15 @@ GetWeatherComparison:
       {% else %}
         {% set r = [
           "Leider kann ich heute und morgen gerade nicht vergleichen, da die Daten fehlen.",
-          "Die Vergleichsdaten sind leider nicht verfügbar.",
-          "Für einen Vergleich fehlen mir die nötigen Wetterdaten."
+          "Die Vergleichsdaten sind leider nicht verf├╝gbar.",
+          "F├╝r einen Vergleich fehlen mir die n├Âtigen Wetterdaten."
         ] %}
         {{ r | random }}
       {% endif %}
+  action:
+    - service: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/weather
+        revert_timeout: 30
+

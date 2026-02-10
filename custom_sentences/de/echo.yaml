@@ -1,8 +1,8 @@
 # ================================================================================
 # HA-GERMAN-VOICE - Echo Show / VACA Steuerung
 # ================================================================================
-# Sprachbefehle für Lautstärke, Bildschirm, Media-Steuerung
-# Zielgerät: VACA 362812d56 (jailbroken Echo Show 5)
+# Sprachbefehle f├╝r Lautst├ñrke, Bildschirm, Media-Steuerung
+# Zielger├ñt: VACA 362812d56 (jailbroken Echo Show 5)
 # ================================================================================
 
 language: de
@@ -30,7 +30,7 @@ lists:
         out: 3
       - in: "(4|vier)"
         out: 4
-      - in: "(5|fünf)"
+      - in: "(5|f├╝nf)"
         out: 5
       - in: "(6|sechs)"
         out: 6
@@ -47,43 +47,43 @@ lists:
     values:
       - in: "(0|null)"
         out: 0
-      - in: "(5|fünf)"
+      - in: "(5|f├╝nf)"
         out: 5
       - in: "(10|zehn)"
         out: 10
-      - in: "(15|fünfzehn)"
+      - in: "(15|f├╝nfzehn)"
         out: 15
       - in: "(20|zwanzig)"
         out: 20
-      - in: "(25|fünfundzwanzig|viertel)"
+      - in: "(25|f├╝nfundzwanzig|viertel)"
         out: 25
-      - in: "(30|dreißig)"
+      - in: "(30|drei├ƒig)"
         out: 30
-      - in: "(35|fünfunddreißig)"
+      - in: "(35|f├╝nfunddrei├ƒig)"
         out: 35
       - in: "(40|vierzig)"
         out: 40
-      - in: "(45|fünfundvierzig)"
+      - in: "(45|f├╝nfundvierzig)"
         out: 45
-      - in: "(50|fünfzig|halb|halbe|hälfte)"
+      - in: "(50|f├╝nfzig|halb|halbe|h├ñlfte)"
         out: 50
-      - in: "(55|fünfundfünfzig)"
+      - in: "(55|f├╝nfundf├╝nfzig)"
         out: 55
       - in: "(60|sechzig)"
         out: 60
-      - in: "(65|fünfundsechzig)"
+      - in: "(65|f├╝nfundsechzig)"
         out: 65
       - in: "(70|siebzig)"
         out: 70
-      - in: "(75|fünfundsiebzig|dreiviertel)"
+      - in: "(75|f├╝nfundsiebzig|dreiviertel)"
         out: 75
       - in: "(80|achtzig)"
         out: 80
-      - in: "(85|fünfundachtzig)"
+      - in: "(85|f├╝nfundachtzig)"
         out: 85
       - in: "(90|neunzig)"
         out: 90
-      - in: "(95|fünfundneunzig)"
+      - in: "(95|f├╝nfundneunzig)"
         out: 95
       - in: "(100|hundert|voll|maximum|max)"
         out: 100
@@ -101,48 +101,48 @@ lists:
 intents:
 
   # ==========================================================================
-  #  LAUTSTÄRKE - ALLGEMEIN
+  #  LAUTST├äRKE - ALLGEMEIN
   # ==========================================================================
 
   # --- Lauter ---
   EchoLauter:
     data:
       - sentences:
-          - "(mach|stell) <polite> [die] [lautstärke] lauter"
+          - "(mach|stell) <polite> [die] [lautst├ñrke] lauter"
           - "lauter <polite>"
           - "[ein] bisschen lauter <polite>"
-          - "lautstärke (hoch|rauf|erhöhen)"
-          - "mehr lautstärke <polite>"
+          - "lautst├ñrke (hoch|rauf|erh├Âhen)"
+          - "mehr lautst├ñrke <polite>"
           - "kannst du [etwas|ein bisschen] lauter (machen|stellen)"
 
   # --- Leiser ---
   EchoLeiser:
     data:
       - sentences:
-          - "(mach|stell) <polite> [die] [lautstärke] leiser"
+          - "(mach|stell) <polite> [die] [lautst├ñrke] leiser"
           - "leiser <polite>"
           - "[ein] bisschen leiser <polite>"
-          - "lautstärke (runter|senken|verringern|reduzieren)"
-          - "weniger lautstärke <polite>"
+          - "lautst├ñrke (runter|senken|verringern|reduzieren)"
+          - "weniger lautst├ñrke <polite>"
           - "nicht so laut <polite>"
           - "kannst du [etwas|ein bisschen] leiser (machen|stellen)"
 
-  # --- Lautstärke auf Stufe (0-10) ---
+  # --- Lautst├ñrke auf Stufe (0-10) ---
   EchoLautstaerke:
     data:
       - sentences:
-          - "[setz|stell] [die] lautstärke [auf] {echo_level}"
-          - "lautstärke {echo_level} <polite>"
-          - "(volume|lautstärke) auf {echo_level}"
-          - "lautstärke auf stufe {echo_level}"
+          - "[setz|stell] [die] lautst├ñrke [auf] {echo_level}"
+          - "lautst├ñrke {echo_level} <polite>"
+          - "(volume|lautst├ñrke) auf {echo_level}"
+          - "lautst├ñrke auf stufe {echo_level}"
 
-  # --- Lautstärke auf Prozent (0-100%) ---
+  # --- Lautst├ñrke auf Prozent (0-100%) ---
   EchoLautstaerkeProzent:
     data:
       - sentences:
-          - "[setz|stell] [die] lautstärke [auf] [die] {echo_percent} [prozent|%]"
-          - "lautstärke [die] {echo_percent} [prozent|%]"
-          - "{echo_percent} (prozent|%) lautstärke"
+          - "[setz|stell] [die] lautst├ñrke [auf] [die] {echo_percent} [prozent|%]"
+          - "lautst├ñrke [die] {echo_percent} [prozent|%]"
+          - "{echo_percent} (prozent|%) lautst├ñrke"
 
   # ==========================================================================
   #  STUMM / MUTE
@@ -164,7 +164,7 @@ intents:
           - "nicht mehr stumm"
 
   # ==========================================================================
-  #  SPRACH- UND MUSIKLAUTSTÄRKE (getrennt)
+  #  SPRACH- UND MUSIKLAUTST├äRKE (getrennt)
   # ==========================================================================
 
   # --- Sprache lauter/leiser ---
@@ -173,32 +173,32 @@ intents:
       - sentences:
           - "sprache lauter <polite>"
           - "(sprich|rede) <polite> lauter"
-          - "sprachlautstärke (hoch|rauf|lauter|erhöhen)"
+          - "sprachlautst├ñrke (hoch|rauf|lauter|erh├Âhen)"
 
   EchoSprachLeiser:
     data:
       - sentences:
           - "sprache leiser <polite>"
           - "(sprich|rede) <polite> leiser"
-          - "sprachlautstärke (runter|leiser|senken|reduzieren|verringern)"
+          - "sprachlautst├ñrke (runter|leiser|senken|reduzieren|verringern)"
           - "nicht so laut (reden|sprechen)"
 
   EchoSprachLautstaerke:
     data:
       - sentences:
-          - "sprachlautstärke [auf] [stufe] {echo_level}"
+          - "sprachlautst├ñrke [auf] [stufe] {echo_level}"
           - "sprache [auf] [stufe] {echo_level}"
-          - "[die] sprachlautstärke auf [stufe] {echo_level} [stellen|setzen]"
-          - "[setz|stell] [die] sprachlautstärke [auf] [stufe] {echo_level}"
+          - "[die] sprachlautst├ñrke auf [stufe] {echo_level} [stellen|setzen]"
+          - "[setz|stell] [die] sprachlautst├ñrke [auf] [stufe] {echo_level}"
 
-  # --- Sprachlautstärke auf Prozent ---
+  # --- Sprachlautst├ñrke auf Prozent ---
   EchoSprachLautstaerkeProzent:
     data:
       - sentences:
-          - "sprachlautstärke [auf] [die] {echo_percent} [prozent|%]"
+          - "sprachlautst├ñrke [auf] [die] {echo_percent} [prozent|%]"
           - "sprache [auf] [die] {echo_percent} [prozent|%]"
-          - "[setz|stell] [die] sprachlautstärke [auf] [die] {echo_percent} [prozent|%]"
-          - "{echo_percent} (prozent|%) sprachlautstärke"
+          - "[setz|stell] [die] sprachlautst├ñrke [auf] [die] {echo_percent} [prozent|%]"
+          - "{echo_percent} (prozent|%) sprachlautst├ñrke"
 
   # --- Musik lauter/leiser ---
   EchoMusikLauter:
@@ -206,31 +206,31 @@ intents:
       - sentences:
           - "musik lauter <polite>"
           - "(mach|stell) <polite> [die] musik lauter"
-          - "musiklautstärke (hoch|rauf|lauter|erhöhen)"
+          - "musiklautst├ñrke (hoch|rauf|lauter|erh├Âhen)"
 
   EchoMusikLeiser:
     data:
       - sentences:
           - "musik leiser <polite>"
           - "(mach|stell) <polite> [die] musik leiser"
-          - "musiklautstärke (runter|leiser|senken|reduzieren|verringern)"
+          - "musiklautst├ñrke (runter|leiser|senken|reduzieren|verringern)"
 
   EchoMusikLautstaerke:
     data:
       - sentences:
-          - "musiklautstärke [auf] [stufe] {echo_level}"
-          - "musik [auf] [lautstärke|stufe] {echo_level}"
-          - "[die] musiklautstärke auf [stufe] {echo_level} [stellen|setzen]"
-          - "[setz|stell] [die] musiklautstärke [auf] [stufe] {echo_level}"
+          - "musiklautst├ñrke [auf] [stufe] {echo_level}"
+          - "musik [auf] [lautst├ñrke|stufe] {echo_level}"
+          - "[die] musiklautst├ñrke auf [stufe] {echo_level} [stellen|setzen]"
+          - "[setz|stell] [die] musiklautst├ñrke [auf] [stufe] {echo_level}"
 
-  # --- Musiklautstärke auf Prozent ---
+  # --- Musiklautst├ñrke auf Prozent ---
   EchoMusikLautstaerkeProzent:
     data:
       - sentences:
-          - "musiklautstärke [auf] [die] {echo_percent} [prozent|%]"
+          - "musiklautst├ñrke [auf] [die] {echo_percent} [prozent|%]"
           - "musik [auf] [die] {echo_percent} [prozent|%]"
-          - "[setz|stell] [die] musiklautstärke [auf] [die] {echo_percent} [prozent|%]"
-          - "{echo_percent} (prozent|%) musiklautstärke"
+          - "[setz|stell] [die] musiklautst├ñrke [auf] [die] {echo_percent} [prozent|%]"
+          - "{echo_percent} (prozent|%) musiklautst├ñrke"
 
   # ==========================================================================
   #  BILDSCHIRM - HELLIGKEIT
@@ -243,7 +243,7 @@ intents:
           - "(mach|stell) <polite> [den] <bildschirm> heller"
           - "<bildschirm> heller <polite>"
           - "heller <polite>"
-          - "(helligkeit|bildschirmhelligkeit) (hoch|rauf|erhöhen)"
+          - "(helligkeit|bildschirmhelligkeit) (hoch|rauf|erh├Âhen)"
           - "mehr helligkeit <polite>"
 
   # --- Dunkler ---
@@ -314,7 +314,7 @@ intents:
           - "(bildschirmschoner|screensaver|screen saver) {on_off}"
 
   # ==========================================================================
-  #  MEDIA STEUERUNG (ohne Gerätename - direkt VACA)
+  #  MEDIA STEUERUNG (ohne Ger├ñtename - direkt VACA)
   # ==========================================================================
 
   EchoPause:
@@ -330,3 +330,19 @@ intents:
           - "[musik|wiedergabe] (weiter|fortsetzen|weiterspielen|resume) <polite>"
           - "(spiel|mach) weiter <polite>"
           - "wiedergabe (starten|fortsetzen) <polite>"
+
+  # ==========================================================================
+  #  STARTSEITE / HOME SCREEN
+  # ==========================================================================
+
+  ShowStartseite:
+    data:
+      - sentences:
+          - "(zeig|zeige) <polite> [die|den] (startseite|startbildschirm|homescreen|home screen)"
+          - "startseite [zeigen|anzeigen] <polite>"
+          - "startbildschirm [zeigen|anzeigen] <polite>"
+          - "[geh|gehe|wechsel|wechsle] <polite> [zur|zum|auf] [die|den] (startseite|startbildschirm|homescreen)"
+          - "(startseite|startbildschirm|home) <polite>"
+          - "(zeig|zeige) <polite> [die] uhr"
+          - "[geh|gehe] <polite> [zur] uhr"
+          - "[zur├╝ck|zurueck] [zur|zum] (startseite|startbildschirm|uhr|home)"

@@ -1,9 +1,9 @@
 # ================================================================================
 # HA-GERMAN-VOICE - Spotify Sprachsteuerung
 # ================================================================================
-# Suche, Wiedergabe, Steuerung und Gerätewechsel für Spotify
-# Nutzt shell_command + spotify_voice.py für Such-Funktionen
-# Direkte HA-Services für Basis-Steuerung
+# Suche, Wiedergabe, Steuerung und Ger├ñtewechsel f├╝r Spotify
+# Nutzt shell_command + spotify_voice.py f├╝r Such-Funktionen
+# Direkte HA-Services f├╝r Basis-Steuerung
 # ================================================================================
 
 language: de
@@ -13,7 +13,7 @@ language: de
 # ============================================================================
 expansion_rules:
   polite: "[bitte|mal|doch|eben]"
-  auf_spotify: "(auf|über|mit|von|bei) spotify"
+  auf_spotify: "(auf|├╝ber|mit|von|bei) spotify"
 
 # ============================================================================
 # LISTEN
@@ -60,14 +60,14 @@ intents:
           - "(starte|start) <polite> {query} [<auf_spotify>]"
 
   # --------------------------------------------------------------------------
-  # SUCHE + ABSPIELEN (Künstler)
+  # SUCHE + ABSPIELEN (K├╝nstler)
   # --------------------------------------------------------------------------
   SpotifyPlayArtist:
     data:
       - sentences:
           - "(spiel|spiele) <polite> (musik|songs|lieder) von {query} <auf_spotify>"
-          - "(spiel|spiele) <polite> (den künstler|die band|den artist) {query} <auf_spotify>"
-          - "(spiel|spiele) <polite> {query} <auf_spotify> [die|der] (künstler|band)"
+          - "(spiel|spiele) <polite> (den k├╝nstler|die band|den artist) {query} <auf_spotify>"
+          - "(spiel|spiele) <polite> {query} <auf_spotify> [die|der] (k├╝nstler|band)"
           - "spotify (spiel|spiele) (musik|songs) von {query}"
 
   # --------------------------------------------------------------------------
@@ -92,24 +92,24 @@ intents:
           - "(starte|start) <polite> [das] album {query} [<auf_spotify>]"
 
   # --------------------------------------------------------------------------
-  # SUCHE + ABSPIELEN AUF BESTIMMTEM GERÄT
+  # SUCHE + ABSPIELEN AUF BESTIMMTEM GER├äT
   # --------------------------------------------------------------------------
   SpotifyPlayOn:
     data:
       - sentences:
-          - "(spiel|spiele) <polite> {query} <auf_spotify> (auf|im|über) {spotify_device}"
-          - "(spiel|spiele) <polite> {query} (auf|im|über) {spotify_device} [<auf_spotify>]"
+          - "(spiel|spiele) <polite> {query} <auf_spotify> (auf|im|├╝ber) {spotify_device}"
+          - "(spiel|spiele) <polite> {query} (auf|im|├╝ber) {spotify_device} [<auf_spotify>]"
 
   # --------------------------------------------------------------------------
-  # GERÄTEWECHSEL
+  # GER├äTEWECHSEL
   # --------------------------------------------------------------------------
   SpotifyDevice:
     data:
       - sentences:
-          - "(spiel|spiele) spotify (auf|im|über) {spotify_device}"
+          - "(spiel|spiele) spotify (auf|im|├╝ber) {spotify_device}"
           - "(wechsel|wechsle|verschiebe) spotify (auf|zum|zur|nach) {spotify_device}"
-          - "spotify (auf|im|über) {spotify_device} [(spielen|abspielen)]"
-          - "(übertrage|übertrag) spotify (auf|nach|zum|zur) {spotify_device}"
+          - "spotify (auf|im|├╝ber) {spotify_device} [(spielen|abspielen)]"
+          - "(├╝bertrage|├╝bertrag) spotify (auf|nach|zum|zur) {spotify_device}"
 
   # --------------------------------------------------------------------------
   # PAUSE
@@ -124,7 +124,7 @@ intents:
           # Allgemeine Befehle ohne "spotify" zu sagen
           - "(stopp|stop|anhalten|halt) <polite> [die] (musik|wiedergabe|song|lied) [an]"
           - "(musik|wiedergabe) (stoppen|stopp|anhalten|beenden|aus)"
-          - "(hör|hoer) [<polite>] auf [zu] (spielen|abspielen)"
+          - "(h├Âr|hoer) [<polite>] auf [zu] (spielen|abspielen)"
           - "mach <polite> [die] musik (aus|stop|stopp)"
           - "(musik|lied|song|wiedergabe) (aus|ausschalten)"
           - "(sei|seid) [<polite>] (still|leise|ruhig)"
@@ -148,14 +148,14 @@ intents:
           - "play"
 
   # --------------------------------------------------------------------------
-  # NÄCHSTER TITEL
+  # N├äCHSTER TITEL
   # --------------------------------------------------------------------------
   SpotifyNext:
     data:
       - sentences:
-          - "spotify (nächstes|nächster|weiter|skip|überspring) [(lied|song|titel|track)]"
-          - "(nächstes|nächster|weiter|skip) [(lied|song|titel)] [auf|bei] spotify"
-          - "überspring[e] [das] [(lied|song|titel)] [auf|bei] spotify"
+          - "spotify (n├ñchstes|n├ñchster|weiter|skip|├╝berspring) [(lied|song|titel|track)]"
+          - "(n├ñchstes|n├ñchster|weiter|skip) [(lied|song|titel)] [auf|bei] spotify"
+          - "├╝berspring[e] [das] [(lied|song|titel)] [auf|bei] spotify"
 
   # --------------------------------------------------------------------------
   # VORHERIGER TITEL
@@ -163,8 +163,8 @@ intents:
   SpotifyPrevious:
     data:
       - sentences:
-          - "spotify (vorheriges|vorheriger|zurück|letztes|letzter) [(lied|song|titel|track)]"
-          - "(vorheriges|vorheriger|zurück) [(lied|song|titel)] [auf|bei] spotify"
+          - "spotify (vorheriges|vorheriger|zur├╝ck|letztes|letzter) [(lied|song|titel|track)]"
+          - "(vorheriges|vorheriger|zur├╝ck) [(lied|song|titel)] [auf|bei] spotify"
           - "(letztes|letzter) [(lied|song|titel)] [auf|bei] spotify"
 
   # --------------------------------------------------------------------------
@@ -182,14 +182,14 @@ intents:
   SpotifyNowPlaying:
     data:
       - sentences:
-          - "was (spielt|läuft) [gerade] (auf|bei) spotify"
-          - "spotify was (spielt|läuft) [gerade]"
-          - "(welches lied|welcher song|welcher titel) (spielt|läuft) [auf|bei] spotify"
-          - "(wer|welcher künstler|welche band) (spielt|ist das) [auf|bei] spotify"
-          - "was (höre|hör) ich [gerade] [auf spotify]"
+          - "was (spielt|l├ñuft) [gerade] (auf|bei) spotify"
+          - "spotify was (spielt|l├ñuft) [gerade]"
+          - "(welches lied|welcher song|welcher titel) (spielt|l├ñuft) [auf|bei] spotify"
+          - "(wer|welcher k├╝nstler|welche band) (spielt|ist das) [auf|bei] spotify"
+          - "was (h├Âre|h├Âr) ich [gerade] [auf spotify]"
 
   # --------------------------------------------------------------------------
-  # GENERAL STOP - Stoppt ALLES was auf dem Echo läuft
+  # GENERAL STOP - Stoppt ALLES was auf dem Echo l├ñuft
   # --------------------------------------------------------------------------
   GeneralStop:
     data:

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Spotify Voice Control für Home Assistant
+Spotify Voice Control f├╝r Home Assistant
 =========================================
-Sucht und spielt Musik über die Spotify Web API.
+Sucht und spielt Musik ├╝ber die Spotify Web API.
 Wird als shell_command von HA aufgerufen.
 
 Verwendet nur Python-Standardbibliotheken (urllib, json) -
-keine externen Abhängigkeiten nötig.
+keine externen Abh├ñngigkeiten n├Âtig.
 
 Verwendung:
   python3 spotify_voice.py --action search_play --query "Highway to Hell" --type track
@@ -36,25 +36,25 @@ STORAGE_PATH = "/config/.storage/core.config_entries"
 # Spotify Entity in HA
 SPOTIFY_ENTITY = "media_player.spotify_sven"
 # Jarvis = VACA Echo Show 5 (2nd Gen) mit Spotify-App
-# Spotify Connect Name des Geräts (wie es in der Spotify Device-Liste erscheint)
+# Spotify Connect Name des Ger├ñts (wie es in der Spotify Device-Liste erscheint)
 JARVIS_SPOTIFY_NAME = "Echo Show 5 (2nd Generation)"
-# ADB-Adresse für Spotify-App-Wakeup (falls App geschlossen)
+# ADB-Adresse f├╝r Spotify-App-Wakeup (falls App geschlossen)
 JARVIS_ADB_HOST = "192.168.178.103"
 JARVIS_ADB_PORT = 5555
 # Spotify App Credentials (aus HA Application Credentials)
 CLIENT_ID = "c1c5aa30a5cd4954854e16d0a9c2228e"
 CLIENT_SECRET = "16947c1cae2f44919a31f0cdc7c76182"
-# Spotify Markt für Suchergebnisse
+# Spotify Markt f├╝r Suchergebnisse
 MARKET = "DE"
 
 # View Assist Navigation (Music Card auf Jarvis-Display)
-VA_DEVICE = "sensor.quasselbuechse"      # View Assist Entity für Navigation
+VA_DEVICE = "sensor.quasselbuechse"      # View Assist Entity f├╝r Navigation
 VA_MUSIC_PATH = "/view-assist/music"     # Pfad zur Music-View
 VA_HOME_PATH = "/view-assist/clock"      # Pfad zur Startseite (Uhr)
 
 
 # ============================================================================
-# HTTP HELPER (urllib-basiert, kein requests nötig)
+# HTTP HELPER (urllib-basiert, kein requests n├Âtig)
 # ============================================================================
 
 def http_get(url, headers=None, params=None, timeout=10):
@@ -146,7 +146,7 @@ def get_spotify_token():
             expires_at = token_data.get("expires_at", 0)
             refresh_token = token_data.get("refresh_token")
 
-            # Token noch gültig? (30s Puffer)
+            # Token noch g├╝ltig? (30s Puffer)
             if expires_at > time.time() + 30:
                 return access_token
 
@@ -205,7 +205,7 @@ def search_spotify(token, query, content_type="track", limit=1):
 
 
 def get_spotify_devices(token):
-    """Listet alle verfügbaren Spotify Connect Geräte."""
+    """Listet alle verf├╝gbaren Spotify Connect Ger├ñte."""
     result, status = http_get(
         "https://api.spotify.com/v1/me/player/devices",
         headers=spotify_headers(token),
@@ -216,7 +216,7 @@ def get_spotify_devices(token):
 
 
 def find_device(token, device_name):
-    """Findet ein Gerät anhand des Namens (case-insensitive, partial match)."""
+    """Findet ein Ger├ñt anhand des Namens (case-insensitive, partial match)."""
     devices = get_spotify_devices(token)
     device_name_lower = device_name.lower()
 
@@ -230,8 +230,8 @@ def find_device(token, device_name):
         if device_name_lower in dev["name"].lower():
             return dev
 
-    # Alias-Map für häufige deutsche Bezeichnungen
-    # ► ANPASSEN: Trage hier deine Geräte-Aliase ein
+    # Alias-Map f├╝r h├ñufige deutsche Bezeichnungen
+    # Ôû║ ANPASSEN: Trage hier deine Ger├ñte-Aliase ein
     alias_map = {
         "echo show": "Echo Show 5 (2nd Generation)",
         "echo show 5": "Echo Show 5 (2nd Generation)",
@@ -264,7 +264,7 @@ def find_device(token, device_name):
 
 
 def play_spotify(token, play_payload, device_id=None):
-    """Startet Wiedergabe über die Spotify Web API."""
+    """Startet Wiedergabe ├╝ber die Spotify Web API."""
     url = "https://api.spotify.com/v1/me/player/play"
     if device_id:
         url += f"?device_id={device_id}"
@@ -274,7 +274,7 @@ def play_spotify(token, play_payload, device_id=None):
 
 
 def transfer_playback(token, device_id, play=True):
-    """Überträgt die Wiedergabe auf ein anderes Gerät."""
+    """├£bertr├ñgt die Wiedergabe auf ein anderes Ger├ñt."""
     _, status = http_put(
         "https://api.spotify.com/v1/me/player",
         headers=spotify_headers(token),
@@ -312,9 +312,9 @@ def ha_navigate(path, revert_timeout=None):
     
     Args:
         path: Dashboard-Pfad, z.B. '/view-assist/music'
-        revert_timeout: Sekunden bis automatisch zurück zur vorherigen View.
+        revert_timeout: Sekunden bis automatisch zur├╝ck zur vorherigen View.
                         None = View Assist Default (view_timeout, z.B. 20s).
-                        Großer Wert (z.B. 3600) = bleibt so lange stehen.
+                        Gro├ƒer Wert (z.B. 3600) = bleibt so lange stehen.
     """
     data = {"device": VA_DEVICE, "path": path}
     if revert_timeout is not None:
@@ -325,16 +325,16 @@ def ha_navigate(path, revert_timeout=None):
         json_data=data,
     )
     if status == 200:
-        print(f"INFO:Display → {path}")
+        print(f"INFO:Display ÔåÆ {path}")
     return status == 200
 
 
 # ============================================================================
-# ADB HELPER - Spotify auf Jarvis aufwecken (Pure Python, kein adb-Binary nötig)
+# ADB HELPER - Spotify auf Jarvis aufwecken (Pure Python, kein adb-Binary n├Âtig)
 # ============================================================================
 
 def adb_wake_spotify(host=JARVIS_ADB_HOST, port=JARVIS_ADB_PORT, uri=""):
-    """Öffnet Spotify auf Jarvis per ADB über TCP.
+    """├ûffnet Spotify auf Jarvis per ADB ├╝ber TCP.
     
     Sendet einen minimalen ADB-Shell-Befehl um die Spotify-App zu starten.
     Falls uri angegeben, wird dieser als Intent-Data mitgegeben.
@@ -345,7 +345,7 @@ def adb_wake_spotify(host=JARVIS_ADB_HOST, port=JARVIS_ADB_PORT, uri=""):
         s.connect((host, port))
         
         def adb_send(msg):
-            """ADB-Protokoll: 4 Hex-Zeichen Länge + Nachricht."""
+            """ADB-Protokoll: 4 Hex-Zeichen L├ñnge + Nachricht."""
             data = f"{len(msg):04x}{msg}".encode()
             s.sendall(data)
         
@@ -385,7 +385,7 @@ def adb_wake_spotify(host=JARVIS_ADB_HOST, port=JARVIS_ADB_PORT, uri=""):
 
 
 def find_jarvis_device(token):
-    """Findet Jarvis (Echo Show 5) in der Spotify Connect Geräteliste."""
+    """Findet Jarvis (Echo Show 5) in der Spotify Connect Ger├ñteliste."""
     devices = get_spotify_devices(token)
     for dev in devices:
         if dev.get("name") == JARVIS_SPOTIFY_NAME:
@@ -394,16 +394,16 @@ def find_jarvis_device(token):
 
 
 def ensure_jarvis_spotify(token, max_retries=2):
-    """Stellt sicher dass Spotify auf Jarvis läuft und gibt Device-ID zurück.
+    """Stellt sicher dass Spotify auf Jarvis l├ñuft und gibt Device-ID zur├╝ck.
     
-    1. Prüfe ob Echo Show 5 in Spotify-Geräteliste
-    2. Falls nicht: Öffne Spotify per ADB, warte, prüfe nochmal
+    1. Pr├╝fe ob Echo Show 5 in Spotify-Ger├ñteliste
+    2. Falls nicht: ├ûffne Spotify per ADB, warte, pr├╝fe nochmal
     """
     dev = find_jarvis_device(token)
     if dev:
         return dev["id"]
     
-    print("WARN:Jarvis nicht in Spotify-Geräteliste, wecke Spotify per ADB...")
+    print("WARN:Jarvis nicht in Spotify-Ger├ñteliste, wecke Spotify per ADB...")
     adb_wake_spotify()
     
     # Warten bis Spotify Connect sich registriert
@@ -414,7 +414,7 @@ def ensure_jarvis_spotify(token, max_retries=2):
             print(f"INFO:Jarvis gefunden nach {attempt + 1} Versuch(en)")
             return dev["id"]
     
-    print("ERROR:Jarvis nach ADB-Wakeup nicht in Spotify-Geräteliste")
+    print("ERROR:Jarvis nach ADB-Wakeup nicht in Spotify-Ger├ñteliste")
     return None
 
 
@@ -433,7 +433,7 @@ def action_search_play(token, query, content_type, device_name=""):
     items_key = f"{content_type}s"
     items = results.get(items_key, {}).get("items", [])
     if not items:
-        print(f"ERROR:Nichts gefunden für '{query}'")
+        print(f"ERROR:Nichts gefunden f├╝r '{query}'")
         return False
 
     item = items[0]
@@ -459,13 +459,13 @@ def action_search_play(token, query, content_type, device_name=""):
         play_payload = {"context_uri": uri}
         display = name
 
-    # Jarvis (Echo Show 5) als Spotify Connect Gerät finden/aufwecken
+    # Jarvis (Echo Show 5) als Spotify Connect Ger├ñt finden/aufwecken
     device_id = ensure_jarvis_spotify(token)
     if not device_id:
-        print(f"ERROR:Kann Jarvis nicht als Spotify-Gerät finden")
+        print(f"ERROR:Kann Jarvis nicht als Spotify-Ger├ñt finden")
         return False
 
-    # Abspielen über Spotify Web API direkt auf Jarvis
+    # Abspielen ├╝ber Spotify Web API direkt auf Jarvis
     print(f"INFO:Spiele '{display}' auf Jarvis ab...")
     if play_spotify(token, play_payload, device_id):
         print(f"OK:{display}")
@@ -488,12 +488,12 @@ def action_search_play(token, query, content_type, device_name=""):
 
 
 def action_device(token, device_name):
-    """Überträgt die Wiedergabe auf ein Gerät."""
+    """├£bertr├ñgt die Wiedergabe auf ein Ger├ñt."""
     device = find_device(token, device_name)
     if not device:
         devices = get_spotify_devices(token)
         available = ", ".join(d["name"] for d in devices)
-        print(f"ERROR:Gerät '{device_name}' nicht gefunden. Verfügbar: {available}")
+        print(f"ERROR:Ger├ñt '{device_name}' nicht gefunden. Verf├╝gbar: {available}")
         return False
 
     if transfer_playback(token, device["id"]):
@@ -509,7 +509,7 @@ def action_device(token, device_name):
 # ============================================================================
 
 def main():
-    parser = argparse.ArgumentParser(description="Spotify Voice Control für HA")
+    parser = argparse.ArgumentParser(description="Spotify Voice Control f├╝r HA")
     parser.add_argument(
         "--action",
         required=True,
@@ -523,11 +523,11 @@ def main():
         choices=["track", "artist", "album", "playlist"],
         help="Typ: track, artist, album, playlist",
     )
-    parser.add_argument("--device", default="", help="Zielgerät (Name)")
+    parser.add_argument("--device", default="", help="Zielger├ñt (Name)")
     args = parser.parse_args()
 
     # from_ha: Liest Query/Type/Device direkt aus HA input_text-Entities
-    # → Keine Jinja-Templates in shell_command nötig!
+    # ÔåÆ Keine Jinja-Templates in shell_command n├Âtig!
     if args.action == "from_ha":
         args.query = ha_get_state("input_text.spotify_query")
         args.type = ha_get_state("input_text.spotify_type") or "track"
@@ -540,10 +540,10 @@ def main():
     # Token holen
     token = get_spotify_token()
     if not token:
-        print("ERROR:Kein Spotify-Token verfügbar")
+        print("ERROR:Kein Spotify-Token verf├╝gbar")
         sys.exit(1)
 
-    # Aktion ausführen
+    # Aktion ausf├╝hren
     if args.action == "search_play":
         if not args.query:
             print("ERROR:Kein Suchbegriff angegeben")
@@ -551,7 +551,7 @@ def main():
         success = action_search_play(token, args.query, args.type, args.device)
     elif args.action == "device":
         if not args.device:
-            print("ERROR:Kein Gerät angegeben")
+            print("ERROR:Kein Ger├ñt angegeben")
             sys.exit(1)
         success = action_device(token, args.device)
     else:

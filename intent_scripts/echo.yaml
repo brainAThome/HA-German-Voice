@@ -1,7 +1,7 @@
 # ================================================================================
 # HA-GERMAN-VOICE - Echo Show / VACA Intent Scripts
 # ================================================================================
-# Zielgerät: VACA 362812d56 (jailbroken Echo Show 5)
+# Zielger├ñt: VACA 362812d56 (jailbroken Echo Show 5)
 # Entities:
 #   media_player.vaca_362812d56_mediaplayer  (Volume 0.0-1.0)
 #   number.vaca_362812d56_sprachlautstarke   (0-10)
@@ -16,7 +16,7 @@
 # ================================================================================
 
 # ==========================================================================
-#  LAUTSTÄRKE - ALLGEMEIN (media_player volume)
+#  LAUTST├äRKE - ALLGEMEIN (media_player volume)
 # ==========================================================================
 
 EchoLauter:
@@ -26,7 +26,7 @@ EchoLauter:
         entity_id: media_player.vaca_362812d56_mediaplayer
   speech:
     text: >-
-      {% set r = ["Lauter!", "Lautstärke erhöht.", "Ist lauter jetzt.", "Etwas lauter, bitte sehr."] %}{{ r | random }}
+      {% set r = ["Lauter!", "Lautst├ñrke erh├Âht.", "Ist lauter jetzt.", "Etwas lauter, bitte sehr."] %}{{ r | random }}
 
 EchoLeiser:
   action:
@@ -35,7 +35,7 @@ EchoLeiser:
         entity_id: media_player.vaca_362812d56_mediaplayer
   speech:
     text: >-
-      {% set r = ["Leiser!", "Lautstärke verringert.", "Ist leiser jetzt.", "Etwas leiser, bitte sehr."] %}{{ r | random }}
+      {% set r = ["Leiser!", "Lautst├ñrke verringert.", "Ist leiser jetzt.", "Etwas leiser, bitte sehr."] %}{{ r | random }}
 
 EchoLautstaerke:
   action:
@@ -48,13 +48,13 @@ EchoLautstaerke:
     text: >-
       {% set l = echo_level | int %}
       {% if l == 0 %}
-      {% set r = ["Lautstärke auf Null.", "Stummgeschaltet.", "Ton aus."] %}
+      {% set r = ["Lautst├ñrke auf Null.", "Stummgeschaltet.", "Ton aus."] %}
       {% elif l <= 3 %}
-      {% set r = ["Lautstärke auf " ~ l ~ ". Schön leise.", "Stufe " ~ l ~ " eingestellt.", "OK, Lautstärke " ~ l ~ "."] %}
+      {% set r = ["Lautst├ñrke auf " ~ l ~ ". Sch├Ân leise.", "Stufe " ~ l ~ " eingestellt.", "OK, Lautst├ñrke " ~ l ~ "."] %}
       {% elif l <= 7 %}
-      {% set r = ["Lautstärke auf " ~ l ~ ".", "Stufe " ~ l ~ ", alles klar.", "OK, Lautstärke " ~ l ~ " eingestellt."] %}
+      {% set r = ["Lautst├ñrke auf " ~ l ~ ".", "Stufe " ~ l ~ ", alles klar.", "OK, Lautst├ñrke " ~ l ~ " eingestellt."] %}
       {% else %}
-      {% set r = ["Lautstärke auf " ~ l ~ ". Das wird laut!", "Stufe " ~ l ~ ", volle Power!", "OK, Lautstärke " ~ l ~ "."] %}
+      {% set r = ["Lautst├ñrke auf " ~ l ~ ". Das wird laut!", "Stufe " ~ l ~ ", volle Power!", "OK, Lautst├ñrke " ~ l ~ "."] %}
       {% endif %}{{ r | random }}
 
 EchoLautstaerkeProzent:
@@ -68,13 +68,13 @@ EchoLautstaerkeProzent:
     text: >-
       {% set p = echo_percent | int %}
       {% if p == 0 %}
-      {% set r = ["Lautstärke auf 0 Prozent.", "Stummgeschaltet.", "Ton aus."] %}
+      {% set r = ["Lautst├ñrke auf 0 Prozent.", "Stummgeschaltet.", "Ton aus."] %}
       {% elif p <= 30 %}
-      {% set r = ["Lautstärke auf " ~ p ~ " Prozent.", p ~ "%, schön leise.", "OK, " ~ p ~ " Prozent eingestellt."] %}
+      {% set r = ["Lautst├ñrke auf " ~ p ~ " Prozent.", p ~ "%, sch├Ân leise.", "OK, " ~ p ~ " Prozent eingestellt."] %}
       {% elif p <= 70 %}
-      {% set r = ["Lautstärke auf " ~ p ~ " Prozent.", p ~ "% eingestellt.", "OK, " ~ p ~ " Prozent."] %}
+      {% set r = ["Lautst├ñrke auf " ~ p ~ " Prozent.", p ~ "% eingestellt.", "OK, " ~ p ~ " Prozent."] %}
       {% else %}
-      {% set r = ["Lautstärke auf " ~ p ~ " Prozent.", p ~ "%, das wird laut!", "OK, " ~ p ~ " Prozent. Volle Kraft!"] %}
+      {% set r = ["Lautst├ñrke auf " ~ p ~ " Prozent.", p ~ "%, das wird laut!", "OK, " ~ p ~ " Prozent. Volle Kraft!"] %}
       {% endif %}{{ r | random }}
 
 # ==========================================================================
@@ -100,7 +100,7 @@ EchoStummAus:
       {% set r = ["Ton wieder an.", "Stummschaltung aufgehoben.", "Bin wieder da!", "Mikrofon aktiv."] %}{{ r | random }}
 
 # ==========================================================================
-#  SPRACHLAUTSTÄRKE (number entity, 0-10)
+#  SPRACHLAUTST├äRKE (number entity, 0-10)
 # ==========================================================================
 
 EchoSprachLauter:
@@ -115,7 +115,7 @@ EchoSprachLauter:
     text: >-
       {% set current = states('number.vaca_362812d56_sprachlautstarke') | int %}
       {% set new_val = [current + 1, 10] | min %}
-      {% set r = ["Sprachlautstärke auf " ~ new_val ~ ".", "Ich rede jetzt lauter. Stufe " ~ new_val ~ ".", "Sprache lauter, Stufe " ~ new_val ~ "."] %}{{ r | random }}
+      {% set r = ["Sprachlautst├ñrke auf " ~ new_val ~ ".", "Ich rede jetzt lauter. Stufe " ~ new_val ~ ".", "Sprache lauter, Stufe " ~ new_val ~ "."] %}{{ r | random }}
 
 EchoSprachLeiser:
   action:
@@ -129,7 +129,7 @@ EchoSprachLeiser:
     text: >-
       {% set current = states('number.vaca_362812d56_sprachlautstarke') | int %}
       {% set new_val = [current - 1, 0] | max %}
-      {% set r = ["Sprachlautstärke auf " ~ new_val ~ ".", "Ich rede jetzt leiser. Stufe " ~ new_val ~ ".", "Sprache leiser, Stufe " ~ new_val ~ "."] %}{{ r | random }}
+      {% set r = ["Sprachlautst├ñrke auf " ~ new_val ~ ".", "Ich rede jetzt leiser. Stufe " ~ new_val ~ ".", "Sprache leiser, Stufe " ~ new_val ~ "."] %}{{ r | random }}
 
 EchoSprachLautstaerke:
   action:
@@ -141,7 +141,7 @@ EchoSprachLautstaerke:
   speech:
     text: >-
       {% set l = echo_level | int %}
-      {% set r = ["Sprachlautstärke auf " ~ l ~ ".", "OK, Sprache auf Stufe " ~ l ~ ".", "Sprachlautstärke " ~ l ~ " eingestellt."] %}{{ r | random }}
+      {% set r = ["Sprachlautst├ñrke auf " ~ l ~ ".", "OK, Sprache auf Stufe " ~ l ~ ".", "Sprachlautst├ñrke " ~ l ~ " eingestellt."] %}{{ r | random }}
 EchoSprachLautstaerkeProzent:
   action:
     - action: number.set_value
@@ -155,7 +155,7 @@ EchoSprachLautstaerkeProzent:
       {% set l = (p / 10) | round(0) | int %}
       {% set r = ["Sprachlautst\u00e4rke auf " ~ p ~ "%, das ist Stufe " ~ l ~ ".", "OK, Sprache auf " ~ p ~ "% (Stufe " ~ l ~ ").", "Sprachlautst\u00e4rke " ~ p ~ "% eingestellt."] %}{{ r | random }}
 # ==========================================================================
-#  MUSIKLAUTSTÄRKE (number entity, 0-10)
+#  MUSIKLAUTST├äRKE (number entity, 0-10)
 # ==========================================================================
 
 EchoMusikLauter:
@@ -170,7 +170,7 @@ EchoMusikLauter:
     text: >-
       {% set current = states('number.vaca_362812d56_musiklautstarke') | int %}
       {% set new_val = [current + 1, 10] | min %}
-      {% set r = ["Musiklautstärke auf " ~ new_val ~ ".", "Musik lauter, Stufe " ~ new_val ~ ".", "Musik auf " ~ new_val ~ "."] %}{{ r | random }}
+      {% set r = ["Musiklautst├ñrke auf " ~ new_val ~ ".", "Musik lauter, Stufe " ~ new_val ~ ".", "Musik auf " ~ new_val ~ "."] %}{{ r | random }}
 
 EchoMusikLeiser:
   action:
@@ -184,7 +184,7 @@ EchoMusikLeiser:
     text: >-
       {% set current = states('number.vaca_362812d56_musiklautstarke') | int %}
       {% set new_val = [current - 1, 0] | max %}
-      {% set r = ["Musiklautstärke auf " ~ new_val ~ ".", "Musik leiser, Stufe " ~ new_val ~ ".", "Musik auf " ~ new_val ~ "."] %}{{ r | random }}
+      {% set r = ["Musiklautst├ñrke auf " ~ new_val ~ ".", "Musik leiser, Stufe " ~ new_val ~ ".", "Musik auf " ~ new_val ~ "."] %}{{ r | random }}
 
 EchoMusikLautstaerke:
   action:
@@ -196,7 +196,7 @@ EchoMusikLautstaerke:
   speech:
     text: >-
       {% set l = echo_level | int %}
-      {% set r = ["Musiklautstärke auf " ~ l ~ ".", "OK, Musik auf Stufe " ~ l ~ ".", "Musiklautstärke " ~ l ~ " eingestellt."] %}{{ r | random }}
+      {% set r = ["Musiklautst├ñrke auf " ~ l ~ ".", "OK, Musik auf Stufe " ~ l ~ ".", "Musiklautst├ñrke " ~ l ~ " eingestellt."] %}{{ r | random }}
 EchoMusikLautstaerkeProzent:
   action:
     - action: number.set_value
@@ -263,11 +263,11 @@ EchoBildschirmHelligkeit:
       {% if p == 0 %}
       {% set r = ["Bildschirm ganz dunkel.", "Helligkeit auf Null.", "Display auf Minimum."] %}
       {% elif p <= 30 %}
-      {% set r = ["Helligkeit auf " ~ p ~ "%.", "Display auf " ~ p ~ "%. Schön gedimmt.", "Bildschirmhelligkeit " ~ p ~ "%."] %}
+      {% set r = ["Helligkeit auf " ~ p ~ "%.", "Display auf " ~ p ~ "%. Sch├Ân gedimmt.", "Bildschirmhelligkeit " ~ p ~ "%."] %}
       {% elif p <= 70 %}
       {% set r = ["Helligkeit auf " ~ p ~ "%.", "Display auf " ~ p ~ "%.", "Bildschirmhelligkeit " ~ p ~ "% eingestellt."] %}
       {% else %}
-      {% set r = ["Helligkeit auf " ~ p ~ "%. Schön hell!", "Display auf " ~ p ~ "%.", p ~ "% Helligkeit eingestellt."] %}
+      {% set r = ["Helligkeit auf " ~ p ~ "%. Sch├Ân hell!", "Display auf " ~ p ~ "%.", p ~ "% Helligkeit eingestellt."] %}
       {% endif %}{{ r | random }}
 
 # ==========================================================================
@@ -343,13 +343,13 @@ EchoScreenSaver:
   speech:
     text: >-
       {% if on_off == 'on' %}
-      {% set r = ["Bildschirmschoner aktiviert.", "Screensaver an.", "Bildschirmschoner läuft."] %}
+      {% set r = ["Bildschirmschoner aktiviert.", "Screensaver an.", "Bildschirmschoner l├ñuft."] %}
       {% else %}
       {% set r = ["Bildschirmschoner deaktiviert.", "Screensaver aus.", "Kein Bildschirmschoner mehr."] %}
       {% endif %}{{ r | random }}
 
 # ==========================================================================
-#  MEDIA STEUERUNG (direkt auf VACA, ohne Gerätename)
+#  MEDIA STEUERUNG (direkt auf VACA, ohne Ger├ñtename)
 # ==========================================================================
 
 EchoPause:
@@ -369,3 +369,17 @@ EchoWeiter:
   speech:
     text: >-
       {% set r = ["Weiter geht's!", "Wiedergabe fortgesetzt.", "Spielt weiter."] %}{{ r | random }}
+
+# ==========================================================================
+#  STARTSEITE / HOME SCREEN
+# ==========================================================================
+
+ShowStartseite:
+  action:
+    - action: view_assist.navigate
+      data:
+        device: sensor.quasselbuechse
+        path: /view-assist/clock
+  speech:
+    text: >-
+      {% set r = ["OK, Startseite.", "Hier ist die Startseite.", "Startbildschirm wird angezeigt.", "Zur├╝ck zur Uhr."] %}{{ r | random }}
