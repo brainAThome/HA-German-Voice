@@ -1,0 +1,271 @@
+# ================================================================================
+# HA-GERMAN-VOICE - Deutsche Rolladen/Jalousie-Sprachbefehle
+# ================================================================================
+# State of the Art Sentence Expansion Syntax
+# ================================================================================
+
+language: de
+
+# ============================================================================
+# LISTEN
+# ============================================================================
+lists:
+  position:
+    values:
+      - in: "(0|null|zu|geschlossen)"
+        out: 0
+      - in: "(10|zehn)"
+        out: 10
+      - in: "(20|zwanzig)"
+        out: 20
+      - in: "(25|fünfundzwanzig|viertel)"
+        out: 25
+      - in: "(30|dreißig|dreissig)"
+        out: 30
+      - in: "(40|vierzig)"
+        out: 40
+      - in: "(50|fünfzig|halb[e])"
+        out: 50
+      - in: "(60|sechzig)"
+        out: 60
+      - in: "(70|siebzig)"
+        out: 70
+      - in: "(75|fünfundsiebzig|dreiviertel)"
+        out: 75
+      - in: "(80|achtzig)"
+        out: 80
+      - in: "(90|neunzig)"
+        out: 90
+      - in: "(100|hundert|voll|ganz|komplett|offen)"
+        out: 100
+
+  tilt_position:
+    values:
+      - in: "(0|null|zu|geschlossen|dunkel)"
+        out: 0
+      - in: "(25|viertel|leicht)"
+        out: 25
+      - in: "(50|halb[e]|mittel)"
+        out: 50
+      - in: "(75|dreiviertel)"
+        out: 75
+      - in: "(100|ganz|voll|offen|hell)"
+        out: 100
+
+  cover_action:
+    values:
+      - in: "(hoch|auf|öffne[n]|oeffne[n]|rauf|aufmachen|hochfahren)"
+        out: "open"
+      - in: "(runter|zu|schließe[n]|schliesse[n]|ab|zumachen|runterfahren)"
+        out: "close"
+      - in: "(stopp|stop|halt|anhalten)"
+        out: "stop"
+
+  time_of_day:
+    values:
+      - in: "(morgens|morgen[s]|früh)"
+        out: "morning"
+      - in: "(mittags|mittag)"
+        out: "noon"
+      - in: "(abends|abend)"
+        out: "evening"
+      - in: "(nachts|nacht)"
+        out: "night"
+      - in: "(sonnenaufgang|sunrise)"
+        out: "sunrise"
+      - in: "(sonnenuntergang|sunset)"
+        out: "sunset"
+
+# ============================================================================
+# STANDARD INTENTS (Home Assistant Built-in)
+# ============================================================================
+intents:
+  # --------------------------------------------------------------------------
+  # ROLLADEN ÖFFNEN
+  # --------------------------------------------------------------------------
+  HassOpenCover:
+    data:
+      - sentences:
+          # Einfache Befehle
+          - "(öffne|oeffne|mach[e]|fahr[e]) [bitte] [die|den|das] {name} (auf|hoch)"
+          - "[die|den|das] {name} (aufmachen|öffnen|oeffnen|hochfahren)"
+          - "{name} (auf|hoch|öffnen)"
+          - "(rolladen|jalousie|rollo) (auf|hoch) (in|im) {name}"
+          # Mit Raumbezug
+          - "(öffne|oeffne|mach[e]) [bitte] [die|den|das] (rolladen|jalousie|rollo[s]) (in|im|am) {name}"
+          - "(rolladen|jalousie|rollo) (in|im) {name} (auf|hoch|öffnen)"
+          # Höflichkeitsformen
+          - "(könntest|koenntest|kannst|würdest|wuerdest) du [bitte] [die|den|das] {name} (aufmachen|öffnen|hochfahren)"
+
+  # --------------------------------------------------------------------------
+  # ROLLADEN SCHLIESSEN
+  # --------------------------------------------------------------------------
+  HassCloseCover:
+    data:
+      - sentences:
+          # Einfache Befehle
+          - "(schließe|schliesse|mach[e]|fahr[e]) [bitte] [die|den|das] {name} (zu|runter|ab)"
+          - "[die|den|das] {name} (zumachen|schließen|schliessen|runterfahren)"
+          - "{name} (zu|runter|schließen)"
+          - "(rolladen|jalousie|rollo) (zu|runter) (in|im) {name}"
+          # Mit Raumbezug
+          - "(schließe|schliesse|mach[e]) [bitte] [die|den|das] (rolladen|jalousie|rollo[s]) (in|im|am) {name}"
+          - "(rolladen|jalousie|rollo) (in|im) {name} (zu|runter|schließen)"
+          # Verdunklung
+          - "(verdunkle|verdunkeln) [bitte] [das|den|die] {name}"
+          - "(in|im) {name} (verdunkeln|abdunkeln)"
+          # Höflichkeitsformen
+          - "(könntest|koenntest|kannst|würdest|wuerdest) du [bitte] [die|den|das] {name} (zumachen|schließen|runterfahren)"
+
+  # --------------------------------------------------------------------------
+  # ROLLADEN STOPPEN
+  # --------------------------------------------------------------------------
+  HassStopCover:
+    data:
+      - sentences:
+          - "(stopp|stop|halt|anhalten) [bitte] [die|den|das] {name}"
+          - "[die|den|das] {name} (stoppen|anhalten|halt)"
+          - "{name} (stopp|stop|halt)"
+          - "(rolladen|jalousie|rollo) (stopp|stop|halt) (in|im) {name}"
+          - "(halte|stoppe) [den|die|das] (rolladen|jalousie|rollo) (in|im) {name} an"
+
+  # --------------------------------------------------------------------------
+  # POSITION SETZEN
+  # --------------------------------------------------------------------------
+  HassSetCoverPosition:
+    data:
+      - sentences:
+          # Prozentuale Position
+          - "(setz[e]|stell[e]|fahr[e]) [bitte] [die|den|das] {name} auf {position} [prozent]"
+          - "[die|den|das] {name} [auf] {position} [prozent]"
+          - "{name} auf {position} [prozent] [setzen|stellen|fahren]"
+          - "(rolladen|jalousie|rollo) (in|im) {name} [auf] {position} [prozent]"
+          # Mit Raumbezug
+          - "(setz[e]|stell[e]) [bitte] [die|den|das] (rolladen|jalousie|rollo) (in|im) {name} auf {position} [prozent]"
+
+  # --------------------------------------------------------------------------
+  # LAMELLEN/KIPPEN
+  # --------------------------------------------------------------------------
+  HassSetCoverTiltPosition:
+    data:
+      - sentences:
+          # Lamellen-Position
+          - "(kipp[e]|neig[e]|stell[e]) [bitte] [die] lamellen [von|am|im] {name} auf {tilt_position} [prozent]"
+          - "lamellen [von|am|im] {name} [auf] {tilt_position} [prozent]"
+          - "{name} lamellen [auf] {tilt_position} [prozent]"
+          # Kippen
+          - "(kipp[e]|neig[e]) [bitte] [die|den|das] {name} [auf] {tilt_position} [prozent]"
+          - "[die|den|das] {name} (kippen|neigen) [auf] {tilt_position} [prozent]"
+
+  # --------------------------------------------------------------------------
+  # ALLE ROLLADEN
+  # --------------------------------------------------------------------------
+  HassOpenCover:
+    data:
+      - sentences:
+          - "(öffne|oeffne|mach[e]|fahr[e]) [bitte] alle (rolladen|rolladen|jalousien|rollos) [(auf|hoch)]"
+          - "alle (rolladen|jalousien|rollos) (auf|hoch|öffnen)"
+          - "(rolladen|jalousien|rollos) überall (auf|hoch|öffnen)"
+
+  HassCloseCover:
+    data:
+      - sentences:
+          - "(schließe|schliesse|mach[e]|fahr[e]) [bitte] alle (rolladen|jalousien|rollos) [(zu|runter)]"
+          - "alle (rolladen|jalousien|rollos) (zu|runter|schließen)"
+          - "(rolladen|jalousien|rollos) überall (zu|runter|schließen)"
+          - "(verdunkle|verdunkeln) [bitte] (alles|überall|alle räume)"
+          - "komplette verdunklung"
+
+# ============================================================================
+# CUSTOM INTENTS - Intelligente Steuerung
+# ============================================================================
+
+  # --------------------------------------------------------------------------
+  # SONNENSCHUTZ
+  # --------------------------------------------------------------------------
+  SetSunProtection:
+    data:
+      - sentences:
+          - "(sonnenschutz|beschattung) [aktivieren|an|ein] (in|im|am) {name}"
+          - "(aktiviere|starte) [den] sonnenschutz (in|im|am) {name}"
+          - "{name} (sonnenschutz|beschatten|beschattung)"
+          - "(schütze|schuetz[e]) [das|den|die] {name} vor [der] sonne"
+          - "sonne (in|im) {name} [(raus|ausblenden|blocken)]"
+
+  # --------------------------------------------------------------------------
+  # SONNENSCHUTZ AUS
+  # --------------------------------------------------------------------------
+  DisableSunProtection:
+    data:
+      - sentences:
+          - "(sonnenschutz|beschattung) [deaktivieren|aus|ab] (in|im|am) {name}"
+          - "(deaktiviere|beende|stoppe) [den] sonnenschutz (in|im|am) {name}"
+          - "{name} sonnenschutz (aus|deaktivieren|beenden)"
+          - "[kein] sonnenschutz [mehr] (in|im) {name}"
+
+  # --------------------------------------------------------------------------
+  # AUTOMATIK
+  # --------------------------------------------------------------------------
+  EnableCoverAutomation:
+    data:
+      - sentences:
+          - "(rolladen|jalousie[n]|rollo) automatik [an|ein|aktivieren] (in|im|am) {name}"
+          - "(aktiviere|starte) [die] (rolladen|jalousie) automatik (in|im|am) {name}"
+          - "{name} (rolladen|jalousie) automatik [(an|ein)]"
+          - "automatische (rolladen|jalousie) steuerung (in|im) {name}"
+
+  DisableCoverAutomation:
+    data:
+      - sentences:
+          - "(rolladen|jalousie[n]|rollo) automatik [aus|ab|deaktivieren] (in|im|am) {name}"
+          - "(deaktiviere|beende|stoppe) [die] (rolladen|jalousie) automatik (in|im|am) {name}"
+          - "{name} (rolladen|jalousie) automatik (aus|ab)"
+          - "manuelle (rolladen|jalousie) steuerung (in|im) {name}"
+
+  # --------------------------------------------------------------------------
+  # SZENEN/MODI
+  # --------------------------------------------------------------------------
+  SetCoverScene:
+    data:
+      - sentences:
+          # Morgen-Modus
+          - "(morgen|aufwach|aufsteh)[modus|szene] [(aktivieren|starten)]"
+          - "[guten] morgen [modus]"
+          - "rolladen (morgens|morgen modus)"
+          - "weck mich [mit licht]"
+          # Nacht-Modus
+          - "(nacht|schlaf|schlafens)[modus|szene] [(aktivieren|starten)]"
+          - "[gute] nacht [modus]"
+          - "rolladen (nachts|nacht modus)"
+          - "alles (abdunkeln|verdunkeln|schließen) [zum schlafen]"
+          # Kino-Modus
+          - "(kino|film|heimkino)[modus|szene] [(aktivieren|starten)]"
+          - "[kino modus] (aktivieren|starten)"
+          - "verdunkeln für (film|kino)"
+          # Lüften
+          - "(lüften|lueften)[modus|position|szene] (in|im) {name}"
+          - "{name} (lüften|lueften|lüftung)"
+          - "rolladen zum (lüften|lueften) (in|im) {name}"
+
+  # --------------------------------------------------------------------------
+  # STATUS ABFRAGEN
+  # --------------------------------------------------------------------------
+  GetCoverState:
+    data:
+      - sentences:
+          - "(wie|was) (ist|sind) [die|der|das] {name} [(rolladen|jalousie)]"
+          - "(ist|sind) [die|der|das] {name} (offen|geschlossen|auf|zu)"
+          - "(rolladen|jalousie) (status|position|zustand) [(in|im|am)] {name}"
+          - "auf wieviel [prozent] (ist|steht) [die|der|das] {name}"
+          - "(wie weit|wieviel) (ist|sind) [die|der|das] {name} (offen|auf)"
+
+  # --------------------------------------------------------------------------
+  # ZEITGESTEUERT
+  # --------------------------------------------------------------------------
+  ScheduleCover:
+    data:
+      - sentences:
+          - "(öffne|oeffne|mach[e]) [die|den|das] {name} [um] {time_of_day}"
+          - "(schließe|schliesse|mach[e]) [die|den|das] {name} [um] {time_of_day}"
+          - "{name} [(rolladen|jalousie)] (bei|um|zum) {time_of_day} [(öffnen|schließen)]"
+          - "rolladen (bei|zum) {time_of_day} [(auf|zu)]"

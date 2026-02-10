@@ -2,6 +2,15 @@
 
 Alle wichtigen Änderungen an diesem Projekt werden hier dokumentiert.
 
+## [1.1.0] - 2024
+
+### Hinzugefügt
+- **Rolladen/Jalousie-Befehle**: Öffnen, Schließen, Position, Lamellen
+- **Sonnenschutz**: Automatische Beschattung aktivieren/deaktivieren
+- **Szenen**: Morgen-Modus, Nacht-Modus, Kino-Modus
+- **Rolladen-Automatik**: Automatische Steuerung an/aus
+- **Status-Abfrage**: "Ist der Rolladen offen?"
+
 ## [1.0.0] - 2024
 
 ### Hinzugefügt

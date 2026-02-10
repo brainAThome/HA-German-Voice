@@ -35,6 +35,14 @@
 - **Lautstärke**: "Lauter" / "Lautstärke auf 50%"
 - **Suche**: "Spiele Jazz auf dem Wohnzimmer-Speaker"
 
+### 🪟 Rolladen/Jalousien
+- **Öffnen/Schließen**: "Mach die Rolladen im Wohnzimmer auf"
+- **Position**: "Rolladen auf 50 Prozent"
+- **Lamellen**: "Lamellen auf halb"
+- **Sonnenschutz**: "Sonnenschutz aktivieren im Büro"
+- **Szenen**: "Guten Morgen" / "Kino Modus" / "Gute Nacht"
+- **Automatik**: "Rolladen Automatik an/aus"
+
 ---
 
 ## 📦 Installation
@@ -141,6 +149,9 @@ intent_script: !include intent_script.yaml
 | "Mach das Wohnzimmerlicht an" | Licht einschalten |
 | "Dimme auf 50%" | Helligkeit setzen |
 | "Was läuft gerade?" | Aktuelle Medienwiedergabe |
+| "Rolladen im Schlafzimmer zu" | Rolladen schließen |
+| "Sonnenschutz Wohnzimmer" | Sonnenschutz aktivieren |
+| "Gute Nacht" | Alle Rolladen schließen |
 
 ---
 
