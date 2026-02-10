@@ -15,6 +15,7 @@
 - **Vorhersagen**: "Wie wird das Wetter morgen?" / "Regnet es am Wochenende?"
 - **Spezifische Werte**: "Was ist die Luftfeuchtigkeit?" / "Wie stark ist der Wind?"
 - **Zeitbereiche**: "Wetter heute Nachmittag" / "Wie wird der Abend?"
+- **Wetterkarte auf Display**: Bei jeder Wetterfrage wird die Wetterkarte 30 Sekunden lang auf dem Display angezeigt, danach automatische Rückkehr zur Uhr
 
 ### ⏰ Erinnerungen (mit TTS-Ansage + Lautstärke-Boost)
 - **Sekunden/Minuten/Stunden**: "Erinnere mich in 30 Sekunden an die Pizza"
@@ -40,6 +41,7 @@
 - **Mikrofon**: "Mikrofon auf 10" / "Mikrofon lauter"
 - **Routinen**: "Starte Guten Morgen" / "Routine Feierabend"
 - **Media-Player**: "Pause" / "Weiter" / "Nächstes Lied" / "Stopp"
+- **Startseite**: "Startseite" / "Zeig die Startseite" / "Zurück zur Uhr"
 
 ### 🪟 Rolladen/Jalousien
 - **Öffnen/Schließen**: "Wohnzimmerrollo auf" / "Rolladen runter"
@@ -62,6 +64,8 @@
 - **Gerätewechsel**: "Spiele Spotify auf Echo Dot" / "Spotify auf HAL"
 - **Was spielt?**: "Was spielt gerade auf Spotify?" mit Artist, Titel, Album
 - **Spotify Web API**: Direkte Suche über die Spotify API — kein Spotcast nötig
+- **Audio Ducking**: Spotify pausiert automatisch bei Sprachbefehlen und setzt danach fort
+- **Display-Navigation**: Automatischer Wechsel zwischen Musik-Karte und Uhr bei Play/Stop
 
 ---
 
@@ -266,6 +270,7 @@ input_text:
 | "Spotify Pause" / "Spotify weiter" | Spotify Steuerung |
 | "Was spielt auf Spotify?" | Aktueller Spotify-Track |
 | "Spiele Spotify auf Echo Dot" | Gerätewechsel |
+| "Startseite" | Zur Startseite/Uhr navigieren |
 
 ---
 

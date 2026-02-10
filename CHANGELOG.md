@@ -2,6 +2,33 @@
 
 Alle wichtigen Änderungen an diesem Projekt werden hier dokumentiert.
 
+## [3.2.0] - 2026-02-11
+
+### 🔇 Audio Ducking + 🌤️ Wetterkarte + 🏠 Startseite
+
+Spotify-Ducking bei Sprachbefehlen, automatische Wetterkarten-Anzeige und Navigation zur Startseite.
+
+### Hinzugefügt
+- **Audio Ducking**: Spotify pausiert automatisch bei Sprachbefehlen und setzt danach fort
+  - `input_boolean.spotify_ducking_active` verhindert Resume nach bewusstem Stopp
+  - Alle Stop/Pause/Play-Intents setzen das Ducking-Flag korrekt
+  - Automations: `spotify_audio_ducking_down` + `spotify_audio_ducking_up`
+- **Wetterkarte auf Display**: Bei allen 40 Wetter-Intents wird die Wetterkarte 30s lang angezeigt
+  - `view_assist.navigate` mit `revert_timeout: 30` zu `/view-assist/weather`
+  - Danach automatische Rückkehr zur Uhr
+- **ShowStartseite Intent**: Neuer Befehl zur Navigation auf die Startseite/Uhr
+  - "Startseite" / "Startbildschirm" / "Zeig die Startseite" / "Zurück zur Uhr"
+- **Spotify Display-Navigation**: Automatischer Wechsel zwischen Musik-Karte und Uhr
+  - `spotify_nav_uhr`: Bei Stop/Pause → Uhr anzeigen (auch von PC/Phone)
+  - `spotify_nav_musik`: Bei Play → Musik-Karte anzeigen
+
+### Geändert
+- **Spotify Intents**: Alle Play/Pause/Stop-Intents enthalten jetzt `input_boolean.turn_off spotify_ducking_active` als erste Aktion
+- **Audio Ducking Ansatz**: Von Volume-Ducking (verursachte Verzerrungen) zu Pause/Resume gewechselt
+
+### Entfernt
+- `input_number.spotify_volume_before_ducking` (nicht mehr benötigt nach Wechsel zu Pause/Resume)
+
 ## [3.1.0] - 2026-02-10
 
 ### 🎵 Spotify Sprachsteuerung
