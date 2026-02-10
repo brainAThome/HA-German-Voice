@@ -95,9 +95,9 @@ intents:
       - sentences:
           # Expansion: wie + ist/wird + das wetter + optionale Ergänzungen
           - "wie {weather_verb} [das] {weather_noun} [{time_prep}][draußen|drausen]"
-          - "[{polite_question}][{polite}](wetter|wetterbericht|wetterlage)"
+          - "[<polite_question>][<polite>](wetter|wetterbericht|wetterlage)"
           - "was (macht|sagt) [der wetterbericht|das wetter]"
-          - "[{polite}]sag mir [bitte] [das] wetter"
+          - "[<polite>]sag mir [bitte] [das] wetter"
           - "wie (schaut|sieht) [es|das wetter] [draußen|drausen] aus"
           # Dialekt
           - "wie (isch|is) [s|es|das] wetter"
@@ -111,12 +111,12 @@ intents:
     data:
       - sentences:
           - "wie {weather_verb} [das] {weather_noun} {day}"
-          - "[{polite_question}]{weather_noun} [für] {day}"
+          - "[<polite_question>]{weather_noun} [für] {day}"
           - "wettervorhersage [für] {day}"
           - "was (erwartet mich|kommt) {day} [für wetter]"
           - "wie (schaut|sieht) [es|das wetter] {day} aus"
           - "{day} [das] {weather_noun}"
-          - "[{polite}]sag mir [bitte] [das] wetter [für] {day}"
+          - "[<polite>]sag mir [bitte] [das] wetter [für] {day}"
 
   # --------------------------------------------------------------------------
   # WETTER MIT TAG + TAGESZEIT
@@ -156,7 +156,7 @@ intents:
           - "ist es (warm|kalt|heiß)[ draußen]"
           - "wird es (warm|kalt|heiß)"
           - "(außen|aussen)temperatur"
-          - "[{polite_question}][{polite}]sag mir die temperatur"
+          - "[<polite_question>][<polite>]sag mir die temperatur"
 
   GetTemperatureDay:
     data:
