@@ -20,6 +20,13 @@ RadioPlay:
   - service: input_boolean.turn_off
     target:
       entity_id: input_boolean.spotify_ducking_active
+  - &stop_spotify
+    service: media_player.media_pause
+    target:
+      entity_id: media_player.spotify_sven
+    continue_on_error: true
+  - service: shell_command.spotify_close
+    continue_on_error: true
   - service: input_text.set_value
     target:
       entity_id: input_text.radio_current_station
@@ -160,10 +167,9 @@ RadioPlay:
       } %}
       {% set name = display_names.get(radio_station, radio_station) %}
       {% set responses = [
-        "OK, " ~ name ~ " läuft.",
-        "Alles klar, ich schalte " ~ name ~ " ein.",
-        name ~ " wird gestartet.",
-        "Verstanden, " ~ name ~ " kommt."
+        name ~ " l\xE4uft.",
+        "Geht klar.",
+        "Alles klar."
       ] %} {{ responses | random }}
 
 RadioPlayGenre:
@@ -171,6 +177,9 @@ RadioPlayGenre:
   - service: input_boolean.turn_off
     target:
       entity_id: input_boolean.spotify_ducking_active
+  - *stop_spotify
+  - service: shell_command.spotify_close
+    continue_on_error: true
   - service: input_text.set_value
     target:
       entity_id: input_text.radio_current_station
@@ -224,9 +233,9 @@ RadioPlayGenre:
       } %}
       {% set name = genre_display.get(radio_genre, radio_genre ~ " Radio") %}
       {% set responses = [
-        "OK, " ~ name ~ " läuft.",
-        "Alles klar, " ~ name ~ " wird gestartet.",
-        name ~ " kommt."
+        name ~ " l\xE4uft.",
+        "Geht klar.",
+        "Alles klar."
       ] %} {{ responses | random }}
 
 RadioPlayDefault:
@@ -234,6 +243,9 @@ RadioPlayDefault:
   - service: input_boolean.turn_off
     target:
       entity_id: input_boolean.spotify_ducking_active
+  - *stop_spotify
+  - service: shell_command.spotify_close
+    continue_on_error: true
   - service: media_player.play_media
     target:
       entity_id: media_player.vaca_362812d56_mediaplayer
@@ -360,13 +372,13 @@ RadioPlayDefault:
           {% set name = display_names.get(last, last) %}
         {% endif %}
         {% set responses = [
-          "OK, " ~ name ~ " läuft wieder.",
-          "Alles klar, " ~ name ~ " geht weiter."
+          name ~ " l\xE4uft.",
+          "Geht klar."
         ] %} {{ responses | random }}
       {% else %}
         {% set responses = [
-          "OK, SWR 3 läuft.",
-          "Alles klar, ich starte SWR 3."
+          "Radio l\xE4uft.",
+          "Geht klar."
         ] %} {{ responses | random }}
       {% endif %}
 
@@ -381,12 +393,7 @@ RadioStop:
       device: sensor.quasselbuechse
       path: /view-assist/clock
   speech:
-    text: >
-      {% set responses = [
-        "OK, Radio ist aus.",
-        "Radio gestoppt.",
-        "Alles klar, Radio beendet."
-      ] %} {{ responses | random }}
+    text: "Radio ist aus."
 
 RadioVolumeSet:
   action:
@@ -396,7 +403,7 @@ RadioVolumeSet:
     data:
       volume_level: "{{ volume_level | float / 100.0 }}"
   speech:
-    text: "Lautstärke auf {{ volume_level }} Prozent."
+    text: ""
 
 RadioVolumeUp:
   action:
@@ -407,9 +414,7 @@ RadioVolumeUp:
       volume_level: >
         {{ [((state_attr('media_player.vaca_362812d56_mediaplayer', 'volume_level') or 0.5) + 0.1), 1.0] | min }}
   speech:
-    text: >
-      {% set vol = [((state_attr('media_player.vaca_362812d56_mediaplayer', 'volume_level') or 0.5) + 0.1), 1.0] | min %}
-      Lauter. {{ (vol * 100) | int }} Prozent.
+    text: ""
 
 RadioVolumeDown:
   action:
@@ -420,9 +425,7 @@ RadioVolumeDown:
       volume_level: >
         {{ [((state_attr('media_player.vaca_362812d56_mediaplayer', 'volume_level') or 0.5) - 0.1), 0.0] | max }}
   speech:
-    text: >
-      {% set vol = [((state_attr('media_player.vaca_362812d56_mediaplayer', 'volume_level') or 0.5) - 0.1), 0.0] | max %}
-      Leiser. {{ (vol * 100) | int }} Prozent.
+    text: ""
 
 RadioNowPlaying:
   speech:
@@ -515,20 +518,14 @@ RadioSearch:
       {% set result = states('input_text.radio_search_result') %}
       {% if result.startswith('OK:') %}
         {% set name = result[3:] %}
-        {% set responses = [
-          "OK, " ~ name ~ " gefunden und wird gestartet.",
-          "Alles klar, ich spiele " ~ name ~ ".",
-          name ~ " l\u00e4uft."
-        ] %} {{ responses | random }}
+        {{ name }} läuft.
       {% elif result.startswith('NOT_FOUND:') %}
-        {% set q = result[10:] %}
-        Leider habe ich keinen Sender mit dem Namen {{ q }} gefunden.
+        Sender nicht gefunden.
       {% elif result.startswith('NO_STREAM:') %}
-        {% set name = result[10:] %}
-        {{ name }} wurde gefunden, hat aber leider keinen funktionierenden Stream.
+        Kein Stream verfügbar.
       {% elif result.startswith('LIST:') %}
         {% set list = result[5:] %}
-        Ich habe folgende Sender gefunden: {{ list }}.
+        Gefunden: {{ list }}.
       {% else %}
-        Die Suche l\u00e4uft noch. Bitte versuche es in ein paar Sekunden nochmal.
+        Suche läuft noch.
       {% endif %}

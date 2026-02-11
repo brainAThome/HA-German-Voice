@@ -1,9 +1,14 @@
-SpotifyPlay:
+﻿SpotifyPlay:
   action:
   - &id001
     service: input_boolean.turn_off
     target:
       entity_id: input_boolean.spotify_ducking_active
+  - &id002
+    service: media_player.media_stop
+    target:
+      entity_id: media_player.vaca_362812d56_mediaplayer
+    continue_on_error: true
   - service: input_text.set_value
     target:
       entity_id: input_text.spotify_query
@@ -21,14 +26,12 @@ SpotifyPlay:
       value: ''
   - service: shell_command.spotify_voice
   speech:
-    text: "{% set responses = [\n  \"OK, ich suche \" ~ query ~ \" auf Spotify.\"\
-      ,\n  \"Alles klar, \" ~ query ~ \" kommt gleich.\",\n  \"Verstanden, suche \"\
-      \ ~ query ~ \" auf Spotify.\",\n  \"Moment, ich suche \" ~ query ~ \".\",\n\
-      \  \"Geht klar, \" ~ query ~ \" wird gesucht.\"\n] %} {{ responses | random\
-      \ }}\n"
+    text: "{% set responses = [\n  \"Kommt sofort.\",\n  \"Geht klar.\",\n  \"Wird\
+      \ gesucht.\",\n  \"Alles klar, Moment.\"\n] %} {{ responses | random }}\n"
 SpotifyPlayArtist:
   action:
   - *id001
+  - *id002
   - service: input_text.set_value
     target:
       entity_id: input_text.spotify_query
@@ -46,13 +49,12 @@ SpotifyPlayArtist:
       value: ''
   - service: shell_command.spotify_voice
   speech:
-    text: "{% set responses = [\n  \"OK, ich spiele Musik von \" ~ query ~ \".\",\n\
-      \  \"Alles klar, \" ~ query ~ \" kommt gleich.\",\n  \"Verstanden, suche \"\
-      \ ~ query ~ \" auf Spotify.\",\n  \"Moment, ich suche \" ~ query ~ \" auf Spotify.\"\
-      \n] %} {{ responses | random }}\n"
+    text: "{% set responses = [\n  \"Musik kommt.\",\n  \"Geht klar.\",\n  \"Wird\
+      \ gestartet.\",\n  \"Alles klar.\"\n] %} {{ responses | random }}\n"
 SpotifyPlayPlaylist:
   action:
   - *id001
+  - *id002
   - service: input_text.set_value
     target:
       entity_id: input_text.spotify_query
@@ -70,13 +72,12 @@ SpotifyPlayPlaylist:
       value: ''
   - service: shell_command.spotify_voice
   speech:
-    text: "{% set responses = [\n  \"OK, ich starte die Playlist \" ~ query ~ \".\"\
-      ,\n  \"Alles klar, Playlist \" ~ query ~ \" wird gesucht.\",\n  \"Verstanden,\
-      \ suche Playlist \" ~ query ~ \" auf Spotify.\"\n] %} {{ responses | random\
-      \ }}\n"
+    text: "{% set responses = [\n  \"Playlist kommt.\",\n  \"Geht klar.\",\n  \"Wird\
+      \ gestartet.\",\n  \"Alles klar.\"\n] %} {{ responses | random }}\n"
 SpotifyPlayAlbum:
   action:
   - *id001
+  - *id002
   - service: input_text.set_value
     target:
       entity_id: input_text.spotify_query
@@ -94,12 +95,12 @@ SpotifyPlayAlbum:
       value: ''
   - service: shell_command.spotify_voice
   speech:
-    text: "{% set responses = [\n  \"OK, ich spiele das Album \" ~ query ~ \".\",\n\
-      \  \"Alles klar, Album \" ~ query ~ \" wird gesucht.\",\n  \"Verstanden, suche\
-      \ Album \" ~ query ~ \" auf Spotify.\"\n] %} {{ responses | random }}\n"
+    text: "{% set responses = [\n  \"Album kommt.\",\n  \"Geht klar.\",\n  \"Wird\
+      \ gestartet.\",\n  \"Alles klar.\"\n] %} {{ responses | random }}\n"
 SpotifyPlayOn:
   action:
   - *id001
+  - *id002
   - service: input_text.set_value
     target:
       entity_id: input_text.spotify_query
@@ -117,10 +118,8 @@ SpotifyPlayOn:
       value: '{{ spotify_device }}'
   - service: shell_command.spotify_voice
   speech:
-    text: "{% set responses = [\n  \"OK, ich spiele \" ~ query ~ \" auf \" ~ spotify_device\
-      \ ~ \".\",\n  \"Alles klar, suche \" ~ query ~ \" f├╝r \" ~ spotify_device ~\
-      \ \".\",\n  \"Verstanden, \" ~ query ~ \" kommt auf \" ~ spotify_device ~ \"\
-      .\"\n] %} {{ responses | random }}\n"
+    text: "{% set responses = [\n  \"Kommt sofort.\",\n  \"Geht klar.\",\n  \"Wird\
+      \ gestartet.\",\n  \"Alles klar.\"\n] %} {{ responses | random }}\n"
 SpotifyDevice:
   action:
   - service: input_text.set_value
@@ -140,27 +139,34 @@ SpotifyDevice:
       value: '{{ spotify_device }}'
   - service: shell_command.spotify_device_transfer
   speech:
-    text: "{% set responses = [\n  \"OK, Spotify spielt jetzt auf \" ~ spotify_device\
-      \ ~ \".\",\n  \"Alles klar, Wiedergabe wird auf \" ~ spotify_device ~ \" ├╝bertragen.\"\
-      ,\n  \"Verstanden, Spotify wechselt zu \" ~ spotify_device ~ \".\"\n] %} {{\
-      \ responses | random }}\n"
+    text: "{% set responses = [\n  \"Wird ├ö├Â┬ú├ö├▓├ÿbertragen.\",\n  \"Geht klar.\",\n\
+      \  \"Alles klar.\",\n  \"OK, Moment.\"\n] %} {{ responses | random }}\n"
 SpotifyPause:
   action:
   - *id001
-  - service: media_player.media_play_pause
+  - service: media_player.media_pause
     target:
       entity_id: media_player.spotify_sven
+    continue_on_error: true
+  - service: shell_command.spotify_close
     continue_on_error: true
   - service: view_assist.navigate
     data:
       device: sensor.quasselbuechse
       path: /view-assist/clock
   speech:
-    text: "{% set responses = [\n  \"OK, Spotify pausiert.\",\n  \"Alles klar, Pause.\"\
-      ,\n  \"Spotify ist pausiert.\",\n  \"Wiedergabe angehalten.\"\n] %} {{ responses\
-      \ | random }}\n"
+    text: ''
 SpotifyResume:
   action:
+  - *id002
+  - service: media_player.select_source
+    target:
+      entity_id: media_player.spotify_sven
+    data:
+      source: Echo Show 5 (2nd Generation)
+    continue_on_error: true
+  - delay:
+      seconds: 1
   - service: media_player.media_play
     target:
       entity_id: media_player.spotify_sven
@@ -171,17 +177,7 @@ SpotifyResume:
       path: /view-assist/music
       revert_timeout: 3600
   speech:
-    text: >
-      {% if is_state('media_player.spotify_sven', 'paused') or is_state('media_player.spotify_sven', 'playing') %}
-        {% set responses = [
-          "OK, Spotify spielt weiter.",
-          "Alles klar, weiter geht's.",
-          "Wiedergabe fortgesetzt.",
-          "Spotify läuft wieder."
-        ] %} {{ responses | random }}
-      {% else %}
-        Spotify hat gerade keine aktive Wiedergabe. Sag zum Beispiel: spiele Musik.
-      {% endif %}
+    text: ''
 SpotifyNext:
   action:
   - service: media_player.media_next_track
@@ -189,8 +185,7 @@ SpotifyNext:
       entity_id: media_player.spotify_sven
     continue_on_error: true
   speech:
-    text: "{% set responses = [\n  \"OK, n├ñchster Titel.\",\n  \"Alles klar, ├╝bersprungen.\"\
-      ,\n  \"N├ñchstes Lied kommt.\",\n  \"Skip!\"\n] %} {{ responses | random }}\n"
+    text: ''
 SpotifyPrevious:
   action:
   - service: media_player.media_previous_track
@@ -198,8 +193,7 @@ SpotifyPrevious:
       entity_id: media_player.spotify_sven
     continue_on_error: true
   speech:
-    text: "{% set responses = [\n  \"OK, vorheriger Titel.\",\n  \"Alles klar, zur├╝ck.\"\
-      ,\n  \"Letztes Lied wird gespielt.\"\n] %} {{ responses | random }}\n"
+    text: ''
 SpotifyShuffle:
   action:
   - service: media_player.shuffle_set
@@ -230,7 +224,7 @@ SpotifyNowPlaying:
 GeneralStop:
   action:
   - *id001
-  - service: media_player.media_play_pause
+  - service: media_player.media_pause
     target:
       entity_id: media_player.spotify_sven
     continue_on_error: true
@@ -238,11 +232,11 @@ GeneralStop:
     target:
       entity_id: media_player.vaca_362812d56_mediaplayer
     continue_on_error: true
+  - service: shell_command.spotify_close
+    continue_on_error: true
   - service: view_assist.navigate
     data:
       device: sensor.quasselbuechse
       path: /view-assist/clock
   speech:
-    text: "{% set responses = [\n  \"Alles gestoppt.\",\n  \"OK, Ruhe.\",\n  \"Wiedergabe\
-      \ beendet.\",\n  \"Ist aus.\",\n  \"Erledigt, alles still.\"\n] %} {{ responses\
-      \ | random }}\n"
+    text: ''

@@ -2,9 +2,9 @@
 # HA-GERMAN-VOICE - Deutsche Wetter-Sprachbefehle
 # ================================================================================
 # TRUE STATE OF THE ART - Home Assistant 2024+ Syntax
-# Ô£à Expansion Rules f├╝r nat├╝rliche Sprache
+# Ô£à Expansion Rules für natürliche Sprache
 # Ô£à Varianten-Matching (heute/morgen/Wochentag)
-# ÔÜá´©Å  Custom Intents ÔåÆ ben├Âtigen intent_script f├╝r Aktionen
+# ÔÜá´©Å  Custom Intents ÔåÆ benötigen intent_script für Aktionen
 # ================================================================================
 # GitHub: https://github.com/brainAThome/HA-German-Voice
 # Version: 2.0.0
@@ -17,7 +17,7 @@ language: de
 # ============================================================================
 expansion_rules:
   polite: "[bitte|mal|doch]"
-  polite_question: "(k├Ânntest|kannst|w├╝rdest) du [bitte|mal]"
+  polite_question: "(könntest|kannst|würdest) du [bitte|mal]"
   weather_verb: "(ist|wird|macht|schaut aus)"
   weather_noun: "(wetter|wetterlage)"
   time_prep: "[gerade|aktuell|jetzt|momentan|im moment|zur zeit]"
@@ -37,15 +37,15 @@ lists:
       # Morgen (Index 1)  
       - in: "(morgen|morgn)"
         out: 1
-      # ├£bermorgen (Index 2)
-      - in: "(├╝bermorgen|uebermorgen|in zwei tagen|in 2 tagen)"
+      # Übermorgen (Index 2)
+      - in: "(übermorgen|uebermorgen|in zwei tagen|in 2 tagen)"
         out: 2
       # In X Tagen
       - in: "(in drei tagen|in 3 tagen)"
         out: 3
       - in: "(in vier tagen|in 4 tagen)"
         out: 4
-      - in: "(in f├╝nf tagen|in fuenf tagen|in 5 tagen)"
+      - in: "(in fünf tagen|in fuenf tagen|in 5 tagen)"
         out: 5
       - in: "(in sechs tagen|in 6 tagen)"
         out: 6
@@ -70,7 +70,7 @@ lists:
 
   time:
     values:
-      - in: "(morgens|fr├╝h|in der fr├╝h)"
+      - in: "(morgens|früh|in der früh)"
         out: morgens
       - in: "(vormittags|am vormittag)"
         out: vormittags
@@ -93,16 +93,16 @@ intents:
   GetWeather:
     data:
       - sentences:
-          # Expansion: wie + ist/wird + das wetter + optionale Erg├ñnzungen
-          - "wie <weather_verb> [das] <weather_noun> [<time_prep>][drau├ƒen|drausen]"
+          # Expansion: wie + ist/wird + das wetter + optionale Ergänzungen
+          - "wie <weather_verb> [das] <weather_noun> [<time_prep>][draußen|drausen]"
           - "[<polite_question>][<polite>](wetter|wetterbericht|wetterlage)"
           - "was (macht|sagt) [der wetterbericht|das wetter]"
           - "[<polite>]sag mir [bitte] [das] wetter"
-          - "wie (schaut|sieht) [es|das wetter] [drau├ƒen|drausen] aus"
+          - "wie (schaut|sieht) [es|das wetter] [draußen|drausen] aus"
           # Dialekt
           - "wie (isch|is) [s|es|das] wetter"
           - "wia is des wetter"
-          - "wat f├╝r wetter (ham|haben) (wa|wir)"
+          - "wat für wetter (ham|haben) (wa|wir)"
 
   # --------------------------------------------------------------------------
   # WETTER MIT TAG
@@ -111,12 +111,12 @@ intents:
     data:
       - sentences:
           - "wie <weather_verb> [das] <weather_noun> {day}"
-          - "[<polite_question>]<weather_noun> [f├╝r] {day}"
-          - "wettervorhersage [f├╝r] {day}"
-          - "was (erwartet mich|kommt) {day} [f├╝r wetter]"
+          - "[<polite_question>]<weather_noun> [für] {day}"
+          - "wettervorhersage [für] {day}"
+          - "was (erwartet mich|kommt) {day} [für wetter]"
           - "wie (schaut|sieht) [es|das wetter] {day} aus"
           - "{day} [das] <weather_noun>"
-          - "[<polite>]sag mir [bitte] [das] wetter [f├╝r] {day}"
+          - "[<polite>]sag mir [bitte] [das] wetter [für] {day}"
 
   # --------------------------------------------------------------------------
   # WETTER GESTERN (Vergangenheit)
@@ -128,7 +128,7 @@ intents:
           - "wie war das wetter gestern"
           - "wetter gestern"
           - "gestern wetter"
-          - "was war gestern f├╝r [ein] wetter"
+          - "was war gestern für [ein] wetter"
           - "wie ist das wetter gestern gewesen"
 
   # --------------------------------------------------------------------------
@@ -149,8 +149,8 @@ intents:
     data:
       - sentences:
           - "wie wird (die|diese) woche"
-          - "(wetter|wettervorhersage) [f├╝r] (die|diese) [ganze] woche"
-          - "wie (ist|wird) das wetter (die|in den) n├ñchsten tage[n]"
+          - "(wetter|wettervorhersage) [für] (die|diese) [ganze] woche"
+          - "wie (ist|wird) das wetter (die|in den) nächsten tage[n]"
           - "(7|sieben)[ ]tage vorhersage"
           - "wochenwetter"
           - "wetteraussichten"
@@ -163,28 +163,28 @@ intents:
   GetTemperature:
     data:
       - sentences:
-          - "wie (warm|kalt|hei├ƒ) ist es [<time_prep>][drau├ƒen]"
-          - "[wie ist] [die] [aktuelle] temperatur [drau├ƒen]"
+          - "wie (warm|kalt|heiß) ist es [<time_prep>][draußen]"
+          - "[wie ist] [die] [aktuelle] temperatur [draußen]"
           - "(was|wie) ist die temperatur"
-          - "(wieviel|wie viel[e]) grad [haben wir|ist es|sind es][ drau├ƒen]"
-          - "ist es (warm|kalt|hei├ƒ)[ drau├ƒen]"
-          - "wird es (warm|kalt|hei├ƒ)"
-          - "(au├ƒen|aussen)temperatur"
+          - "(wieviel|wie viel[e]) grad [haben wir|ist es|sind es][ draußen]"
+          - "ist es (warm|kalt|heiß)[ draußen]"
+          - "wird es (warm|kalt|heiß)"
+          - "(außen|aussen)temperatur"
           - "[<polite_question>][<polite>]sag mir die temperatur"
           - "zeig mir die temperatur"
 
   GetTemperatureDay:
     data:
       - sentences:
-          - "wie (warm|kalt|hei├ƒ) (ist|wird) es {day}"
+          - "wie (warm|kalt|heiß) (ist|wird) es {day}"
           - "(was|wie) ist die temperatur {day}"
-          - "temperatur[en] [f├╝r] {day}"
+          - "temperatur[en] [für] {day}"
           - "(wieviel|wie viel[e]) grad [werden es|wird es|haben wir] {day}"
-          - "wird es {day} (warm|kalt|hei├ƒ|w├ñrmer|k├ñlter)"
+          - "wird es {day} (warm|kalt|heiß|wärmer|kälter)"
           - "{day} (wie warm|wie kalt|temperatur)"
           - "{day} (wieviel|wie viel) grad"
-          - "was f├╝r [(eine|welche)] temperatur[en] [haben wir|wird es|ist es] {day}"
-          # Erg├ñnzungen aus Fehlanalyse
+          - "was für [(eine|welche)] temperatur[en] [haben wir|wird es|ist es] {day}"
+          # Ergänzungen aus Fehlanalyse
           - "wie (werden|sind) [die] temperatur[en] {day}"
           - "(wie sind|wie werden) {day} [die] temperatur[en]"
           - "welche temperatur[en] (haben wir|erwarten wir|gibt es) {day}"
@@ -207,14 +207,14 @@ intents:
   GetRain:
     data:
       - sentences:
-          - "(regnet|regnets) es [<time_prep>][drau├ƒen]"
+          - "(regnet|regnets) es [<time_prep>][draußen]"
           - "(gibt|gibts) es regen"
           - "(kommt|droht) [noch] regen"
           - "brauche ich [einen] (regenschirm|schirm)"
           - "brauch ich [n|nen|einen] (regenschirm|schirm)"
-          - "(bleibt|ist) es (trocken|nass)[ drau├ƒen]"
+          - "(bleibt|ist) es (trocken|nass)[ draußen]"
           - "werde ich nass [wenn ich (raus|rausgehe)]"
-          - "(sch├╝ttet|gie├ƒt|nieselt|pisst) es"
+          - "(schüttet|gießt|nieselt|pisst) es"
           # Dialekt
           - "(schiffts|pladderts|schauerts)"
 
@@ -230,13 +230,13 @@ intents:
           - "(bleibt|ist) es {day} (trocken|nass)"
           - "regen {day}"
           - "{day} regen[schirm]"
-          # Erg├ñnzungen aus Fehlanalyse
+          # Ergänzungen aus Fehlanalyse
           - "wird es {day} regen geben"
 
   GetRainProbabilityDay:
     data:
       - sentences:
-          - "[wie (hoch|gro├ƒ) ist die] regenwahrscheinlichkeit [f├╝r] {day}"
+          - "[wie (hoch|groß) ist die] regenwahrscheinlichkeit [für] {day}"
           - "(wie wahrscheinlich|wie sicher) regnet es {day}"
           - "(wie viel|wieviel) prozent regen {day}"
           - "(regen|niederschlags)wahrscheinlichkeit {day}"
@@ -258,9 +258,9 @@ intents:
       - sentences:
           - "scheint [gerade] die sonne"
           - "(gibt|gibts|haben wir) [es] sonne[nschein]"
-          - "ist es sonnig[ drau├ƒen]"
+          - "ist es sonnig[ draußen]"
           - "(kommt|ist) die sonne [raus|da]"
-          - "ist es (sch├Ân|sch├Ânes wetter)"
+          - "ist es (schön|schönes wetter)"
           - "brauche ich [eine] sonnenbrille"
 
   GetSunDay:
@@ -270,7 +270,7 @@ intents:
           - "(gibt|gibts|haben wir) {day} sonne"
           - "(wird|ist) es {day} sonnig"
           - "(wie viel|wieviel[e]) (sonne|sonnenstunden) {day}"
-          - "wird es {day} (sch├Ân|sch├Ânes wetter)"
+          - "wird es {day} (schön|schönes wetter)"
           - "{day} sonne"
 
   # --------------------------------------------------------------------------
@@ -279,20 +279,20 @@ intents:
   GetWind:
     data:
       - sentences:
-          - "wie (windig|stark) ist [der wind|es][ drau├ƒen]"
+          - "wie (windig|stark) ist [der wind|es][ draußen]"
           - "wie ist der wind"
-          - "(weht|bl├ñst) [der] wind"
-          - "[wie ist die] wind(st├ñrke|geschwindigkeit)"
-          - "(ist|wird) es (windig|st├╝rmisch)"
+          - "(weht|bläst) [der] wind"
+          - "[wie ist die] wind(stärke|geschwindigkeit)"
+          - "(ist|wird) es (windig|stürmisch)"
           - "(gibt|gibts|haben wir) [es] wind"
 
   GetWindDay:
     data:
       - sentences:
           - "wie (windig|stark ist der wind) {day}"
-          - "wind [f├╝r] {day}"
-          - "(ist|wird) es {day} (windig|st├╝rmisch)"
-          - "wind(st├ñrke|geschwindigkeit) {day}"
+          - "wind [für] {day}"
+          - "(ist|wird) es {day} (windig|stürmisch)"
+          - "wind(stärke|geschwindigkeit) {day}"
           - "{day} wind"
 
   # --------------------------------------------------------------------------
@@ -301,18 +301,18 @@ intents:
   GetClouds:
     data:
       - sentences:
-          - "(ist|wie) [es] (bew├Âlkt|bewoelkt|grau|bedeckt)[ drau├ƒen]"
+          - "(ist|wie) [es] (bewölkt|bewoelkt|grau|bedeckt)[ draußen]"
           - "(gibt|gibts|sind|haben wir) [es] wolken [da]"
-          - "bew├Âlkung"
+          - "bewölkung"
           - "(ist|wie ist) der himmel [(blau|grau|bedeckt)]"
-          - "ist es (tr├╝b|tr├╝be)"
+          - "ist es (trüb|trübe)"
 
   GetCloudsDay:
     data:
       - sentences:
-          - "(ist|wird) es {day} (bew├Âlkt|grau|bedeckt)"
-          - "wolken [f├╝r] {day}"
-          - "(bew├Âlkung|bedeckung) {day}"
+          - "(ist|wird) es {day} (bewölkt|grau|bedeckt)"
+          - "wolken [für] {day}"
+          - "(bewölkung|bedeckung) {day}"
           - "{day} wolken"
 
   # --------------------------------------------------------------------------
@@ -323,7 +323,7 @@ intents:
       - sentences:
           - "(schneit|schneits) es [<time_prep>]"
           - "(gibt|gibts|liegt|haben wir) [es] schnee"
-          - "(kommt|f├ñllt) schnee"
+          - "(kommt|fällt) schnee"
           - "schnee[fall]"
 
   GetSnowDay:
@@ -362,25 +362,26 @@ intents:
       - sentences:
           - "[wie (hoch|ist)] [die] luftfeuchtigkeit"
           - "(was|wie) ist die luftfeuchtigkeit"
-          - "wie (feucht|schw├╝l) ist es[ drau├ƒen]"
-          - "ist es (schw├╝l|feucht|dr├╝ckend)"
-          - "feuchtigkeit [drau├ƒen]"
+          - "wie (feucht|schwül) ist es[ draußen]"
+          - "ist es (schwül|feucht|drückend)"
+          - "feuchtigkeit [draußen]"
           - "zeig mir die luftfeuchtigkeit"
 
   GetHumidityDay:
     data:
       - sentences:
-          - "(was|wie) ist die luftfeuchtigkeit {day}"
-          - "luftfeuchtigkeit [f├╝r] {day}"
-          - "wie (feucht|schw├╝l) (ist|wird) es {day}"
-          - "(wird|ist) es {day} (schw├╝l|feucht)"
+          - "(was|wie) (ist|wird) die luftfeuchtigkeit {day}"
+          - "luftfeuchtigkeit [für] {day}"
+          - "wie (feucht|schwül) (ist|wird) es {day}"
+          - "(wird|ist) es {day} (schwül|feucht)"
           - "{day} luftfeuchtigkeit"
-          - "wie hoch ist die luftfeuchtigkeit {day}"
-          # Erg├ñnzungen aus Fehlanalyse
+          - "wie hoch (ist|wird) die luftfeuchtigkeit {day}"
+          # Ergänzungen aus Fehlanalyse
           - "welche luftfeuchtigkeit haben wir [am] {day}"
           - "welche luftfeuchtigkeit (haben wir|erwarten wir) {day} [zu erwarten]"
-          - "wie ist [am] {day} die luftfeuchtigkeit"
-          - "ist die luftfeuchtigkeit {day}"
+          - "wie (ist|wird) [am] {day} die luftfeuchtigkeit"
+          - "(ist|wird) die luftfeuchtigkeit {day}"
+          - "wie wird die luftfeuchtigkeit [am] {day}"
 
   # --------------------------------------------------------------------------
   # LUFTDRUCK
@@ -390,13 +391,13 @@ intents:
       - sentences:
           - "[wie (hoch|ist)] [der] luftdruck"
           - "barometer[stand]"
-          - "(steigt|f├ñllt|sinkt) der luftdruck"
+          - "(steigt|fällt|sinkt) der luftdruck"
           - "(haben wir|ist) (hoch|tief)druck[gebiet]"
 
   GetPressureDay:
     data:
       - sentences:
-          - "luftdruck [f├╝r] {day}"
+          - "luftdruck [für] {day}"
           - "barometer {day}"
           - "{day} luftdruck"
 
@@ -410,7 +411,7 @@ intents:
           - "(gibts|haben wir) nebel"
           - "wie ist die sicht[weite]"
           - "ist die sicht (gut|schlecht)"
-          - "sichtverh├ñltnisse"
+          - "sichtverhältnisse"
           - "ist es (diesig|dunstig)"
           - "[gibt es] (hoch)nebel"
 
@@ -418,29 +419,29 @@ intents:
     data:
       - sentences:
           - "(ist|gibt|wird) es {day} (neblig|nebel)"
-          - "nebel [f├╝r] {day}"
-          - "sicht[verh├ñltnisse] {day}"
+          - "nebel [für] {day}"
+          - "sicht[verhältnisse] {day}"
           - "{day} nebel"
 
   # --------------------------------------------------------------------------
-  # GEF├£HLTE TEMPERATUR
+  # GEFÜHLTE TEMPERATUR
   # --------------------------------------------------------------------------
   GetFeelsLike:
     data:
       - sentences:
-          - "wie f├╝hlt sich [das wetter|es] [drau├ƒen] an"
-          - "(gef├╝hlt|empfundene)[e] temperatur"
+          - "wie fühlt sich [das wetter|es] [draußen] an"
+          - "(gefühlt|empfundene)[e] temperatur"
           - "windchill"
-          - "wie (kalt|warm) f├╝hlt es sich an"
+          - "wie (kalt|warm) fühlt es sich an"
           - "wie (warm|kalt) ist es wirklich"
 
   GetFeelsLikeDay:
     data:
       - sentences:
-          - "wie f├╝hlt sich [das wetter|es] {day} an"
-          - "(gef├╝hlt|empfundene) temperatur {day}"
+          - "wie fühlt sich [das wetter|es] {day} an"
+          - "(gefühlt|empfundene) temperatur {day}"
           - "windchill {day}"
-          - "{day} (gef├╝hlt|empfundene) temperatur"
+          - "{day} (gefühlt|empfundene) temperatur"
 
   # --------------------------------------------------------------------------
   # KLEIDUNGSEMPFEHLUNG
@@ -450,43 +451,43 @@ intents:
       - sentences:
           - "was soll[te] ich [heute] anziehen"
           - "wie (soll|muss) ich mich anziehen"
-          - "brauche ich [eine|einen] (jacke|mantel|m├╝tze|handschuhe|pullover)"
-          - "brauch ich [ne|nen|n] (jacke|mantel|m├╝tze|pulli)"
+          - "brauche ich [eine|einen] (jacke|mantel|mütze|handschuhe|pullover)"
+          - "brauch ich [ne|nen|n] (jacke|mantel|mütze|pulli)"
           - "[muss|soll] ich mich warm anziehen"
-          - "(welche|was f├╝r) (kleidung|klamotten)"
+          - "(welche|was für) (kleidung|klamotten)"
           - "kleidungsempfehlung"
 
   GetClothingDay:
     data:
       - sentences:
           - "was soll[te] ich {day} anziehen"
-          - "brauche ich {day} [eine|einen] (jacke|mantel|m├╝tze)"
+          - "brauche ich {day} [eine|einen] (jacke|mantel|mütze)"
           - "brauch ich {day} [ne|n] jacke"
-          - "kleidung[sempfehlung] [f├╝r] {day}"
+          - "kleidung[sempfehlung] [für] {day}"
           - "{day} anziehen"
 
   # --------------------------------------------------------------------------
-  # OUTDOOR AKTIVIT├äTEN
+  # OUTDOOR AKTIVITÄTEN
   # --------------------------------------------------------------------------
   GetOutdoorAdvice:
     data:
       - sentences:
-          - "kann ich (raus|rausgehen|nach drau├ƒen)"
+          - "kann ich (raus|rausgehen|nach draußen)"
           - "kann ich [heute] (joggen|wandern|grillen|radfahren|spazieren)[ gehen]"
-          - "ist [es] (gutes|sch├Ânes) wetter [f├╝r drau├ƒen]"
-          - "(eignet|lohnt) sich [das wetter] (f├╝r|zum) (outdoor|drau├ƒen|rausgehen)"
+          - "ist [es] (gutes|schönes) wetter [für draußen]"
+          - "(eignet|lohnt) sich [das wetter] (für|zum) (outdoor|draußen|rausgehen)"
           - "kann ich (in den|im) (garten|park)"
-          - "gartenarbeit [m├Âglich]"
-          - "outdoor aktivit├ñten"
+          - "gartenarbeit [möglich]"
+          - "outdoor aktivitäten"
 
   GetOutdoorDay:
     data:
       - sentences:
           - "kann ich {day} (raus|rausgehen)"
           - "kann ich {day} (joggen|wandern|grillen|radfahren)"
-          - "ist {day} (gutes|sch├Ânes) wetter"
-          - "(lohnt|eignet) [es] sich {day} (f├╝r|zum) rausgehen"
-          - "{day} (outdoor|drau├ƒen|aktivit├ñten)"
+          - "ist {day} (gutes|schönes) wetter"
+          - "(lohnt|eignet) [es] sich {day} (für|zum) rausgehen"
+          - "{day} (outdoor|draußen|aktivitäten)"
 
   # --------------------------------------------------------------------------
   # UV/SONNENSCHUTZ
@@ -498,7 +499,7 @@ intents:
           - "brauche ich sonnencreme"
           - "brauch ich sonnencreme"
           - "sonnenbrandgefahr"
-          - "ist die sonne (gef├ñhrlich|stark)"
+          - "ist die sonne (gefährlich|stark)"
           - "[brauche ich] sonnenschutz"
 
   # --------------------------------------------------------------------------
@@ -529,9 +530,9 @@ intents:
       - sentences:
           - "[wie (ist|stark) ist] [der] pollenflug"
           - "pollen[belastung]"
-          - "(ist es schlimm|muss ich aufpassen) f├╝r allergiker"
+          - "(ist es schlimm|muss ich aufpassen) für allergiker"
           - "heuschnupfen[ saison]"
-          - "(birke|gr├ñser)[ ]pollen"
+          - "(birke|gräser)[ ]pollen"
           - "allergiebelastung"
 
   # --------------------------------------------------------------------------
@@ -540,10 +541,10 @@ intents:
   GetWeatherComparison:
     data:
       - sentences:
-          - "wird es (w├ñrmer|k├ñlter|besser|schlechter) [als (heute|gestern)]"
-          - "ist es (w├ñrmer|k├ñlter) als gestern"
+          - "wird es (wärmer|kälter|besser|schlechter) [als (heute|gestern)]"
+          - "ist es (wärmer|kälter) als gestern"
           - "wird das wetter (besser|schlechter)"
           - "(verbessert|verschlechtert) sich das wetter"
-          - "(├ñndert|bleibt) [sich] das wetter [so|stabil]"
+          - "(ändert|bleibt) [sich] das wetter [so|stabil]"
           - "wetterentwicklung"
           - "kommt [ein] wetterumschwung"

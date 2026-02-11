@@ -301,6 +301,12 @@ def main():
         # Ducking deaktivieren
         ha_set_state(DUCKING_ENTITY, False)
 
+        # === Spotify stoppen bevor Radio startet (Mutual Exclusion) ===
+        ha_api("services/media_player/media_pause", "POST", {
+            "entity_id": "media_player.spotify_sven",
+        })
+        log.info("Spotify pausiert (mutual exclusion)")
+
         # Logo herunterladen - Dateiname = sanitized Station-Name
         logo_key = download_logo(station_name, favicon)
 

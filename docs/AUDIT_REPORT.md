@@ -87,7 +87,7 @@ Das Projekt wurde einer tiefgreifenden Analyse unterzogen, die folgende Bereiche
 #### K-01: Hardcoded HA Long-Lived Access Token
 - **Dateien:** `scripts/radio_search.py` (L36), `scripts/spotify_voice.py` (L36)
 - **Problem:** Identischer HA-Token im Klartext hardcoded und auf GitHub gepusht
-- **Token:** `eyJhbGciOiJIUzI1NiIs...` (Bearer Token, gültig bis 2036)
+- **Token:** `eyJhbG...` (Bearer Token, Long-Lived Access Token)
 - **Risiko:** Vollständiger Zugriff auf alle HA-Entities, Services, Konfiguration. Token ist öffentlich auf GitHub einsehbar
 - **Fix:** Token in Environment-Variable oder `/config/secrets.yaml` auslagern, bestehenden Token sofort revoken, neuen generieren
 

@@ -76,6 +76,22 @@
 - **Was spielt?**: "Was spielt gerade auf Spotify?" mit Artist, Titel, Album
 - **Spotify Web API**: Direkte Suche über die Spotify API — kein Spotcast nötig
 
+### 🎛️ Spotify Monitor (ADB Daemon)
+- **Track Monitor**: Erkennt Titelwechsel/Play/Pause via ADB MediaSession → HA Entity-Update
+- **Keep-Alive**: Hält Spotify App permanent am Leben (Doze-Whitelist, Prozess-Check alle 30s)
+- **Audio-Ducking**: Pausiert Musik automatisch bei Sprachbefehlen via ADB KeyEvent
+  - Erkennt Satellite-State (listening/processing/responding/idle)
+  - Boolean-basierte Stopp-Erkennung: Resume nur wenn kein Stopp-Intent erkannt
+  - Race-Condition-sicher: Boolean ON vor ADB-Befehlen, Polling mit 15s Timeout
+  - MEDIA_STOP bei Stopp-Intent → kein Spotify Connect Auto-Reconnect
+- **Display-Navigation**: Automatisch Music-View bei Wiedergabe, Clock-View bei Stopp
+
+### ⏰ Wecker/Alarm
+- **Wecker stellen**: "Stelle den Wecker auf 7 Uhr" / "Wecker auf halb 8"
+- **Wecker löschen**: "Lösche den Wecker" / "Wecker aus"
+- **Wecker abfragen**: "Wann klingelt der Wecker?"
+- **Snooze**: "Schlummern" / "Snooze" / "5 Minuten noch"
+
 ### 🛑 Allgemeiner Stopp (Sentence Trigger)
 - **Einwort-Befehle**: "Stopp" / "Stop" / "Aus" / "Schluss" / "Ende"
 - **Mehwort**: "Halt an" / "Es reicht" / "Sei still" / "Jetzt Ruhe"
@@ -98,6 +114,7 @@ ha-german-voice/
 │       ├── manifest.json
 │       └── strings.json
 ├── custom_sentences/de/     # Sprachbefehle (Sentence-Dateien)
+│   ├── alarm.yaml           # Wecker/Alarm
 │   ├── covers.yaml          # Rolladen/Jalousien
 │   ├── echo.yaml            # Echo/VACA Steuerung
 │   ├── lights.yaml          # Lichter
@@ -109,6 +126,7 @@ ha-german-voice/
 ├── custom_templates/        # Jinja2 Macros
 │   └── weather_macros.jinja # Wetter-Übersetzungen, Prognosen
 ├── intent_scripts/          # Intent Handler (Aktionen + Antworten)
+│   ├── alarm.yaml           # Wecker/Alarm-Aktionen
 │   ├── covers.yaml          # Rolladen-Szenen
 │   ├── echo.yaml            # Echo/VACA + ShowStartseite
 │   ├── lights.yaml          # Licht-Aktionen (mit Alias-Map)
@@ -119,7 +137,10 @@ ha-german-voice/
 ├── scripts/                 # Python-Skripte
 │   ├── erinnerung_scripts.yaml
 │   ├── radio_search.py      # Radio Browser API Suche
-│   └── spotify_voice.py     # Spotify Web API Bridge
+│   ├── spotify_monitor.py   # ADB Track Monitor + Ducking Daemon
+│   ├── spotify_monitor_start.sh # Startskript für Monitor
+│   ├── spotify_voice.py     # Spotify Web API Bridge
+│   └── download_radio_logos.py # Radio-Logos herunterladen
 ├── www/                     # Web Assets
 │   └── radio_logos/         # Senderlogos (PNG)
 │       └── radio_default.png # Fallback-Logo
@@ -355,6 +376,49 @@ input_text:
     name: Spotify Zuletzt Gespielt
     max: 255
     initial: ""
+```
+
+### 10. Spotify Monitor (Optional — für VACA/Echo Show)
+
+Der Spotify Monitor ist ein ADB-basierter Daemon, der Titelwechsel erkennt, HA-Entities aktualisiert
+und Audio-Ducking bei Sprachbefehlen steuert.
+
+Voraussetzungen:
+- **Jailbroken Echo Show 5** (LineageOS) mit ADB-Zugang
+- **VACA Integration** mit Assist Satellite
+- **Spotify App** auf dem Echo Show installiert
+
+#### a) Monitor + Startskript kopieren
+
+```bash
+cp scripts/spotify_monitor.py /config/scripts/
+cp scripts/spotify_monitor_start.sh /config/scripts/
+chmod +x /config/scripts/spotify_monitor_start.sh
+```
+
+> ⚠️ **ANPASSEN** in `spotify_monitor.py`:
+> - `ECHO_HOST` — IP-Adresse deines Echo Show
+> - `SPOTIFY_ENTITY` — Dein Spotify Media Player Entity
+> - `SATELLITE_ENTITY` — Dein Assist Satellite Entity
+> - `RADIO_ENTITY` — Dein VACA Media Player Entity
+> - `VA_DEVICE` — Dein View Assist Sensor Entity
+
+#### b) Shell Command + Helper in `configuration.yaml`
+
+```yaml
+shell_command:
+  spotify_monitor_start: "/config/scripts/spotify_monitor_start.sh"
+
+input_boolean:
+  spotify_ducking_active:
+    name: Spotify Ducking Active
+    initial: false
+```
+
+#### c) Monitor starten
+
+```bash
+python3 /config/scripts/spotify_monitor.py &
 ```
 
 ---

@@ -2,6 +2,48 @@
 
 Alle wichtigen Änderungen an diesem Projekt werden hier dokumentiert.
 
+## [4.1.0] - 2026-02-11
+
+### 🎛️ Spotify Monitor v3 + Audio-Ducking Fix + Alarm/Wecker
+
+Spotify Track Monitor als ADB-Daemon, Race-Condition-Fix für Audio-Ducking,
+TTS-Bereinigung bei Stopp-Befehlen, und neue Wecker/Alarm-Intents.
+
+### Hinzugefügt
+- **Spotify Monitor v3**: `scripts/spotify_monitor.py` — All-in-One ADB-Daemon
+  - **Track Monitor**: Erkennt Titelwechsel/Play/Pause via ADB MediaSession → HA Entity-Update
+  - **Keep-Alive**: Hält Spotify App permanent am Leben (Doze-Whitelist, 30s Prozess-Check)
+  - **Audio-Ducking**: Pausiert Musik bei Spracheingabe via ADB KEYCODE_MEDIA_PAUSE
+  - Adaptive Polling: 0.5s während Ducking, 5s im Idle
+  - Boolean-basierte Stopp-Erkennung mit Polling (0.5s Intervall, 15s Max)
+  - MEDIA_STOP bei Stopp-Intent → verhindert Spotify Connect Auto-Reconnect
+  - Display-Navigation: automatisch Music-View bei Wiedergabe, Clock-View bei Stopp
+  - PID-File Management, Log-Rotation, Signal-Handler
+- **Spotify Monitor Startskript**: `scripts/spotify_monitor_start.sh`
+- **Wecker/Alarm Intents**: `custom_sentences/de/alarm.yaml` + `intent_scripts/alarm.yaml`
+  - Wecker stellen, löschen, abfragen, Snooze
+- **Echo Screen Fix Automation**: `automations/echo_screen_fix.yaml`
+  - Setzt Screen-Settings bei HA-Start und navigiert zur Music-View falls Spotify spielt
+- **Radio-Logo Download**: `scripts/download_radio_logos.py` — Lädt Senderlogos via Radio Browser API
+
+### Behoben
+- **Race Condition im Audio-Ducking**: Boolean ON wird jetzt VOR ADB-Befehlen gesetzt
+  - Problem: ADB dauert 1-3s, Stopp-Automation setzte Boolean OFF während dieser Zeit,
+    Monitor's verspätetes ON überschrieb das OFF → falsches Resume trotz Stopp-Intent
+  - Fix: Boolean ON sofort beim Ducking-Start, vor allen langsamen Operationen
+- **Polling-Timeout zu kurz**: RESUME_POLL_MAX von 5s auf 15s erhöht
+  - Voice-Pipeline (Wake→STT→NLU→Automation) dauert 7-10s — 5s war zu kurz
+- **TTS bei Stopp-Befehlen entfernt**: Keine Sprachausgabe mehr bei "Stopp", "Spotify Pause",
+  "Spotify weiter" — `speech.text: ''` für SpotifyPause, SpotifyResume, GeneralStop +
+  `set_conversation_response: ''` in der Stopp-Automation
+
+### Geändert
+- **Allgemeiner Stopp Automation**: `set_conversation_response: ''` — stumme Ausführung
+- **Intent Scripts Spotify**: Alle Stopp/Pause/Resume-Intents ohne TTS-Feedback
+- **.gitignore**: Temporäre Debug/Test-Skripte mit hardcoded Tokens ausgeschlossen
+- **AUDIT_REPORT**: Token-Fragment entfernt
+- **Konfiguration**: ANPASSEN-Kommentare in spotify_monitor.py und spotify_voice.py
+
 ## [4.0.0] - 2026-02-11
 
 ### 🤖 Jarvis Router + Ollama LLM + Radio Player + Display-Steuerung

@@ -1,0 +1,20 @@
+alias: "Echo Show Screen Fix bei Start"
+description: >-
+  Setzt Screen-Settings und navigiert zur Music-View falls Spotify spielt.
+trigger:
+  - platform: homeassistant
+    event: startup
+action:
+  - delay:
+      seconds: 30
+  - service: shell_command.echo_fix_screen
+  - if:
+      - condition: state
+        entity_id: media_player.spotify_sven
+        state: playing
+    then:
+      - service: view_assist.navigate
+        data:
+          device: sensor.quasselbuechse
+          path: /view-assist/music
+mode: single

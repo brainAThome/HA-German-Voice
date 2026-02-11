@@ -179,11 +179,14 @@ intents:
     data:
       - sentences:
           - "(spiel|spiele) <polite> [radio] {radio_station}"
+          - "(spiel|spiele) <polite> [den] sender {radio_station}"
           - "(starte|start) <polite> [radio] {radio_station}"
+          - "(starte|start) <polite> [den] sender {radio_station}"
           - "radio {radio_station} [abspielen|spielen|starten|an]"
           - "(mach|schalte|schalte) <polite> {radio_station} (an|ein)"
           - "{radio_station} (radio|abspielen|spielen|starten|an|einschalten)"
           - "(spiel|spiele) <polite> {radio_station} radio"
+          - "sender {radio_station} [(an|ein|abspielen|spielen|starten)]"
 
   # --------------------------------------------------------------------------
   # RADIO NACH GENRE
@@ -271,12 +274,25 @@ intents:
   # --------------------------------------------------------------------------
   # RADIO SUCHE (freie Suche \u00fcber Radio Browser API - 30.000+ Sender)
   # --------------------------------------------------------------------------
+  # WICHTIG: Mindestens ein Radio-Keyword (radiosender/sender/im radio) muss
+  # Pflicht sein, sonst fängt SpotifyPlay den Befehl ab!
+  # Default-Provider = Spotify. Radio braucht explizites Keyword.
   RadioSearch:
     data:
       - sentences:
-          - "(such|suche) <polite> [den] [radio] [sender] {radio_query}"
-          - "(such|suche) <polite> [nach] [dem] [radio] [sender] {radio_query}"
-          - "(finde|finde mir|find) <polite> [den] [radio] [sender] {radio_query}"
-          - "(spiel|spiele) <polite> [den] [radio] [sender] {radio_query} [aus dem internet]"
+          # "suche radiosender X" / "suche den radiosender X"
+          - "(such|suche) <polite> [den|einen] (radiosender|radio sender) {radio_query}"
+          - "(such|suche) <polite> [nach] [einem|dem] (radiosender|radio sender) {radio_query}"
+          # "suche im radio X" / "suche im radio nach X"
+          - "(such|suche) <polite> im radio [nach] {radio_query}"
+          # "suche den sender X" — "sender" als Pflicht-Keyword
+          - "(such|suche) <polite> [den|einen] sender {radio_query}"
+          # "finde radiosender X" / "finde im radio X"
+          - "(finde|finde mir|find) <polite> [den|einen] (radiosender|radio sender|sender) {radio_query}"
+          - "(finde|finde mir|find) <polite> im radio {radio_query}"
+          # "spiele den radiosender X" (Compound-Keyword Pflicht)
+          - "(spiel|spiele) <polite> [den] (radiosender|radio sender) {radio_query}"
+          - "(starte|start) <polite> [den] (radiosender|radio sender) {radio_query}"
+          # Explizite Formulierungen
           - "radio suche {radio_query}"
-          - "gibt es [den sender|radio] {radio_query}"
+          - "gibt es [den] (radiosender|radio sender|sender) {radio_query}"
