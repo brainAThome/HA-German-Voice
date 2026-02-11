@@ -1,0 +1,137 @@
+# ==============================================================================
+# HA-GERMAN-VOICE - Deutsche Wecker-Sprachbefehle
+# ==============================================================================
+# Sprachgesteuerter Wecker mit Einmal-/Wiederkehrend-Modus
+# Snooze, Stopp, Abfrage und Löschen per Sprache
+# ==============================================================================
+
+language: de
+
+expansion_rules:
+  wecker_wort: "(wecker|alarm|wecke mich)"
+  bitte_wecker: "[bitte|mal|doch]"
+
+lists:
+  stunde:
+    range:
+      from: 0
+      to: 23
+
+  minute:
+    range:
+      from: 0
+      to: 59
+
+  snooze_minuten:
+    range:
+      from: 1
+      to: 30
+
+  wecker_nummer:
+    values:
+      - in: "(eins|1|ersten|erste)"
+        out: 1
+      - in: "(zwei|2|zweiten|zweite)"
+        out: 2
+
+  wecker_tage:
+    values:
+      - in: "(werktags|unter der woche|montag bis freitag|wochentags)"
+        out: "montag,dienstag,mittwoch,donnerstag,freitag"
+      - in: "(am wochenende|wochenende|samstag und sonntag)"
+        out: "samstag,sonntag"
+      - in: "(jeden tag|täglich|immer|jeden morgen)"
+        out: "montag,dienstag,mittwoch,donnerstag,freitag,samstag,sonntag"
+      - in: "(montags|jeden montag|montag)"
+        out: "montag"
+      - in: "(dienstags|jeden dienstag|dienstag)"
+        out: "dienstag"
+      - in: "(mittwochs|jeden mittwoch|mittwoch)"
+        out: "mittwoch"
+      - in: "(donnerstags|jeden donnerstag|donnerstag)"
+        out: "donnerstag"
+      - in: "(freitags|jeden freitag|freitag)"
+        out: "freitag"
+      - in: "(samstags|jeden samstag|samstag)"
+        out: "samstag"
+      - in: "(sonntags|jeden sonntag|sonntag)"
+        out: "sonntag"
+
+intents:
+  # --------------------------------------------------------------------------
+  # WECKER STELLEN (einmalig)
+  # --------------------------------------------------------------------------
+  SetWecker:
+    data:
+      - sentences:
+          - "<wecker_wort> [<bitte_wecker>][auf|um|für] {stunde} [uhr] [und] {minute}"
+          - "<wecker_wort> [<bitte_wecker>][auf|um|für] {stunde} uhr {minute}"
+          - "<wecker_wort> [<bitte_wecker>][auf|um|für] {stunde} [uhr]"
+          - "[<bitte_wecker>](stell|stelle|setz|setze) [mir] [<bitte_wecker>][den|einen] <wecker_wort> [auf|um|für] {stunde} [uhr] [und] {minute}"
+          - "[<bitte_wecker>](stell|stelle|setz|setze) [mir] [<bitte_wecker>][den|einen] <wecker_wort> [auf|um|für] {stunde} [uhr]"
+          - "weck mich [<bitte_wecker>][um|auf] {stunde} [uhr] [und] {minute}"
+          - "weck mich [<bitte_wecker>][um|auf] {stunde} [uhr]"
+
+  # --------------------------------------------------------------------------
+  # WECKER STELLEN (wiederkehrend)
+  # --------------------------------------------------------------------------
+  SetWeckerWiederkehrend:
+    data:
+      - sentences:
+          - "<wecker_wort> {wecker_tage} [um|auf] {stunde} [uhr] [und] {minute}"
+          - "<wecker_wort> {wecker_tage} [um|auf] {stunde} [uhr]"
+          - "[<bitte_wecker>](stell|stelle|setz|setze) [mir] [<bitte_wecker>][den|einen] <wecker_wort> {wecker_tage} [um|auf] {stunde} [uhr] [und] {minute}"
+          - "[<bitte_wecker>](stell|stelle|setz|setze) [mir] [<bitte_wecker>][den|einen] <wecker_wort> {wecker_tage} [um|auf] {stunde} [uhr]"
+          - "weck mich {wecker_tage} [um|auf] {stunde} [uhr] [und] {minute}"
+          - "weck mich {wecker_tage} [um|auf] {stunde} [uhr]"
+
+  # --------------------------------------------------------------------------
+  # WECKER STOPP (während er klingelt)
+  # --------------------------------------------------------------------------
+  StopWecker:
+    data:
+      - sentences:
+          - "<wecker_wort> (stopp|stop|aus|ausschalten|aufhören|still|ruhe)"
+          - "(stopp|stop|aufhören|still|halt|ruhe) [den] <wecker_wort>"
+          - "(stopp|stop|aufhören|aus) [den alarm]"
+          - "[<bitte_wecker>](schalte|mach) [den] <wecker_wort> aus"
+
+  # --------------------------------------------------------------------------
+  # SNOOZE
+  # --------------------------------------------------------------------------
+  SnoozeWecker:
+    data:
+      - sentences:
+          - "(schlummern|snooze|schlummer)"
+          - "[noch] {snooze_minuten} minuten [schlummern|snooze|noch|schlafen]"
+          - "(schlummern|snooze) {snooze_minuten} minuten"
+          - "noch [ein] (bisschen|wenig|moment)"
+
+  # --------------------------------------------------------------------------
+  # WECKER ABFRAGEN
+  # --------------------------------------------------------------------------
+  QueryWecker:
+    data:
+      - sentences:
+          - "(welche|was für) <wecker_wort> habe ich"
+          - "wann klingelt [der|mein] <wecker_wort>"
+          - "wann (ist|geht) [der|mein] <wecker_wort>"
+          - "zeig [mir] [meine|die|den] <wecker_wort>"
+          - "[habe|gibt] [es|ich] [einen|aktive] <wecker_wort>"
+          - "[sind|ist] [ein] <wecker_wort> [aktiv|gestellt|gesetzt]"
+
+  # --------------------------------------------------------------------------
+  # WECKER LÖSCHEN
+  # --------------------------------------------------------------------------
+  DeleteWecker:
+    data:
+      - sentences:
+          - "(lösche|entferne|deaktiviere) [<bitte_wecker>][den|alle|meinen|meine] <wecker_wort>"
+          - "<wecker_wort> (löschen|entfernen|deaktivieren|abschalten)"
+          - "(alle|beide) <wecker_wort> (löschen|entfernen|deaktivieren|aus)"
+
+  DeleteWeckerNummer:
+    data:
+      - sentences:
+          - "(lösche|entferne|deaktiviere) [<bitte_wecker>] <wecker_wort> {wecker_nummer}"
+          - "<wecker_wort> {wecker_nummer} (löschen|entfernen|deaktivieren|aus)"
