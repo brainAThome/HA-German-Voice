@@ -1,21 +1,21 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
-Spotify Track Monitor v3 ÔÇö ADB MediaSession + Keep-Alive + Ducking
+Spotify Track Monitor v3 — ADB MediaSession + Keep-Alive + Ducking
 ===================================================================
-Alles-in-einem-Daemon f├╝r Jarvis (Echo Show 5 mit LineageOS):
+Alles-in-einem-Daemon für Jarvis (Echo Show 5 mit LineageOS):
 
-1. TRACK MONITOR ÔÇö Erkennt Titelwechsel/Play/Pause via ADB MediaSession
-   ÔåÆ HA Entity-Update erzwingen, Display-Navigation
+1. TRACK MONITOR — Erkennt Titelwechsel/Play/Pause via ADB MediaSession
+   → HA Entity-Update erzwingen, Display-Navigation
 
-2. KEEP-ALIVE ÔÇö H├ñlt Spotify App permanent im Hintergrund am Leben
-   ÔåÆ Pr├╝ft alle 30s ob Spotify-Prozess l├ñuft, startet ihn falls nicht
-   ÔåÆ Doze-Whitelist ÔåÆ Android killt ihn nicht
-   ÔåÆ VACA bleibt immer im Vordergrund (kein App-Stealing)
+2. KEEP-ALIVE — Hält Spotify App permanent im Hintergrund am Leben
+   → Prüft alle 30s ob Spotify-Prozess läuft, startet ihn falls nicht
+   → Doze-Whitelist → Android killt ihn nicht
+   → VACA bleibt immer im Vordergrund (kein App-Stealing)
 
-3. DUCKING ÔÇö Pausiert Musik bei Spracheingabe via ADB KeyEvent
-   ÔåÆ Pollt assist_satellite State via HA API
-   ÔåÆ Bei Spracheingabe: KEYCODE_MEDIA_PAUSE (~100ms statt 2-3s)
-   ÔåÆ Bei Ende: KEYCODE_MEDIA_PLAY
+3. DUCKING — Pausiert Musik bei Spracheingabe via ADB KeyEvent
+   → Pollt assist_satellite State via HA API
+   → Bei Spracheingabe: KEYCODE_MEDIA_PAUSE (~100ms statt 2-3s)
+   → Bei Ende: KEYCODE_MEDIA_PLAY
 
 Start:
   python3 /config/scripts/spotify_monitor.py &
@@ -36,21 +36,17 @@ import threading
 # ============================================================================
 # KONFIGURATION
 # ============================================================================
-# KONFIGURATION — ANPASSEN an eigenes Setup!
-# ============================================================================
 
 POLL_INTERVAL = 0.5        # Sekunden zwischen Polls (ADB ist schnell genug!)
 POLL_INTERVAL_IDLE = 5     # Sekunden wenn Spotify idle/pausiert
 ADB_RECONNECT_WAIT = 10    # Sekunden zwischen Reconnect-Versuchen
 ADB_TIMEOUT = 8            # ADB-Verbindungs-Timeout
 
-# ANPASSEN: IP-Adresse deines Echo Show / Android-Geräts
 ECHO_HOST = "192.168.178.103"
 ECHO_PORT = 5555
 ADB_KEY_PATH = "/config/.storage/adbkey"
 
 HA_API = "http://localhost:8123/api"
-# ANPASSEN: Deine Entity-IDs
 SPOTIFY_ENTITY = "media_player.spotify_sven"
 SATELLITE_ENTITY = "assist_satellite.vaca_362812d56"
 RADIO_ENTITY = "media_player.vaca_362812d56_mediaplayer"
@@ -135,7 +131,7 @@ def http_get(url, headers=None, timeout=5):
         return {}, 0
 
 # ============================================================================
-# ADB MediaSession ÔÇö Kern des Monitors
+# ADB MediaSession — Kern des Monitors
 # ============================================================================
 
 _adb_device = None
@@ -181,7 +177,7 @@ def adb_disconnect():
 
 
 def adb_shell(cmd, timeout_s=5):
-    """F├╝hrt ADB Shell-Befehl aus. Thread-safe.
+    """Führt ADB Shell-Befehl aus. Thread-safe.
     Returns: str oder None bei Fehler (setzt _adb_device = None)."""
     global _adb_device
     with _adb_lock:
@@ -281,7 +277,7 @@ def ha_navigate(path, revert_timeout=None):
         json_data=data,
     )
     if status == 200:
-        log.info("Display ÔåÆ %s", path)
+        log.info("Display → %s", path)
 
 
 def ha_set_input_text(entity_id, value):
@@ -300,9 +296,9 @@ _last_known_satellite = "idle"
 def ha_get_satellite_state():
     """Liest den State des VACA Assist-Satellite.
 
-    WICHTIG: Bei HTTP-Fehler wird der LETZTE bekannte State zur├╝ckgegeben,
-    NICHT 'idle'. Sonst wird bei einem Timeout f├ñlschlich idle erkannt
-    und Ducking-Resume ausgel├Âst.
+    WICHTIG: Bei HTTP-Fehler wird der LETZTE bekannte State zurückgegeben,
+    NICHT 'idle'. Sonst wird bei einem Timeout fälschlich idle erkannt
+    und Ducking-Resume ausgelöst.
     """
     global _last_known_satellite
     data, status = http_get(
@@ -341,7 +337,7 @@ def keepalive_init():
     if _keepalive_initialized:
         return
 
-    # Spotify in Doze-Whitelist ÔåÆ Android killt es nicht im Deep Sleep
+    # Spotify in Doze-Whitelist → Android killt es nicht im Deep Sleep
     result = adb_shell(
         f"dumpsys deviceidle whitelist +{SPOTIFY_PACKAGE} 2>/dev/null; "
         f"cmd appops set {SPOTIFY_PACKAGE} RUN_IN_BACKGROUND allow 2>/dev/null; "
@@ -352,22 +348,22 @@ def keepalive_init():
         log.info("Keep-Alive: Spotify in Doze-Whitelist + Background-Erlaubnis gesetzt")
         _keepalive_initialized = True
 
-    # Initiales Keep-Alive: Sicherstellen dass Spotify l├ñuft
+    # Initiales Keep-Alive: Sicherstellen dass Spotify läuft
     keepalive_check()
 
 
 def keepalive_check():
-    """Pr├╝ft ob Spotify l├ñuft. Falls nicht: im Hintergrund starten.
+    """Prüft ob Spotify läuft. Falls nicht: im Hintergrund starten.
 
     Startet Spotify und bringt sofort VACA wieder in den Vordergrund.
     """
     result = adb_shell(f"pidof {SPOTIFY_PACKAGE}", timeout_s=3)
     if result and result.strip():
-        return True  # Spotify l├ñuft
+        return True  # Spotify läuft
 
     log.warning("Keep-Alive: Spotify-Prozess nicht gefunden, starte...")
 
-    # Spotify starten ÔÇö monkey ist der zuverl├ñssigste Weg
+    # Spotify starten — monkey ist der zuverlässigste Weg
     adb_shell(
         f"monkey -p {SPOTIFY_PACKAGE} -c android.intent.category.LAUNCHER 1 2>/dev/null",
         timeout_s=10,
@@ -383,7 +379,7 @@ def keepalive_check():
     time.sleep(0.3)
     adb_shell("settings put system screen_off_timeout 86400000", timeout_s=5)
 
-    # Pr├╝fen ob es jetzt l├ñuft
+    # Prüfen ob es jetzt läuft
     result = adb_shell(f"pidof {SPOTIFY_PACKAGE}", timeout_s=3)
     if result and result.strip():
         log.info("Keep-Alive: Spotify gestartet (PID: %s)", result.strip())
@@ -411,25 +407,25 @@ def ducking_check(current_spotify_state):
             3s Wartezeit + Satellite-Recheck + Boolean-Check.
 
     Boolean-Logik:
-    - WIR setzen input_boolean ÔåÆ ON beim Ducking-Start
-    - Stopp-Automation setzt input_boolean ÔåÆ OFF als ERSTE Aktion
-    - Nach 3s Wartezeit: ON = normales Ducking ÔåÆ Resume,
-                          OFF = Stopp-Intent ÔåÆ kein Resume
+    - WIR setzen input_boolean → ON beim Ducking-Start
+    - Stopp-Automation setzt input_boolean → OFF als ERSTE Aktion
+    - Nach 3s Wartezeit: ON = normales Ducking → Resume,
+                          OFF = Stopp-Intent → kein Resume
     """
     global _ducking_active, _last_satellite_state
     global _ducking_was_spotify, _ducking_was_radio
 
     sat_state = ha_get_satellite_state()
 
-    # Satellite hat sich nicht ge├ñndert ÔåÆ nichts zu tun
+    # Satellite hat sich nicht geändert → nichts zu tun
     if sat_state == _last_satellite_state:
         return
     old_state = _last_satellite_state
     _last_satellite_state = sat_state
 
-    # === PAUSE: Satellite verl├ñsst idle ÔåÆ Spracheingabe beginnt ===
+    # === PAUSE: Satellite verlässt idle → Spracheingabe beginnt ===
     if old_state == "idle" and sat_state != "idle":
-        # Was l├ñuft gerade? Spotify (ADB) und/oder Radio (HA)
+        # Was läuft gerade? Spotify (ADB) und/oder Radio (HA)
         _ducking_was_spotify = (current_spotify_state == STATE_PLAYING)
         radio_state = ha_get_entity_state(RADIO_ENTITY)
         _ducking_was_radio = (radio_state == "playing")
@@ -440,14 +436,14 @@ def ducking_check(current_spotify_state):
                 sources.append("Spotify")
             if _ducking_was_radio:
                 sources.append("Radio")
-            log.info("­ƒöç Ducking: Satellite=%s, pausiere %s",
+            log.info("🔇 Ducking: Satellite=%s, pausiere %s",
                      sat_state, "+".join(sources))
             _ducking_active = True
 
             # WICHTIG: Boolean ON ZUERST setzen, BEVOR ADB/Radio!
             # Race-Condition-Fix: ADB dauert 1-3s. Wenn die Stopp-Automation
-            # Boolean OFF setzt BEVOR unser ON ankommt, ├╝berschreiben wir
-            # das OFF und der Monitor denkt "kein Stopp" ÔåÆ falsches Resume.
+            # Boolean OFF setzt BEVOR unser ON ankommt, überschreiben wir
+            # das OFF und der Monitor denkt "kein Stopp" → falsches Resume.
             http_post(
                 f"{HA_API}/services/input_boolean/turn_on",
                 headers={"Authorization": f"Bearer {HA_TOKEN}"},
@@ -457,7 +453,7 @@ def ducking_check(current_spotify_state):
             # ADB pausiert den aktuellen AudioFocus-Halter
             adb_shell("input keyevent KEYCODE_MEDIA_PAUSE", timeout_s=3)
 
-            # Radio zus├ñtzlich via HA pausieren (falls nicht via ADB)
+            # Radio zusätzlich via HA pausieren (falls nicht via ADB)
             if _ducking_was_radio:
                 http_post(
                     f"{HA_API}/services/media_player/media_pause",
@@ -466,23 +462,23 @@ def ducking_check(current_spotify_state):
                 )
         return
 
-    # === RESUME: Satellite kommt zur├╝ck zu idle ===
+    # === RESUME: Satellite kommt zurück zu idle ===
     if sat_state == "idle" and _ducking_active:
-        # POLLING-ANSATZ: Pr├╝fe Boolean alle 0.5s f├╝r max 15s.
+        # POLLING-ANSATZ: Prüfe Boolean alle 0.5s für max 15s.
         #
         # WARUM POLLING statt einmaligem Wait?
-        # Die Stopp-Automation l├ñuft als Sentence-Trigger in der Pipeline.
-        # Je nach HA-Last kann sie VOR oder NACH satelliteÔåÆidle fertig sein.
+        # Die Stopp-Automation läuft als Sentence-Trigger in der Pipeline.
+        # Je nach HA-Last kann sie VOR oder NACH satellite→idle fertig sein.
         # Mit Polling erkennen wir den Boolean-Wechsel sofort wenn er kommt,
-        # statt blind 3s zu warten und dann zu sp├ñt oder zu fr├╝h zu pr├╝fen.
+        # statt blind 3s zu warten und dann zu spät oder zu früh zu prüfen.
         #
         # Ablauf:
-        # - Alle 0.5s: Boolean pr├╝fen + Satellite-State pr├╝fen
-        # - Boolean OFF ÔåÆ Stopp-Intent erkannt ÔåÆ sofort KEIN Resume
-        # - Boolean ON nach 15s ÔåÆ normales Ducking ÔåÆ Resume
-        # - Satellite nicht mehr idle ÔåÆ abbrechen, n├ñchsten ├£bergang abwarten
+        # - Alle 0.5s: Boolean prüfen + Satellite-State prüfen
+        # - Boolean OFF → Stopp-Intent erkannt → sofort KEIN Resume
+        # - Boolean ON nach 15s → normales Ducking → Resume
+        # - Satellite nicht mehr idle → abbrechen, nächsten Übergang abwarten
         RESUME_POLL_INTERVAL = 0.5
-        RESUME_POLL_MAX = 15.0  # Sekunden (genug f├╝r langsame Pipelines)
+        RESUME_POLL_MAX = 15.0  # Sekunden (genug für langsame Pipelines)
         elapsed = 0.0
         stop_detected = False
 
@@ -493,12 +489,12 @@ def ducking_check(current_spotify_state):
             # Satellite immer noch idle?
             sat_recheck = ha_get_satellite_state()
             if sat_recheck != "idle":
-                log.info("­ƒöç Ducking: Satellite=%s w├ñhrend Wartezeit ÔåÆ warte weiter",
+                log.info("🔇 Ducking: Satellite=%s während Wartezeit → warte weiter",
                          sat_recheck)
                 _last_satellite_state = sat_recheck
-                return  # N├ñchster idle-├£bergang wird erneut gepr├╝ft
+                return  # Nächster idle-Übergang wird erneut geprüft
 
-            # Boolean pr├╝fen
+            # Boolean prüfen
             bool_data, bool_status = http_get(
                 f"{HA_API}/states/input_boolean.spotify_ducking_active",
                 headers={"Authorization": f"Bearer {HA_TOKEN}"},
@@ -506,26 +502,27 @@ def ducking_check(current_spotify_state):
             ducking_bool = bool_data.get("state", "unknown") if bool_status == 200 else "unknown"
 
             if ducking_bool != "on":
-                # OFF ÔåÆ Stopp-Intent erkannt!
+                # OFF → Stopp-Intent erkannt!
                 stop_detected = True
-                log.info("­ƒöç Ducking: Boolean='%s' nach %.1fs ÔåÆ Stopp erkannt ÔåÆ KEIN Resume",
+                log.info("🔇 Ducking: Boolean='%s' nach %.1fs → Stopp erkannt → KEIN Resume",
                          ducking_bool, elapsed)
-                log.info("­ƒöç Ducking: Pipeline-Dauer bis Boolean OFF: %.1fs", elapsed)
+                log.info("🔇 Ducking: Pipeline-Dauer bis Boolean OFF: %.1fs", elapsed)
                 # MEDIA_STOP senden damit Spotify WIRKLICH stoppt
                 if _ducking_was_spotify:
                     adb_shell("input keyevent KEYCODE_MEDIA_STOP", timeout_s=3)
-                    log.info("­ƒöç Ducking: MEDIA_STOP gesendet ÔåÆ Spotify gestoppt")
+                    log.info("🔇 Ducking: MEDIA_STOP gesendet → Spotify gestoppt")
                 break
 
         if not stop_detected:
-            # Boolean war die ganze Zeit ON ÔåÆ normales Ducking ÔåÆ Resume
+            # Boolean war die ganze Zeit ON → normales Ducking → Resume
             sources = "+".join(filter(None, [
                 "Spotify" if _ducking_was_spotify else "",
                 "Radio" if _ducking_was_radio else "",
             ]))
-            log.info("­ƒöè Ducking Ende: Resume nach %.1fs (%s) ÔÇö Boolean blieb ON",
+            log.info("🔊 Ducking Ende: Resume nach %.1fs (%s) — Boolean blieb ON",
                      elapsed, sources)
-            adb_shell("input keyevent KEYCODE_MEDIA_PLAY", timeout_s=3)
+            if _ducking_was_spotify:
+                adb_shell("input keyevent KEYCODE_MEDIA_PLAY", timeout_s=3)
             if _ducking_was_radio:
                 http_post(
                     f"{HA_API}/services/media_player/media_play",
@@ -533,7 +530,7 @@ def ducking_check(current_spotify_state):
                     json_data={"entity_id": RADIO_ENTITY},
                 )
 
-        # Aufr├ñumen
+        # Aufräumen
         _ducking_active = False
         _ducking_was_spotify = False
         _ducking_was_radio = False
@@ -671,12 +668,12 @@ def main():
 
             if title_changed:
                 if last_description is not None:
-                    log.info("ÔûÂ Titelwechsel: %s ÔÇö %s", artist, title)
+                    log.info("▶ Titelwechsel: %s — %s", artist, title)
                 else:
-                    log.info("ÔûÂ Erster Titel: %s ÔÇö %s", artist, title)
+                    log.info("▶ Erster Titel: %s — %s", artist, title)
 
                 # 1) HA Entity sofort aktualisieren
-                #    (W├ñhrend Ducking auch OK ÔÇö wir nutzen den input_boolean
+                #    (Während Ducking auch OK — wir nutzen den input_boolean
                 #    als Signal, nicht den HA Spotify State)
                 ha_update_entity()
 
@@ -699,22 +696,22 @@ def main():
                 if last_state is not None:
                     # Bei Ducking: State-Wechsel nicht navigieren
                     if _ducking_active:
-                        log.debug("State-Wechsel w├ñhrend Ducking: %s ÔåÆ %s",
+                        log.debug("State-Wechsel während Ducking: %s → %s",
                                   STATE_NAMES.get(last_state, "?"),
                                   STATE_NAMES.get(state, "?"))
                     elif state == STATE_PLAYING:
-                        log.info("ÔûÂ Wiedergabe fortgesetzt: %s ÔÇö %s", artist, title)
+                        log.info("▶ Wiedergabe fortgesetzt: %s — %s", artist, title)
                         ha_update_entity()
                         ha_navigate(VA_MUSIC_PATH, revert_timeout=3600)
                         display_on_music = True
                     elif state == STATE_PAUSED:
-                        log.info("ÔÅ© Pausiert: %s ÔÇö %s", artist, title)
+                        log.info("⏸ Pausiert: %s — %s", artist, title)
                         ha_update_entity()
                         if display_on_music:
                             ha_navigate(VA_HOME_PATH)
                             display_on_music = False
                     elif state == STATE_STOPPED:
-                        log.info("ÔÅ╣ Gestoppt")
+                        log.info("⏹ Gestoppt")
                         ha_update_entity()
                         if display_on_music:
                             ha_navigate(VA_HOME_PATH)
@@ -722,9 +719,9 @@ def main():
 
                 last_state = state
 
-            # Adaptive Polling ÔÇö SCHNELL w├ñhrend Ducking!
+            # Adaptive Polling — SCHNELL während Ducking!
             if _ducking_active:
-                time.sleep(POLL_INTERVAL)       # 0.5s ÔÇö muss satelliteÔåÆidle schnell erkennen
+                time.sleep(POLL_INTERVAL)       # 0.5s — muss satellite→idle schnell erkennen
             elif state == STATE_PLAYING:
                 time.sleep(POLL_INTERVAL)
             else:

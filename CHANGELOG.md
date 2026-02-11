@@ -2,6 +2,38 @@
 
 Alle wichtigen Änderungen an diesem Projekt werden hier dokumentiert.
 
+## [4.2.0] - 2026-02-12
+
+### 📻 Radio Stream-Fix + Ducking-Bugfix
+
+Umfassender Radio-Stream-Audit: 22+ defekte Sender-URLs repariert,
+ExoPlayer-Kompatibilitätsproblem mit HTTPS→HTTP-Redirects gelöst,
+und falsches Spotify-Resume beim Radio-Stopp behoben.
+
+### Behoben
+- **22+ defekte Radio-Stream-URLs ersetzt**: Alle Sender mit DNS-Fehlern, 404s, SSL-Problemen
+  durch funktionierende Streams via radio-browser.info API ersetzt
+  - Betroffene Sender u.a.: Bayern1, Bayern3, NDR2, NDR1, NJOY, HR3, Energy, Radio7,
+    PlanetRadio, MDRJump, MDRSputnik, JamFM, YouFM, DieNeue1077, Ostseewelle,
+    AlsterRadio, HitRadioFFH, SwissJazz, AbsolutRelax
+- **FFN: HTTPS→HTTP Redirect behoben**: `https://player.ffn.de/ffn.mp3` machte einen
+  302-Redirect von HTTPS nach HTTP — ExoPlayer in der VACA Companion App verweigert
+  Cross-Protocol-Redirects. Fix: Direkte HTTP-URL `http://stream.ffn.de/ffn/mp3-192/`
+- **RadioHamburg: SSL-Fix**: `TLSV1_UNRECOGNIZED_NAME` auf `streams.radiohamburg.de` —
+  ersetzt durch `https://frontend.streamonkey.net/rhh-1036`
+- **RadioBremen: DNS-Fix**: `rb-bremeneins-live.cast.addradio.de` nicht auflösbar —
+  ersetzt durch `https://icecast.radiobremen.de/rb/bremeneins/live/mp3/128/stream.mp3`
+- **Falsches Spotify-Resume beim Radio-Stopp**: Monitor sendete `KEYCODE_MEDIA_PLAY`
+  bedingungslos beim Ducking-Resume — Android dispatchte es an Spotifys MediaSession,
+  auch wenn nur Radio lief. Fix: `KEYCODE_MEDIA_PLAY` nur wenn `_ducking_was_spotify == True`
+- **Genre-Streams repariert**: SwissJazz, AbsolutRelax und weitere Genre-basierte Sender
+  in RadioPlayGenre-Map aktualisiert
+
+### Geändert
+- **intent_scripts/radio.yaml**: Alle drei Station-Maps (RadioPlay, RadioPlayDefault,
+  RadioPlayGenre) mit verifizierten Stream-URLs aktualisiert
+- **scripts/spotify_monitor.py**: Ducking-Resume-Logik um `_ducking_was_spotify`-Guard erweitert
+
 ## [4.1.0] - 2026-02-11
 
 ### 🎛️ Spotify Monitor v3 + Audio-Ducking Fix + Alarm/Wecker
