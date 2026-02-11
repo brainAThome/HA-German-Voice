@@ -94,23 +94,23 @@ lists:
 responses:
   intents:
     HassTurnOn:
-      light_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar'] | random }}, {{ slots.name }} ist an."
-      light_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar'] | random }}, Licht in {{ slots.area }} ist an."
-      light_all: "{{ ['OK', 'Alles klar', 'Erledigt'] | random }}, alle Lichter sind an."
+      light_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Ja, nur für dich', 'Jo, mache ich', 'Aber sowas von'] | random }}, {{ slots.name }} ist an."
+      light_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Ja, nur für dich', 'Jo, mache ich'] | random }}, Licht in {{ slots.area }} ist an."
+      light_all: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Aber gerne doch'] | random }}, alle Lichter sind an."
     HassTurnOff:
-      light_off_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar'] | random }}, {{ slots.name }} ist aus."
-      light_off_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar'] | random }}, Licht in {{ slots.area }} ist aus."
-      light_off_all: "{{ ['OK', 'Alles klar', 'Erledigt'] | random }}, alle Lichter sind aus."
+      light_off_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Ja, nur für dich', 'Jo, mache ich', 'Wird gemacht'] | random }}, {{ slots.name }} ist aus."
+      light_off_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Ja, nur für dich'] | random }}, Licht in {{ slots.area }} ist aus."
+      light_off_all: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Aber gerne doch'] | random }}, alle Lichter sind aus."
     HassToggle:
-      light_toggle: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar'] | random }}, {{ slots.name }} umgeschaltet."
+      light_toggle: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Jo, mache ich', 'Aber gerne doch'] | random }}, {{ slots.name }} umgeschaltet."
     HassLightSet:
-      brightness_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar'] | random }}, {{ slots.name }} auf {{ slots.brightness }}%."
-      brightness_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar'] | random }}, Licht in {{ slots.area }} auf {{ slots.brightness }}%."
-      adjust_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar'] | random }}, {{ slots.name }} angepasst."
-      color_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar'] | random }}, {{ slots.name }} leuchtet jetzt {{ slots.color }}."
-      color_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar'] | random }}, Licht in {{ slots.area }} leuchtet jetzt {{ slots.color }}."
-      colortemp_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar'] | random }}, Farbtemperatur von {{ slots.name }} angepasst."
-      colortemp_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar'] | random }}, Farbtemperatur in {{ slots.area }} angepasst."
+      brightness_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Jo, mache ich', 'Aber gerne doch'] | random }}, {{ slots.name }} auf {{ slots.brightness }}%."
+      brightness_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Aber gerne doch'] | random }}, Licht in {{ slots.area }} auf {{ slots.brightness }}%."
+      adjust_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Aber sowas von'] | random }}, {{ slots.name }} angepasst."
+      color_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Jo, mache ich'] | random }}, {{ slots.name }} leuchtet jetzt {{ slots.color }}."
+      color_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Aber gerne doch'] | random }}, Licht in {{ slots.area }} leuchtet jetzt {{ slots.color }}."
+      colortemp_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Jo'] | random }}, Farbtemperatur von {{ slots.name }} angepasst."
+      colortemp_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Aber gerne doch'] | random }}, Farbtemperatur in {{ slots.area }} angepasst."
 
 # ============================================================================
 # INTENTS MIT ENTITY/AREA SLOTS + RESPONSES

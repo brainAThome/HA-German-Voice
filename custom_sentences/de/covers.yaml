@@ -89,22 +89,22 @@ lists:
 responses:
   intents:
     HassTurnOn:
-      cover_open_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar'] | random }}, {{ slots.name }} wird geöffnet."
-      cover_open_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar'] | random }}, Rolladen in {{ slots.area }} werden geöffnet."
-      cover_open_all: "{{ ['OK', 'Alles klar', 'Erledigt'] | random }}, alle Rolladen werden geöffnet."
+      cover_open_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Jo, mache ich', 'Ja, nur für dich'] | random }}, {{ slots.name }} wird geöffnet."
+      cover_open_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Jo, mache ich'] | random }}, Rolladen in {{ slots.area }} werden geöffnet."
+      cover_open_all: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Aber gerne doch'] | random }}, alle Rolladen werden geöffnet."
     HassTurnOff:
-      cover_close_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar'] | random }}, {{ slots.name }} wird geschlossen."
-      cover_close_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar'] | random }}, Rolladen in {{ slots.area }} werden geschlossen."
-      cover_close_all: "{{ ['OK', 'Alles klar', 'Erledigt'] | random }}, alle Rolladen werden geschlossen."
+      cover_close_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Jo, mache ich', 'Wird gemacht'] | random }}, {{ slots.name }} wird geschlossen."
+      cover_close_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Jo, mache ich'] | random }}, Rolladen in {{ slots.area }} werden geschlossen."
+      cover_close_all: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Aber gerne doch'] | random }}, alle Rolladen werden geschlossen."
     HassStopCover:
-      cover_stop_entity: "{{ ['OK', 'Alles klar', 'Erledigt'] | random }}, {{ slots.name }} gestoppt."
-      cover_stop_area: "{{ ['OK', 'Alles klar', 'Erledigt'] | random }}, Rolladen in {{ slots.area }} gestoppt."
+      cover_stop_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jo', 'Jawohl'] | random }}, {{ slots.name }} gestoppt."
+      cover_stop_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jo', 'Jawohl'] | random }}, Rolladen in {{ slots.area }} gestoppt."
     HassSetCoverPosition:
-      cover_pos_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar'] | random }}, {{ slots.name }} auf {{ slots.position }}%."
-      cover_pos_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar'] | random }}, Rolladen in {{ slots.area }} auf {{ slots.position }}%."
+      cover_pos_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Jo, mache ich', 'Aber gerne doch'] | random }}, {{ slots.name }} auf {{ slots.position }}%."
+      cover_pos_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Aber gerne doch'] | random }}, Rolladen in {{ slots.area }} auf {{ slots.position }}%."
     HassSetCoverTiltPosition:
-      cover_tilt_entity: "{{ ['OK', 'Alles klar', 'Erledigt'] | random }}, Lamellen {{ slots.name }} auf {{ slots.tilt_position }}%."
-      cover_tilt_area: "{{ ['OK', 'Alles klar', 'Erledigt'] | random }}, Lamellen in {{ slots.area }} auf {{ slots.tilt_position }}%."
+      cover_tilt_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Jo'] | random }}, Lamellen {{ slots.name }} auf {{ slots.tilt_position }}%."
+      cover_tilt_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Aber gerne doch'] | random }}, Lamellen in {{ slots.area }} auf {{ slots.tilt_position }}%."
 
 # ============================================================================
 # INTENTS MIT ENTITY/AREA SLOTS + RESPONSES

@@ -16,15 +16,15 @@ GetWeather:
         'partlycloudy': 'leicht bewölkt',
         'cloudy': 'eher bewölkt',
         'rainy': 'regnerisch',
-        'pouring': 'sehr regnerisch mit starkem Niederschlag',
-        'snowy': 'winterlich mit Schnee',
-        'snowy-rainy': 'winterlich mit Schneeregen',
+        'pouring': 'total verregnet',
+        'snowy': 'verschneit',
+        'snowy-rainy': 'nasskalt',
         'fog': 'neblig',
         'windy': 'windig',
-        'windy-variant': 'windig mit Wolken',
+        'windy-variant': 'stürmisch',
         'lightning': 'gewitterig',
-        'lightning-rainy': 'gewittrig mit Regen',
-        'hail': 'mit Hagel',
+        'lightning-rainy': 'gewittrig',
+        'hail': 'stürmisch',
         'exceptional': 'außergewöhnlich'
       } %}
       {% set cond = condition_map.get(weather, 'unbekannt') %}
@@ -32,7 +32,10 @@ GetWeather:
         "Draußen ist es gerade " ~ cond ~ ". Das Thermometer zeigt " ~ temp ~ " Grad und die Luftfeuchtigkeit liegt bei " ~ humidity ~ " Prozent.",
         "Aktuell haben wir " ~ cond ~ "es Wetter bei " ~ temp ~ " Grad. Die Luftfeuchtigkeit beträgt " ~ humidity ~ " Prozent.",
         "Im Moment ist es " ~ cond ~ ", " ~ temp ~ " Grad bei " ~ humidity ~ " Prozent Luftfeuchtigkeit.",
-        "Das Wetter zeigt sich gerade " ~ cond ~ ". Bei " ~ temp ~ " Grad und " ~ humidity ~ " Prozent Luftfeuchtigkeit."
+        "Das Wetter zeigt sich gerade " ~ cond ~ ". Bei " ~ temp ~ " Grad und " ~ humidity ~ " Prozent Luftfeuchtigkeit.",
+        "Ich hab mal rausgeguckt: " ~ cond ~ " bei " ~ temp ~ " Grad. Luftfeuchtigkeit " ~ humidity ~ " Prozent.",
+        "Na, das Wetter? " ~ cond ~ "! " ~ temp ~ " Grad, " ~ humidity ~ " Prozent Luftfeuchtigkeit.",
+        "Also, Sache ist die: " ~ cond ~ ", " ~ temp ~ " Grad und " ~ humidity ~ " Prozent Luftfeuchtigkeit. So sieht's aus!"
       ] %}
       {{ responses | random }}
 
@@ -44,35 +47,53 @@ GetTemperature:
         {% set r = [
           "Es ist ziemlich frostig draußen, das Thermometer zeigt " ~ temp ~ " Grad unter Null.",
           "Brr, " ~ temp ~ " Grad! Ziemlich eisig da draußen.",
-          "Das Thermometer zeigt frostige " ~ temp ~ " Grad. Warm anziehen!"
+          "Das Thermometer zeigt frostige " ~ temp ~ " Grad. Warm anziehen!",
+          "Boah, " ~ temp ~ " Grad! Da ist es ja popokalt draußen!",
+          "Alter Schwede, " ~ temp ~ " Grad! Arschkalt, sag ich dir.",
+          temp ~ " Grad! Da frieren sogar die Eisbären. Bloß nicht ohne Jacke raus!",
+          "Willkommen in Sibirien! " ~ temp ~ " Grad zeigt das Thermometer. Mütze auf!"
         ] %}
         {{ r | random }}
       {% elif temp < 10 %}
         {% set r = [
           "Es ist recht frisch draußen mit " ~ temp ~ " Grad.",
           "Draußen ist es kühl, " ~ temp ~ " Grad zeigt das Thermometer.",
-          "Mit " ~ temp ~ " Grad ist es eher frisch heute."
+          "Mit " ~ temp ~ " Grad ist es eher frisch heute.",
+          temp ~ " Grad. Na ja, kuschelig warm ist definitiv anders!",
+          "Frische " ~ temp ~ " Grad! Jacke nicht vergessen, mein Bester!",
+          "Das Thermometer zeigt " ~ temp ~ " Grad. Nicht gerade Strandwetter, oder?"
         ] %}
         {{ r | random }}
       {% elif temp < 20 %}
         {% set r = [
           "Draußen sind es angenehme " ~ temp ~ " Grad.",
           "Das Thermometer zeigt gemütliche " ~ temp ~ " Grad.",
-          "Mit " ~ temp ~ " Grad ist es angenehm temperiert."
+          "Mit " ~ temp ~ " Grad ist es angenehm temperiert.",
+          temp ~ " Grad, perfektes Wetter zum Rausgehen!",
+          "Solide " ~ temp ~ " Grad! Nicht zu heiß, nicht zu kalt. Einfach prima.",
+          "Bei " ~ temp ~ " Grad kann man sich echt nicht beschweren. Ab nach draußen!"
         ] %}
         {{ r | random }}
       {% elif temp < 30 %}
         {% set r = [
           "Es ist schön warm mit " ~ temp ~ " Grad.",
           "Draußen herrschen warme " ~ temp ~ " Grad.",
-          "Bei " ~ temp ~ " Grad ist es richtig schön warm heute."
+          "Bei " ~ temp ~ " Grad ist es richtig schön warm heute.",
+          temp ~ " Grad! Perfektes T-Shirt-Wetter, genieß es!",
+          "Herrliche " ~ temp ~ " Grad! Ab ins Freie mit dir!",
+          "Eis-Wetter bei " ~ temp ~ " Grad! Also Speiseeis, nicht Glatteis.",
+          temp ~ " Grad, Sonnencreme nicht vergessen!"
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
           "Es ist richtig heiß draußen, " ~ temp ~ " Grad zeigt das Thermometer.",
           "Holla, " ~ temp ~ " Grad! Ganz schön heiß da draußen.",
-          "Bei " ~ temp ~ " Grad ist es ordentlich heiß. Viel trinken!"
+          "Bei " ~ temp ~ " Grad ist es ordentlich heiß. Viel trinken!",
+          "Alter, " ~ temp ~ " Grad! Da kannst du Spiegeleier auf dem Asphalt braten!",
+          temp ~ " Grad! Das ist Sauna-Wetter, nur ohne Tauchbecken danach.",
+          "Boah, " ~ temp ~ " Grad! Selbst die Sonne meint, das ist übertrieben.",
+          temp ~ " Grad! Am besten den ganzen Tag im Pool verbringen."
         ] %}
         {{ r | random }}
       {% endif %}
@@ -85,28 +106,36 @@ GetHumidity:
         {% set r = [
           "Die Luft ist ziemlich trocken, die Luftfeuchtigkeit beträgt nur " ~ humidity ~ " Prozent.",
           "Mit " ~ humidity ~ " Prozent ist die Luft sehr trocken heute.",
-          "Nur " ~ humidity ~ " Prozent Luftfeuchtigkeit, das ist recht trocken."
+          "Nur " ~ humidity ~ " Prozent Luftfeuchtigkeit, das ist recht trocken.",
+          humidity ~ " Prozent! Da knistert jeder Pullover beim Ausziehen.",
+          "Wüsten-Vibes! Nur " ~ humidity ~ " Prozent Luftfeuchtigkeit."
         ] %}
         {{ r | random }}
       {% elif humidity < 60 %}
         {% set r = [
           "Die Luftfeuchtigkeit ist angenehm bei " ~ humidity ~ " Prozent.",
           "Mit " ~ humidity ~ " Prozent Luftfeuchtigkeit ist alles im grünen Bereich.",
-          "Die Luftfeuchtigkeit liegt bei komfortablen " ~ humidity ~ " Prozent."
+          "Die Luftfeuchtigkeit liegt bei komfortablen " ~ humidity ~ " Prozent.",
+          humidity ~ " Prozent Luftfeuchtigkeit, das passt perfekt!",
+          "Goldrichtig! " ~ humidity ~ " Prozent, da fühlt man sich wohl."
         ] %}
         {{ r | random }}
       {% elif humidity < 80 %}
         {% set r = [
           "Es ist etwas feucht bei " ~ humidity ~ " Prozent Luftfeuchtigkeit.",
           "Die Luft ist leicht feucht, " ~ humidity ~ " Prozent zeigt das Hygrometer.",
-          "Mit " ~ humidity ~ " Prozent ist die Luftfeuchtigkeit etwas erhöht."
+          "Mit " ~ humidity ~ " Prozent ist die Luftfeuchtigkeit etwas erhöht.",
+          humidity ~ " Prozent. Na ja, Frösche würden sich wohlfühlen.",
+          "Etwas klamm mit " ~ humidity ~ " Prozent. Haare föhnen lohnt sich heute nicht."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
           "Die Luft ist sehr schwül, mit " ~ humidity ~ " Prozent Luftfeuchtigkeit.",
           "Bei " ~ humidity ~ " Prozent Luftfeuchtigkeit ist es ordentlich schwül.",
-          "Ganz schön feucht heute, " ~ humidity ~ " Prozent Luftfeuchtigkeit."
+          "Ganz schön feucht heute, " ~ humidity ~ " Prozent Luftfeuchtigkeit.",
+          humidity ~ " Prozent! Du könntest fast schwimmen in der Luft.",
+          "Tropisches Feeling mit " ~ humidity ~ " Prozent. Fehlt nur noch der Regenwald."
         ] %}
         {{ r | random }}
       {% endif %}
@@ -123,28 +152,37 @@ GetWind:
         {% set r = [
           "Es weht praktisch kein Wind, nur " ~ wind ~ " Kilometer pro Stunde aus " ~ dir ~ ".",
           "Fast windstill, gerade mal " ~ wind ~ " km/h aus " ~ dir ~ ".",
-          "Kaum Wind heute, nur " ~ wind ~ " Kilometer pro Stunde."
+          "Kaum Wind heute, nur " ~ wind ~ " Kilometer pro Stunde.",
+          "Mucksmäuschenstill da draußen, nur " ~ wind ~ " km/h. Kein Lüftchen!",
+          wind ~ " km/h, da bewegt sich nicht mal ein Blatt."
         ] %}
         {{ r | random }}
       {% elif wind < 20 %}
         {% set r = [
           "Es gibt einen leichten Wind aus " ~ dir ~ " mit " ~ wind ~ " Kilometern pro Stunde.",
           "Ein angenehmes Lüftchen aus " ~ dir ~ ", " ~ wind ~ " km/h.",
-          "Leichter Wind mit " ~ wind ~ " Kilometern pro Stunde aus " ~ dir ~ "."
+          "Leichter Wind mit " ~ wind ~ " Kilometern pro Stunde aus " ~ dir ~ ".",
+          "Nettes Lüftchen aus " ~ dir ~ "! " ~ wind ~ " km/h, perfekt zum Drachensteigen. Na ja, fast.",
+          wind ~ " km/h aus " ~ dir ~ ". Gerade genug, um die Haare zu verwuscheln."
         ] %}
         {{ r | random }}
       {% elif wind < 40 %}
         {% set r = [
           "Es ist recht windig heute, mit " ~ wind ~ " Kilometern pro Stunde aus " ~ dir ~ ".",
           "Ziemlich windig, der Wind bläst mit " ~ wind ~ " km/h aus " ~ dir ~ ".",
-          "Ordentlich Wind aus " ~ dir ~ " mit " ~ wind ~ " Kilometern pro Stunde."
+          "Ordentlich Wind aus " ~ dir ~ " mit " ~ wind ~ " Kilometern pro Stunde.",
+          wind ~ " km/h! Da hält man besser den Hut fest!",
+          "Ganz schön zugig aus " ~ dir ~ "! " ~ wind ~ " km/h, Frisur ist heute egal."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
           "Es weht ein starker Wind aus " ~ dir ~ " mit " ~ wind ~ " Kilometern pro Stunde. Vorsicht bei lockeren Gegenständen!",
           "Starker Wind aus " ~ dir ~ "! " ~ wind ~ " km/h, da fliegt einiges durch die Gegend.",
-          "Achtung, kräftiger Wind mit " ~ wind ~ " Kilometern pro Stunde aus " ~ dir ~ "!"
+          "Achtung, kräftiger Wind mit " ~ wind ~ " Kilometern pro Stunde aus " ~ dir ~ "!",
+          "Orkan-Alarm! " ~ wind ~ " km/h aus " ~ dir ~ "! Am besten drinnen bleiben und Tee trinken.",
+          wind ~ " km/h aus " ~ dir ~ "! Da werden selbst Mülltonnen zu Flugobjekten.",
+          "Sturmwarnung! " ~ wind ~ " km/h! Wenn du fliegend zur Arbeit willst, ist heute dein Tag."
         ] %}
         {{ r | random }}
       {% endif %}
@@ -165,13 +203,13 @@ GetWeatherForecast:
         'rainy': 'regnerisch',
         'pouring': 'stark regnerisch',
         'snowy': 'winterlich',
-        'snowy-rainy': 'winterlich mit Schneeregen',
+        'snowy-rainy': 'nasskalt',
         'fog': 'neblig',
         'windy': 'windig',
-        'windy-variant': 'windig mit Wolken',
+        'windy-variant': 'stürmisch',
         'lightning': 'gewitterig',
-        'lightning-rainy': 'gewittrig mit Regen',
-        'hail': 'mit Hagel',
+        'lightning-rainy': 'gewittrig',
+        'hail': 'stürmisch',
         'exceptional': 'außergewöhnlich'
       } %}
       {% set cond = condition_map.get(weather, 'wechselhaft') %}
@@ -179,7 +217,10 @@ GetWeatherForecast:
         {% set r = [
           day | capitalize ~ " wird es " ~ cond ~ ".",
           "Für " ~ day ~ " ist " ~ cond ~ "es Wetter angesagt.",
-          "Die Vorhersage für " ~ day ~ ": " ~ cond ~ "."
+          "Die Vorhersage für " ~ day ~ ": " ~ cond ~ ".",
+          "Schau an, " ~ day ~ " wird es wohl " ~ cond ~ "!",
+          "Na dann, " ~ day ~ " erwartet dich " ~ cond ~ "es Wetter.",
+          "Mein Blick in die Kristallkugel sagt: " ~ day ~ " wird es " ~ cond ~ "."
         ] %}
         {{ r | random }}
       {% else %}
@@ -234,15 +275,15 @@ GetWeatherDay:
         'partlycloudy': 'leicht bewölkt',
         'cloudy': 'überwiegend bewölkt',
         'rainy': 'regnerisch',
-        'pouring': 'sehr regnerisch mit starkem Niederschlag',
-        'snowy': 'winterlich mit Schneefall',
-        'snowy-rainy': 'winterlich mit Schneeregen',
+        'pouring': 'total verregnet',
+        'snowy': 'verschneit',
+        'snowy-rainy': 'nasskalt',
         'fog': 'neblig',
         'lightning': 'gewitterig',
-        'lightning-rainy': 'gewittrig mit Regen',
+        'lightning-rainy': 'gewittrig',
         'windy': 'windig',
-        'windy-variant': 'windig mit Wolken',
-        'hail': 'mit Hagel',
+        'windy-variant': 'stürmisch',
+        'hail': 'stürmisch',
         'exceptional': 'außergewöhnlich'
       } %}
       {% set weather_state = condition_map.get(weather_raw, 'wechselhaft') %}
@@ -294,7 +335,9 @@ GetWeatherYesterday:
       {% set r = [
         "Leider kann ich dir nicht sagen, wie das Wetter gestern war. Ich habe nur Zugriff auf aktuelle Daten und Vorhersagen.",
         "Tut mir leid, historische Wetterdaten habe ich nicht. Ich kann dir aber das aktuelle Wetter oder die Vorhersage sagen.",
-        "Gestern? Da muss ich leider passen, ich speichere keine vergangenen Wetterdaten."
+        "Gestern? Da muss ich leider passen, ich speichere keine vergangenen Wetterdaten.",
+        "Gestern? Hm, ich bin leider kein Geschichtsbuch. Aber das aktuelle Wetter kann ich dir sagen!",
+        "Wenn ich eine Zeitmaschine hätte, würde ich nachschauen. Leider habe ich nur aktuelle Daten."
       ] %}
       {{ r | random }}
 
@@ -329,14 +372,14 @@ GetWeatherTime:
         'cloudy': 'überwiegend bewölkt',
         'rainy': 'regnerisch',
         'pouring': 'sehr regnerisch',
-        'snowy': 'winterlich mit Schnee',
-        'snowy-rainy': 'winterlich mit Schneeregen',
+        'snowy': 'verschneit',
+        'snowy-rainy': 'nasskalt',
         'fog': 'neblig',
         'lightning': 'gewitterig',
-        'lightning-rainy': 'gewittrig mit Regen',
+        'lightning-rainy': 'gewittrig',
         'windy': 'windig',
-        'windy-variant': 'windig mit Wolken',
-        'hail': 'mit Hagel',
+        'windy-variant': 'stürmisch',
+        'hail': 'stürmisch',
         'exceptional': 'außergewöhnlich'
       } %}
       {% set weather_state = condition_map.get(weather_raw, 'wechselhaft') %}
@@ -369,13 +412,13 @@ GetWeatherWeek:
         'rainy': 'regnerisch',
         'pouring': 'stark regnerisch',
         'snowy': 'winterlich',
-        'snowy-rainy': 'winterlich mit Schneeregen',
+        'snowy-rainy': 'nasskalt',
         'fog': 'neblig',
         'lightning': 'gewitterig',
-        'lightning-rainy': 'gewittrig mit Regen',
+        'lightning-rainy': 'gewittrig',
         'windy': 'windig',
-        'windy-variant': 'windig mit Wolken',
-        'hail': 'mit Hagel',
+        'windy-variant': 'stürmisch',
+        'hail': 'stürmisch',
         'exceptional': 'außergewöhnlich'
       } %}
       {% set heute = states('sensor.wetter_heute') | lower %}
@@ -499,21 +542,29 @@ GetRain:
         {% set r = [
           "Ja, draußen regnet es gerade. Du solltest einen Regenschirm mitnehmen wenn du rausgehst.",
           "Es regnet tatsächlich. Ohne Schirm würde ich nicht rausgehen.",
-          "Ja, es ist gerade nass draußen. Regenschirm nicht vergessen!"
+          "Ja, es ist gerade nass draußen. Regenschirm nicht vergessen!",
+          "Jep, es schüttet! Nimm den Schirm mit oder werde zum Schwamm.",
+          "Oh ja, es regnet. Petrus hat die Schleusen geöffnet!",
+          "Regnet? Aber sowas von! Gummistiefel wären nicht verkehrt."
         ] %}
         {{ r | random }}
       {% elif weather == 'partlycloudy' %}
         {% set r = [
           "Momentan regnet es nicht, aber es könnte später noch Schauer geben.",
           "Aktuell ist es trocken, aber bei den Wolken könnte noch was kommen.",
-          "Gerade regnet es nicht, ein Schirm zur Sicherheit schadet aber nicht."
+          "Gerade regnet es nicht, ein Schirm zur Sicherheit schadet aber nicht.",
+          "Noch trocken! Aber die Wolken sehen verdächtig aus. Schirm einpacken, nur für alle Fälle.",
+          "Kein Regen. Aber trau dem Frieden nicht, da oben braut sich was zusammen."
         ] %}
         {{ r | random }}
       {% else %}
         {% set r = [
           "Nein, aktuell ist es trocken und es regnet nicht.",
           "Kein Regen in Sicht, du kannst beruhigt ohne Schirm los.",
-          "Nein, draußen ist es trocken. Kein Regen."
+          "Nein, draußen ist es trocken. Kein Regen.",
+          "Nö, alles trocken! Kannst den Schirm getrost zuhause lassen.",
+          "Regen? Fehlanzeige! Ab nach draußen mit dir.",
+          "Kein Tropfen weit und breit. Der Regenschirm kann ruhig im Schrank bleiben."
         ] %}
         {{ r | random }}
       {% endif %}
@@ -657,7 +708,10 @@ GetSun:
         {% set r = [
           "Ja, die Sonne scheint schön! Es ist ein wunderbar sonniger Tag.",
           "Strahlender Sonnenschein! Ein toller Tag draußen.",
-          "Die Sonne gibt alles heute, richtig schönes Wetter!"
+          "Die Sonne gibt alles heute, richtig schönes Wetter!",
+          "Aber sowas von sonnig! Sonnencreme nicht vergessen!",
+          "Die Sonne ballert! Perfekter Tag für einen Ausflug.",
+          "Ja, und wie die scheint! Da geht einem das Herz auf."
         ] %}
         {{ r | random }}
       {% elif weather == 'partlycloudy' %}
@@ -671,15 +725,17 @@ GetSun:
         {% set r = [
           "Leider ist es ziemlich bewölkt und die Sonne versteckt sich hinter den Wolken.",
           "Die Wolken dominieren heute, die Sonne kommt kaum durch.",
-          "Eher grau heute, die Sonne zeigt sich leider nicht."
+          "Eher grau heute, die Sonne zeigt sich leider nicht.",
+          "Grau in grau! Die Sonne hat wohl verschlafen.",
+          "Wolkensuppe! Von der Sonne ist leider nichts zu sehen."
         ] %}
         {{ r | random }}
       {% else %}
         {% set condition_map = {
           'rainy': 'regnerisch', 'pouring': 'stark regnerisch', 'snowy': 'winterlich',
-          'snowy-rainy': 'Schneeregen', 'fog': 'neblig', 'windy': 'windig',
+          'snowy-rainy': 'nasskalt', 'fog': 'neblig', 'windy': 'windig',
           'windy-variant': 'windig', 'lightning': 'gewitterig',
-          'lightning-rainy': 'gewittrig mit Regen', 'hail': 'Hagel',
+          'lightning-rainy': 'gewittrig', 'hail': 'stürmisch',
           'exceptional': 'außergewöhnlich'
         } %}
         {% set wetter_de = condition_map.get(weather, 'bewölkt') %}
@@ -1594,7 +1650,7 @@ GetWeatherComparison:
       {% set morgen = states('sensor.wetter_morgen') | lower %}
       {% set temp_heute = state_attr('sensor.wetter_heute', 'temperature') %}
       {% set temp_morgen = state_attr('sensor.wetter_morgen', 'temperature') %}
-      {% set weather_de = {'sunny': 'sonnig', 'partlycloudy': 'teilweise bewölkt', 'cloudy': 'bewölkt', 'rainy': 'regnerisch', 'pouring': 'stark regnerisch', 'snowy': 'verschneit', 'snowy-rainy': 'Schneeregen', 'windy': 'windig', 'windy-variant': 'windig mit Wolken', 'fog': 'neblig', 'lightning': 'gewittrig', 'lightning-rainy': 'gewittrig mit Regen', 'hail': 'mit Hagel', 'clear-night': 'klar', 'exceptional': 'außergewöhnlich'} %}
+      {% set weather_de = {'sunny': 'sonnig', 'partlycloudy': 'teilweise bewölkt', 'cloudy': 'bewölkt', 'rainy': 'regnerisch', 'pouring': 'stark regnerisch', 'snowy': 'verschneit', 'snowy-rainy': 'nasskalt', 'windy': 'windig', 'windy-variant': 'stürmisch', 'fog': 'neblig', 'lightning': 'gewittrig', 'lightning-rainy': 'gewittrig', 'hail': 'stürmisch', 'clear-night': 'klar', 'exceptional': 'außergewöhnlich'} %}
       {% if heute != 'unknown' and morgen != 'unknown' %}
         {% set heute_de = weather_de.get(heute, 'wechselhaft') %}
         {% set morgen_de = weather_de.get(morgen, 'wechselhaft') %}
