@@ -1,4 +1,4 @@
-# ============================================================================
+﻿# ============================================================================
 # WETTER INTENTS - Modulare Datei
 # ============================================================================
 # Teil von: intent_script: !include_dir_merge_named intent_scripts/
@@ -30,12 +30,6 @@ GetWeather:
         "Das Wetter zeigt sich gerade " ~ cond ~ ". Bei " ~ temp ~ " Grad und " ~ humidity ~ " Prozent Luftfeuchtigkeit."
       ] %}
       {{ responses | random }}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetTemperature:
@@ -78,12 +72,6 @@ GetTemperature:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetHumidity:
@@ -119,12 +107,6 @@ GetHumidity:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetWind:
@@ -164,12 +146,6 @@ GetWind:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetWeatherForecast:
@@ -195,12 +171,6 @@ GetWeatherForecast:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetWeatherDay:
@@ -296,12 +266,6 @@ GetWeatherDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetWeatherYesterday:
@@ -313,12 +277,6 @@ GetWeatherYesterday:
         "Gestern? Da muss ich leider passen, ich speichere keine vergangenen Wetterdaten."
       ] %}
       {{ r | random }}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetWeatherTime:
@@ -376,12 +334,6 @@ GetWeatherTime:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetWeatherWeek:
@@ -411,12 +363,6 @@ GetWeatherWeek:
         "Ein Blick auf die kommenden Tage: Heute " ~ condition_map.get(heute, heute) ~ ", morgen " ~ condition_map.get(morgen, morgen) ~ ", ├╝bermorgen " ~ condition_map.get(uebermorgen, uebermorgen) ~ ". Im weiteren Verlauf " ~ condition_map.get(tag3, tag3) ~ " bis " ~ condition_map.get(tag4, tag4) ~ "."
       ] %}
       {{ r | random }}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetTemperatureDay:
@@ -481,12 +427,6 @@ GetTemperatureDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetTemperatureTime:
@@ -526,12 +466,6 @@ GetTemperatureTime:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetRain:
@@ -560,12 +494,6 @@ GetRain:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetRainDay:
@@ -610,12 +538,6 @@ GetRainDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetRainProbabilityDay:
@@ -660,12 +582,6 @@ GetRainProbabilityDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetRainTime:
@@ -712,12 +628,6 @@ GetRainTime:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetSun:
@@ -753,12 +663,6 @@ GetSun:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetSunDay:
@@ -809,12 +713,6 @@ GetSunDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetWindDay:
@@ -866,12 +764,6 @@ GetWindDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetClouds:
@@ -907,12 +799,6 @@ GetClouds:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetCloudsDay:
@@ -970,12 +856,6 @@ GetCloudsDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetSnow:
@@ -1004,12 +884,6 @@ GetSnow:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetSnowDay:
@@ -1062,12 +936,6 @@ GetSnowDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetStorm:
@@ -1096,12 +964,6 @@ GetStorm:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetStormDay:
@@ -1145,12 +1007,6 @@ GetStormDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetHumidityDay:
@@ -1199,12 +1055,6 @@ GetHumidityDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetPressure:
@@ -1242,12 +1092,6 @@ GetPressure:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetPressureDay:
@@ -1269,12 +1113,6 @@ GetPressureDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetFog:
@@ -1296,12 +1134,6 @@ GetFog:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetFogDay:
@@ -1345,12 +1177,6 @@ GetFogDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetFeelsLike:
@@ -1390,12 +1216,6 @@ GetFeelsLike:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetFeelsLikeDay:
@@ -1432,12 +1252,6 @@ GetFeelsLikeDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetClothingAdvice:
@@ -1499,12 +1313,6 @@ GetClothingAdvice:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetClothingDay:
@@ -1565,12 +1373,6 @@ GetClothingDay:
       {% endif %}
       {% if weather in ['rainy', 'pouring'] %} Vergiss nicht den Regenschirm!{% endif %}
       {% if weather == 'windy' %} Bei Wind w├ñre eine winddichte Jacke praktisch.{% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetOutdoorAdvice:
@@ -1642,12 +1444,6 @@ GetOutdoorAdvice:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetOutdoorDay:
@@ -1720,12 +1516,6 @@ GetOutdoorDay:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetUV:
@@ -1737,12 +1527,6 @@ GetUV:
         "UV-Index ist aktuell nicht abrufbar. Schau am besten online nach."
       ] %}
       {{ r | random }}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetSunrise:
@@ -1765,12 +1549,6 @@ GetSunrise:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetSunset:
@@ -1793,12 +1571,6 @@ GetSunset:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetPollen:
@@ -1810,12 +1582,6 @@ GetPollen:
         "Pollendaten sind nicht verf├╝gbar. Am besten online nachschauen."
       ] %}
       {{ r | random }}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
 
 GetWeatherComparison:
@@ -1871,10 +1637,4 @@ GetWeatherComparison:
         ] %}
         {{ r | random }}
       {% endif %}
-  action:
-    - service: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/weather
-        revert_timeout: 30
 
