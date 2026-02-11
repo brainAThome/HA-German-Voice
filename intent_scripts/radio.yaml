@@ -504,7 +504,13 @@ RadioSearch:
       value: "{{ radio_query }}"
   - service: shell_command.radio_search
   - delay:
-      seconds: 1
+      seconds: 3
+  - service: view_assist.navigate
+    data:
+      device: sensor.quasselbuechse
+      path: >-
+        {% if states('input_text.radio_search_result').startswith('OK:') %}/view-assist/radio{% else %}/view-assist/clock{% endif %}
+      revert_timeout: 3600
   speech:
     text: >
       {% set result = states('input_text.radio_search_result') %}

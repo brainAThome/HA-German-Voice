@@ -313,11 +313,7 @@ def main():
         # Stream abspielen
         ha_play_media(stream_url, station_name)
 
-        # Kurz warten, dann Display navigieren
-        time.sleep(0.5)
-        ha_navigate("/view-assist/radio", revert_timeout=3600)
-
-        # Suchergebnis für Speech setzen
+        # Suchergebnis für Speech setzen (Navigation erfolgt über intent_script)
         ha_set_state("input_text.radio_search_result", f"OK:{station_name}")
 
         log.info(f"=== Radio gestartet: {station_name} ===")
