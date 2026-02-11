@@ -63,7 +63,7 @@ RadioPlay:
   - service: view_assist.navigate
     data:
       device: sensor.quasselbuechse
-      path: /view-assist/music
+      path: /view-assist/radio
       revert_timeout: 3600
   speech:
     text: >
@@ -145,7 +145,7 @@ RadioPlayGenre:
   - service: view_assist.navigate
     data:
       device: sensor.quasselbuechse
-      path: /view-assist/music
+      path: /view-assist/radio
       revert_timeout: 3600
   speech:
     text: >
@@ -211,7 +211,7 @@ RadioPlayDefault:
   - service: view_assist.navigate
     data:
       device: sensor.quasselbuechse
-      path: /view-assist/music
+      path: /view-assist/radio
       revert_timeout: 3600
   speech:
     text: >
