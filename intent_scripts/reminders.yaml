@@ -371,7 +371,11 @@ StopReminder:
   action:
     - service: media_player.media_stop
       target:
-        entity_id: all
+        entity_id: media_player.vaca_362812d56_mediaplayer
+    - service: media_player.media_stop
+      target:
+        entity_id: media_player.spotify_sven
+      continue_on_error: true
   speech:
     text: >
       {% set responses = [
