@@ -10,7 +10,20 @@
 
 ## 🚀 Features
 
-### 🌤️ Wetter
+### 🤖 Jarvis Router (Custom Conversation Agent)
+- **Intelligentes Routing**: Lokale Intents → Home Assistant Default Agent, Fallback → Ollama LLM
+- **Nahtlose Integration**: Alle Sprachbefehle werden zuerst lokal verarbeitet, nur unbekannte Fragen gehen an Ollama
+- **Keine Doppelverarbeitung**: `prefer_local_intents: true` in der Pipeline sorgt dafür, dass lokale Intents **nicht** zusätzlich ans LLM gehen
+- **Display-Steuerung**: Lokale Intents → kein AI Response Overlay, Ollama-Antworten → AI Response auf dem Display
+
+### 📻 Radio Player (60+ Sender)
+- **Direktwahl**: "Spiele SWR3" / "Spiele Radio Bob" / "Spiele 1Live"
+- **Radiosuche**: "Suche ChillHop im Radio" — sucht über Radio Browser API
+- **60+ deutsche Sender**: Alle großen ARD-Sender, private Sender, Spezialsender
+- **Display-Anzeige**: Sendername + Logo auf dem VACA Display
+- **Steuerung**: Lautstärke, Stopp, Senderwechsel per Sprache
+
+### 🌤️ Wetter (mit Jinja2 Macros)
 - **Aktuelles Wetter**: "Wie ist das Wetter?" / "Wie warm ist es draußen?"
 - **Vorhersagen**: "Wie wird das Wetter morgen?" / "Regnet es am Wochenende?"
 - **Spezifische Werte**: "Was ist die Luftfeuchtigkeit?" / "Wie stark ist der Wind?"
@@ -63,32 +76,55 @@
 - **Was spielt?**: "Was spielt gerade auf Spotify?" mit Artist, Titel, Album
 - **Spotify Web API**: Direkte Suche über die Spotify API — kein Spotcast nötig
 
+### 🛑 Allgemeiner Stopp (Sentence Trigger)
+- **Einwort-Befehle**: "Stopp" / "Stop" / "Aus" / "Schluss" / "Ende"
+- **Mehwort**: "Halt an" / "Es reicht" / "Sei still" / "Jetzt Ruhe"
+- **Priorität**: Sentence Trigger hat Vorrang vor HA-Builtins
+- **Navigation**: Display geht automatisch zurück zur Uhr
+
 ---
 
 ## 📂 Projektstruktur
 
 ```
 ha-german-voice/
+├── automations/             # Sentence Trigger Automations
+│   └── general_stop.yaml    # Stopp-Automation (Priorität über HA-Builtins)
+├── custom_components/       # Custom Components
+│   └── jarvis_router/       # Conversation Agent Router
+│       ├── __init__.py
+│       ├── config_flow.py
+│       ├── conversation.py  # Lokale Intents → Ollama Fallback
+│       ├── manifest.json
+│       └── strings.json
 ├── custom_sentences/de/     # Sprachbefehle (Sentence-Dateien)
 │   ├── covers.yaml          # Rolladen/Jalousien
 │   ├── echo.yaml            # Echo/VACA Steuerung
 │   ├── lights.yaml          # Lichter
 │   ├── media.yaml           # Medien
+│   ├── radio.yaml           # Radio (60+ Sender + Suche)
 │   ├── reminders.yaml       # Erinnerungen/Timer
-│   ├── spotify.yaml         # Spotify Sprachsteuerung
+│   ├── spotify.yaml         # Spotify + GeneralStop
 │   └── weather.yaml         # Wetter
+├── custom_templates/        # Jinja2 Macros
+│   └── weather_macros.jinja # Wetter-Übersetzungen, Prognosen
 ├── intent_scripts/          # Intent Handler (Aktionen + Antworten)
 │   ├── covers.yaml          # Rolladen-Szenen
-│   ├── echo.yaml            # Echo/VACA Aktionen
+│   ├── echo.yaml            # Echo/VACA + ShowStartseite
 │   ├── lights.yaml          # Licht-Aktionen (mit Alias-Map)
+│   ├── radio.yaml           # Radio Player + Suche + Steuerung
 │   ├── reminders.yaml       # Timer + Watcher-Script-Aufrufe
-│   ├── spotify.yaml         # Spotify Intent-Skripte
+│   ├── spotify.yaml         # Spotify Intent-Skripte + GeneralStop
 │   └── weather.yaml         # Wetter-Abfragen
-├── scripts/                 # HA Scripts
+├── scripts/                 # Python-Skripte
 │   ├── erinnerung_scripts.yaml
+│   ├── radio_search.py      # Radio Browser API Suche
 │   └── spotify_voice.py     # Spotify Web API Bridge
-├── conversation_logging.yaml # Konversations-Logging Config
-├── hacs.json                # HACS-Manifest
+├── www/                     # Web Assets
+│   └── radio_logos/         # Senderlogos (PNG)
+│       └── radio_default.png # Fallback-Logo
+├── conversation_logging.yaml
+├── hacs.json
 └── README.md
 ```
 
@@ -199,7 +235,85 @@ Voraussetzung: [VACA Integration](https://github.com/) mit Assist Satellite.
 
 Die Entity-IDs in `intent_scripts/echo.yaml` müssen an dein Gerät angepasst werden.
 
-### 5. Spotify Sprachsteuerung (Optional)
+### 5. Jarvis Router (Ollama LLM Fallback)
+
+Der Jarvis Router ist ein Custom Conversation Agent, der lokale Intents und Ollama LLM kombiniert:
+
+#### a) Custom Component kopieren
+
+```bash
+cp -r custom_components/jarvis_router/ /config/custom_components/jarvis_router/
+```
+
+#### b) configuration.yaml
+
+```yaml
+jarvis_router:
+```
+
+#### c) Ollama einrichten
+
+1. [Ollama](https://ollama.ai/) auf einem Server installieren
+2. Ollama Conversation Integration in HA einrichten (Settings → Integrations → Ollama)
+3. Jarvis Router Integration hinzufügen (Settings → Integrations → Jarvis Router)
+
+#### d) Pipeline konfigurieren
+
+1. Settings → Voice Assistants → Pipeline bearbeiten
+2. Conversation Agent: **Jarvis Router** auswählen
+3. `prefer_local_intents: true` aktivieren (Settings → Voice Assistants → Pipeline → Details)
+
+> **Hinweis**: `prefer_local_intents` sorgt dafür, dass lokale Intents (Radio, Spotify, Licht etc.)
+> **vor** dem LLM verarbeitet werden. Nur unbekannte Fragen gehen an Ollama.
+> Außerdem wird bei lokalen Intents **kein** AI Response Overlay auf dem Display angezeigt.
+
+### 6. Radio Player (Optional)
+
+#### a) Python-Script + Logos kopieren
+
+```bash
+cp scripts/radio_search.py /config/scripts/
+cp -r www/radio_logos/ /config/www/radio_logos/
+```
+
+#### b) Shell Commands + Helper in `configuration.yaml`
+
+```yaml
+shell_command:
+  radio_search: "python3 /config/scripts/radio_search.py '{{ states('input_text.radio_search_query') }}'"
+
+input_text:
+  radio_current_station:
+    name: Aktueller Radiosender
+    max: 255
+    initial: ""
+  radio_search_query:
+    name: Radio Suchanfrage
+    max: 255
+    initial: ""
+```
+
+### 7. Allgemeiner Stopp (Sentence Trigger Automation)
+
+Die Datei `automations/general_stop.yaml` enthält eine Sentence Trigger Automation,
+die bei "Stopp", "Stop", "Aus" etc. alle Medienwiedergabe stoppt und zum Clock-Display navigiert.
+
+```yaml
+# In automations.yaml einfügen (Entity-IDs anpassen!)
+```
+
+> ⚠️ **ANPASSEN**: `media_player.spotify_sven`, `media_player.vaca_*`, `sensor.quasselbuechse`
+
+### 8. Wetter-Macros (Optional)
+
+```bash
+cp custom_templates/weather_macros.jinja /config/custom_templates/
+```
+
+Die Macros werden von den Wetter-Intents referenziert und übersetzen Wetterbedingungen,
+Windrichtungen und Kleidungsempfehlungen ins Deutsche.
+
+### 9. Spotify Sprachsteuerung (Optional)
 
 Voraussetzungen:
 - **Spotify Integration** in HA eingerichtet (mit Application Credentials)
@@ -260,16 +374,41 @@ input_text:
 | "Rolladen im Schlafzimmer zu" | Rolladen schließen |
 | "Starte Guten Morgen" | Echo Routine starten |
 | "Welche Erinnerungen habe ich?" | Aktive Timer abfragen |
+| "Spiele SWR3" | Radio starten (Direktwahl) |
+| "Suche ChillHop im Radio" | Radio Browser API Suche |
+| "Radio lauter" / "Radio leiser" | Radio-Lautstärke |
+| "Stopp" / "Aus" / "Ende" | Alles stoppen + zurück zur Uhr |
 | "Spiele Enter Sandman auf Spotify" | Spotify Song suchen + abspielen |
 | "Spiele Musik von Rammstein auf Spotify" | Spotify Künstler abspielen |
 | "Spiele die Playlist Goa Trance auf Spotify" | Spotify Playlist abspielen |
 | "Spotify Pause" / "Spotify weiter" | Spotify Steuerung |
 | "Was spielt auf Spotify?" | Aktueller Spotify-Track |
 | "Spiele Spotify auf Echo Dot" | Gerätewechsel |
+| "Was ist die Hauptstadt von Frankreich?" | Ollama LLM Fallback |
 
 ---
 
 ## 🏗️ Architektur
+
+### Sprachverarbeitungs-Pipeline
+
+```
+User spricht → STT (Cloud) → Assist Pipeline
+  │
+  ├─ prefer_local_intents: true
+  │   └─ Custom Sentences matchen? → Intent Script → processed_locally=true
+  │       → Kein AI Response Overlay auf Display
+  │
+  ├─ Sentence Trigger matchen? → Automation → processed_locally=true
+  │   └─ z.B. "stopp" → general_stop_sentence_trigger
+  │
+  └─ Kein Match → Jarvis Router
+      ├─ conversation.home_assistant (Default Agent)
+      │   └─ Versuch lokale Verarbeitung
+      └─ Fallback → conversation.ollama_conversation
+          └─ LLM-Antwort → processed_locally=false
+              → AI Response Overlay auf Display
+```
 
 ### Modulares System
 
@@ -277,7 +416,10 @@ Das Projekt verwendet `!include_dir_merge_named intent_scripts/` statt einer mon
 
 - **custom_sentences/de/*.yaml** — Sprachmuster (was der User sagen kann)
 - **intent_scripts/*.yaml** — Handler (was HA bei Erkennung tut)
-- **scripts/*.yaml** — Hintergrund-Scripts (TTS-Watcher für Erinnerungen)
+- **custom_components/jarvis_router/** — Conversation Agent Router (lokal → Ollama)
+- **custom_templates/*.jinja** — Wiederverwendbare Jinja2 Macros
+- **automations/** — Sentence Trigger (Priorität über Built-ins)
+- **scripts/*.py** — Python-Skripte (Spotify API, Radio Browser API)
 
 ### Erinnerungs-Ablauf
 
@@ -314,18 +456,9 @@ alias_map:
 - Wetter-Integration (z.B. Met.no)
 - Assist/Voice Pipeline aktiviert
 - Für Echo-Steuerung: VACA Integration mit jailbroken Echo Show 5
-
-| Befehl | Funktion |
-|--------|----------|
-| "Wie ist das Wetter?" | Aktuelle Wetterbedingungen |
-| "Wird es morgen regnen?" | Wettervorhersage |
-| "Erinnere mich in 5 Minuten" | Timer starten |
-| "Mach das Wohnzimmerlicht an" | Licht einschalten |
-| "Dimme auf 50%" | Helligkeit setzen |
-| "Was läuft gerade?" | Aktuelle Medienwiedergabe |
-| "Rolladen im Schlafzimmer zu" | Rolladen schließen |
-| "Sonnenschutz Wohnzimmer" | Sonnenschutz aktivieren |
-| "Gute Nacht" | Alle Rolladen schließen |
+- Für LLM-Fallback: Ollama Server + Ollama Conversation Integration
+- Für Radio: Radio Browser API (über `radio_search.py`)
+- Für Spotify: Spotify Premium + Application Credentials
 
 ---
 

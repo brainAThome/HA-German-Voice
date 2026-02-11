@@ -164,20 +164,30 @@ SpotifyResume:
   - service: media_player.media_play
     target:
       entity_id: media_player.spotify_sven
+    continue_on_error: true
   - service: view_assist.navigate
     data:
       device: sensor.quasselbuechse
       path: /view-assist/music
       revert_timeout: 3600
   speech:
-    text: "{% set responses = [\n  \"OK, Spotify spielt weiter.\",\n  \"Alles klar,\
-      \ weiter geht's.\",\n  \"Wiedergabe fortgesetzt.\",\n  \"Spotify l├ñuft wieder.\"\
-      \n] %} {{ responses | random }}\n"
+    text: >
+      {% if is_state('media_player.spotify_sven', 'paused') or is_state('media_player.spotify_sven', 'playing') %}
+        {% set responses = [
+          "OK, Spotify spielt weiter.",
+          "Alles klar, weiter geht's.",
+          "Wiedergabe fortgesetzt.",
+          "Spotify läuft wieder."
+        ] %} {{ responses | random }}
+      {% else %}
+        Spotify hat gerade keine aktive Wiedergabe. Sag zum Beispiel: spiele Musik.
+      {% endif %}
 SpotifyNext:
   action:
   - service: media_player.media_next_track
     target:
       entity_id: media_player.spotify_sven
+    continue_on_error: true
   speech:
     text: "{% set responses = [\n  \"OK, n├ñchster Titel.\",\n  \"Alles klar, ├╝bersprungen.\"\
       ,\n  \"N├ñchstes Lied kommt.\",\n  \"Skip!\"\n] %} {{ responses | random }}\n"
@@ -186,6 +196,7 @@ SpotifyPrevious:
   - service: media_player.media_previous_track
     target:
       entity_id: media_player.spotify_sven
+    continue_on_error: true
   speech:
     text: "{% set responses = [\n  \"OK, vorheriger Titel.\",\n  \"Alles klar, zur├╝ck.\"\
       ,\n  \"Letztes Lied wird gespielt.\"\n] %} {{ responses | random }}\n"

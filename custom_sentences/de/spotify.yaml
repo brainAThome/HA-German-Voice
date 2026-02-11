@@ -148,14 +148,17 @@ intents:
           - "play"
 
   # --------------------------------------------------------------------------
-  # N├äCHSTER TITEL
+  # NÄCHSTER TITEL
   # --------------------------------------------------------------------------
   SpotifyNext:
     data:
       - sentences:
-          - "spotify (n├ñchstes|n├ñchster|weiter|skip|├╝berspring) [(lied|song|titel|track)]"
-          - "(n├ñchstes|n├ñchster|weiter|skip) [(lied|song|titel)] [auf|bei] spotify"
-          - "├╝berspring[e] [das] [(lied|song|titel)] [auf|bei] spotify"
+          - "spotify (nächstes|nächster|weiter|skip|überspring) [(lied|song|titel|track)]"
+          - "(nächstes|nächster|weiter|skip) [(lied|song|titel)] [auf|bei] spotify"
+          - "überspring[e] [das] [(lied|song|titel)] [auf|bei] spotify"
+          - "nächster (song|titel|track|lied)"
+          - "nächstes (lied|song|titel|track)"
+          - "skip [(song|lied|titel)]"
 
   # --------------------------------------------------------------------------
   # VORHERIGER TITEL
@@ -163,9 +166,13 @@ intents:
   SpotifyPrevious:
     data:
       - sentences:
-          - "spotify (vorheriges|vorheriger|zur├╝ck|letztes|letzter) [(lied|song|titel|track)]"
-          - "(vorheriges|vorheriger|zur├╝ck) [(lied|song|titel)] [auf|bei] spotify"
+          - "spotify (vorheriges|vorheriger|zurück|letztes|letzter) [(lied|song|titel|track)]"
+          - "(vorheriges|vorheriger|zurück) [(lied|song|titel)] [auf|bei] spotify"
           - "(letztes|letzter) [(lied|song|titel)] [auf|bei] spotify"
+          - "vorheriger (song|titel|track|lied)"
+          - "vorheriges (lied|song|titel|track)"
+          - "letzter (song|titel|track|lied)"
+          - "letztes (lied|song|titel|track)"
 
   # --------------------------------------------------------------------------
   # SHUFFLE AN/AUS
@@ -182,11 +189,14 @@ intents:
   SpotifyNowPlaying:
     data:
       - sentences:
-          - "was (spielt|l├ñuft) [gerade] (auf|bei) spotify"
-          - "spotify was (spielt|l├ñuft) [gerade]"
-          - "(welches lied|welcher song|welcher titel) (spielt|l├ñuft) [auf|bei] spotify"
-          - "(wer|welcher k├╝nstler|welche band) (spielt|ist das) [auf|bei] spotify"
-          - "was (h├Âre|h├Âr) ich [gerade] [auf spotify]"
+          - "was (spielt|läuft) [gerade] [(auf|bei)] [spotify]"
+          - "spotify was (spielt|läuft) [gerade]"
+          - "(welches lied|welcher song|welcher titel) (spielt|läuft) [(auf|bei)] [spotify]"
+          - "(wer|welcher künstler|welche band) (spielt|ist das) [(auf|bei)] [spotify]"
+          - "was (höre|hör) ich [gerade] [auf spotify]"
+          - "was (spielt|läuft) gerade"
+          - "welcher song (ist das|spielt gerade|läuft gerade)"
+          - "welches lied (ist das|spielt gerade|läuft gerade)"
 
   # --------------------------------------------------------------------------
   # GENERAL STOP - Stoppt ALLES was auf dem Echo l├ñuft
@@ -199,11 +209,5 @@ intents:
           - "alles (stoppen|stopp|stop|anhalten|aus|beenden)"
           - "mach <polite> alles (aus|still|leise)"
           - "alles (still|leise|ruhig)"
-          # Einwort-Befehle (die nicht mit HA-Builtins kollidieren)
-          - "(aus|schluss|ende|stille)"
-          # Mehwort-Befehle
-          - "(sei|seid) <polite> (still|ruhig|leise)"
-          - "halt <polite> an"
-          - "es reicht [jetzt]"
-          - "[jetzt] (reicht|langt) es"
-          - "jetzt (schluss|ende|genug|ruhe)"
+          # Einwort- und Mehwort-Befehle → Sentence Trigger Automation
+          # "general_stop_sentence_trigger" hat Priorität über HA-Builtins

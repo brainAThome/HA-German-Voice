@@ -2,6 +2,46 @@
 
 Alle wichtigen Änderungen an diesem Projekt werden hier dokumentiert.
 
+## [4.0.0] - 2026-02-11
+
+### 🤖 Jarvis Router + Ollama LLM + Radio Player + Display-Steuerung
+
+Intelligenter Conversation Agent mit lokalem Intent-Routing und Ollama-Fallback,
+Radio Player mit 60+ Sendern und Radio Browser API Suche, sowie optimierte Display-Steuerung
+für View Assist / VACA Satellite.
+
+### Hinzugefügt
+- **Jarvis Router Custom Component**: Conversation Agent, der lokale Intents über
+  `conversation.home_assistant` verarbeitet und bei No-Match an `conversation.ollama_conversation` weiterleitet
+  - `custom_components/jarvis_router/` — Komplett eigenständige HA-Integration
+  - NO_MATCH_PHRASES Detection für automatischen Ollama-Fallback
+  - Nahtlose Integration in die HA Assist Pipeline
+- **Radio Player**: 60+ deutsche Radiosender per Sprache steuerbar
+  - Direktwahl: "Spiele SWR3" / "Spiele Radio Bob" / "Spiele 1Live"
+  - RadioSearch: "Suche ChillHop im Radio" — über Radio Browser API
+  - `scripts/radio_search.py` — Python-Skript für Radio Browser API
+  - Senderlogos auf dem VACA Display mit Fallback-Icon
+  - Lautstärke, Stopp, Senderwechsel per Sprache
+  - `custom_sentences/de/radio.yaml` — 15+ Radio-Intents
+  - `intent_scripts/radio.yaml` — Intent-Skripte mit Display-Navigation
+- **Allgemeiner Stopp (Sentence Trigger)**: `automations/general_stop.yaml`
+  - "Stopp"/"Stop"/"Aus"/"Schluss"/"Ende" als Einwort-Befehle
+  - Sentence Trigger hat Priorität über HA-Builtin `HassMediaPause`
+  - Stoppt Spotify + VACA Media Player + navigiert zurück zur Uhr
+- **Wetter-Macros**: `custom_templates/weather_macros.jinja`
+  - Jinja2 Macros für Wetterübersetzungen, Windrichtungen, Kleidungsempfehlung
+- **Radio Default Logo**: `www/radio_logos/radio_default.png` — Fallback für Sender ohne Favicon
+- **Display-Optimierung**: `prefer_local_intents: true` in der Pipeline
+  - Lokale Intents (Radio, Spotify, Licht etc.) → **kein** AI Response Overlay
+  - Ollama-Antworten (Wissensfragen) → AI Response Overlay auf dem Display
+  - Radio-View bleibt stabil beim Abspielen, kein Flackern
+
+### Geändert
+- **GeneralStop Sentences**: Einwort-Befehle in Sentence Trigger Automation verschoben
+  (Priorität über HA-Builtins), "alles stoppen"-Patterns bleiben im Intent
+- **RadioSearch**: `logo_key|display_name` Pipe-Format für korrekte Anzeige
+- **README**: Komplett überarbeitet mit Jarvis Router, Radio, Ollama, Pipeline-Architektur
+
 ## [3.1.0] - 2026-02-10
 
 ### 🎵 Spotify Sprachsteuerung

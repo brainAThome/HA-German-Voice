@@ -1,0 +1,13 @@
+{
+  "domain": "jarvis_router",
+  "name": "Jarvis Router",
+  "version": "1.0.0",
+  "config_flow": true,
+  "dependencies": [
+    "conversation"
+  ],
+  "codeowners": [],
+  "iot_class": "local_push",
+  "documentation": "https://github.com/custom",
+  "requirements": []
+}
