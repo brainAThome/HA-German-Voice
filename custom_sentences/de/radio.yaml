@@ -18,9 +18,12 @@ expansion_rules:
 # LISTEN - Radiosender mit Stream-URLs
 # ============================================================================
 lists:
+  radio_query:
+    wildcard: true
+
   radio_station:
     values:
-      # --- Große deutsche Sender ---
+      # --- Gro\u00dfe deutsche Sender ---
       - in: "(swr3|swr 3|s w r 3|s w r drei)"
         out: "SWR3"
       - in: "(swr1|swr 1|s w r 1|s w r eins)"
@@ -75,6 +78,73 @@ lists:
         out: "AbsolutRelax"
       - in: "(planet radio|planet)"
         out: "PlanetRadio"
+      # --- Norddeutsche Sender ---
+      - in: "(radio hamburg|hamburg)"
+        out: "RadioHamburg"
+      - in: "(ffn|radio ffn|f f n)"
+        out: "FFN"
+      - in: "(ndr1|ndr 1|n d r 1|n d r eins)"
+        out: "NDR1"
+      - in: "(n-joy|njoy|n joy)"
+        out: "NJOY"
+      - in: "(radio bremen|bremen)"
+        out: "RadioBremen"
+      - in: "(delta radio|deltaradio|delta)"
+        out: "DeltaRadio"
+      - in: "(r punkt s h|rsh|r s h|radio schleswig holstein)"
+        out: "RSH"
+      - in: "(ostseewelle|ostsee welle)"
+        out: "Ostseewelle"
+      - in: "(alsterradio|alster radio|alster)"
+        out: "AlsterRadio"
+      # --- Mitteldeutsche Sender ---
+      - in: "(mdr jump|m d r jump)"
+        out: "MDRJump"
+      - in: "(mdr sputnik|sputnik|m d r sputnik)"
+        out: "MDRSputnik"
+      - in: "(radio psr|psr|p s r)"
+        out: "RadioPSR"
+      - in: "(radio 21|radio einundzwanzig)"
+        out: "Radio21"
+      # --- Hessen/Rheinland-Pfalz/S\u00fcddeutschland ---
+      - in: "(hitradio ffh|ffh|f f h)"
+        out: "HitRadioFFH"
+      - in: "(rpr1|r p r 1|rpr eins)"
+        out: "RPR1"
+      - in: "(radio regenbogen|regenbogen)"
+        out: "RadioRegenbogen"
+      - in: "(die neue 107 punkt 7|die neue|die neue welle|107 punkt 7)"
+        out: "DieNeue1077"
+      # --- \u00dcberregionale Sender ---
+      - in: "(flux fm|flux|fluxfm)"
+        out: "FluxFM"
+      - in: "(radio paloma|paloma)"
+        out: "RadioPaloma"
+      - in: "(rtl radio|rtl)"
+        out: "RTLRadio"
+      - in: "(jam fm|jam|jamfm)"
+        out: "JamFM"
+      - in: "(star fm|starfm)"
+        out: "StarFM"
+      - in: "(radio eins|radioeins|radio 1)"
+        out: "RadioEins"
+      - in: "(cosmo|wdr cosmo)"
+        out: "Cosmo"
+      - in: "(you fm|youfm|you f m)"
+        out: "YouFM"
+      # --- SomaFM ---
+      - in: "(soma fm|somafm|soma)"
+        out: "SomaFM"
+      - in: "(groove salad|groovesalad)"
+        out: "SomaGrooveSalad"
+      - in: "(drone zone|dronezone)"
+        out: "SomaDroneZone"
+      - in: "(space station soma|space station)"
+        out: "SomaSpaceStation"
+      - in: "(indie pop rocks|indie pop)"
+        out: "SomaIndiePop"
+      - in: "(def con radio|defcon)"
+        out: "SomaDefcon"
 
   radio_genre:
     values:
@@ -197,3 +267,16 @@ intents:
           - "welche (radiosender|sender) (gibt es|hast du|kannst du|kann ich h\u00f6ren)"
           - "[zeig|zeige] [mir] [die|alle] (radiosender|sender)"
           - "radio senderliste"
+
+  # --------------------------------------------------------------------------
+  # RADIO SUCHE (freie Suche \u00fcber Radio Browser API - 30.000+ Sender)
+  # --------------------------------------------------------------------------
+  RadioSearch:
+    data:
+      - sentences:
+          - "(such|suche) <polite> [den] [radio] [sender] {radio_query}"
+          - "(such|suche) <polite> [nach] [dem] [radio] [sender] {radio_query}"
+          - "(finde|finde mir|find) <polite> [den] [radio] [sender] {radio_query}"
+          - "(spiel|spiele) <polite> [den] [radio] [sender] {radio_query} [aus dem internet]"
+          - "radio suche {radio_query}"
+          - "gibt es [den sender|radio] {radio_query}"
