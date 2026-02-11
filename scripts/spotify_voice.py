@@ -19,8 +19,7 @@ import sys
 import json
 import argparse
 import time
-import socket
-import struct
+import os
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -46,7 +45,8 @@ CLIENT_ID = "c1c5aa30a5cd4954854e16d0a9c2228e"
 CLIENT_SECRET = "16947c1cae2f44919a31f0cdc7c76182"
 # Spotify Markt f├╝r Suchergebnisse
 MARKET = "DE"
-
+# ADB-Key für Spotify-App-Wakeup (generiert oder von Windows kopiert)
+ADB_KEY_PATH = "/config/.storage/adbkey"
 # View Assist Navigation (Music Card auf Jarvis-Display)
 VA_DEVICE = "sensor.quasselbuechse"      # View Assist Entity f├╝r Navigation
 VA_MUSIC_PATH = "/view-assist/music"     # Pfad zur Music-View
@@ -330,55 +330,73 @@ def ha_navigate(path, revert_timeout=None):
 
 
 # ============================================================================
-# ADB HELPER - Spotify auf Jarvis aufwecken (Pure Python, kein adb-Binary n├Âtig)
+# ADB HELPER - Spotify auf Jarvis aufwecken (via adb_shell Bibliothek)
 # ============================================================================
 
+def _load_adb_signer():
+    """Lädt den ADB RSA-Signer aus den gespeicherten Keys."""
+    try:
+        from adb_shell.auth.sign_pythonrsa import PythonRSASigner
+    except ImportError:
+        print("ERROR:adb_shell nicht installiert (pip install adb-shell)")
+        return None
+
+    if not os.path.exists(ADB_KEY_PATH):
+        # Keys generieren falls nicht vorhanden
+        try:
+            from adb_shell.auth.keygen import keygen
+            keygen(ADB_KEY_PATH)
+            print(f"INFO:ADB-Keys generiert: {ADB_KEY_PATH}")
+        except Exception as e:
+            print(f"ERROR:ADB-Key-Generierung fehlgeschlagen: {e}")
+            return None
+
+    try:
+        with open(ADB_KEY_PATH) as f:
+            priv = f.read()
+        with open(ADB_KEY_PATH + ".pub") as f:
+            pub = f.read()
+        return PythonRSASigner(pub, priv)
+    except Exception as e:
+        print(f"ERROR:ADB-Keys nicht lesbar: {e}")
+        return None
+
+
 def adb_wake_spotify(host=JARVIS_ADB_HOST, port=JARVIS_ADB_PORT, uri=""):
-    """├ûffnet Spotify auf Jarvis per ADB ├╝ber TCP.
-    
-    Sendet einen minimalen ADB-Shell-Befehl um die Spotify-App zu starten.
-    Falls uri angegeben, wird dieser als Intent-Data mitgegeben.
+    """Öffnet Spotify auf Jarvis per ADB über TCP.
+
+    Verwendet adb_shell für das korrekte ADB-Binary-Protokoll
+    mit RSA-Authentifizierung.
     """
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(5)
-        s.connect((host, port))
-        
-        def adb_send(msg):
-            """ADB-Protokoll: 4 Hex-Zeichen L├ñnge + Nachricht."""
-            data = f"{len(msg):04x}{msg}".encode()
-            s.sendall(data)
-        
-        def adb_recv():
-            """Liest ADB-Antwort (OKAY/FAIL + optionale Daten)."""
-            resp = s.recv(4096)
-            return resp.decode(errors="replace")
-        
-        # ADB connect handshake
-        adb_send(f"host:transport-any")
-        resp = adb_recv()
-        if "OKAY" not in resp:
-            print(f"WARN:ADB transport failed: {resp}")
-            s.close()
-            return False
-        
-        # Shell-Befehl senden
+        from adb_shell.adb_device import AdbDeviceTcp
+    except ImportError:
+        print("ERROR:adb_shell nicht installiert")
+        return False
+
+    signer = _load_adb_signer()
+    if not signer:
+        return False
+
+    try:
+        dev = AdbDeviceTcp(host, port, default_transport_timeout_s=10)
+        dev.connect(rsa_keys=[signer], auth_timeout_s=10)
+
         if uri:
             cmd = f"am start -a android.intent.action.VIEW -d '{uri}'"
         else:
             cmd = "monkey -p com.spotify.music -c android.intent.category.LAUNCHER 1"
-        
-        adb_send(f"shell:{cmd}")
-        resp = adb_recv()
-        s.close()
-        
-        if "OKAY" in resp or "Starting" in resp:
-            print(f"INFO:ADB Spotify gestartet auf Jarvis")
+
+        result = dev.shell(cmd, timeout_s=10)
+        dev.close()
+
+        if result and "Error" not in str(result):
+            print("INFO:ADB Spotify gestartet auf Jarvis")
             return True
         else:
-            print(f"WARN:ADB Antwort: {resp[:200]}")
+            print(f"WARN:ADB Shell-Ergebnis: {str(result)[:200]}")
             return False
-            
+
     except Exception as e:
         print(f"WARN:ADB Verbindung fehlgeschlagen: {e}")
         return False
@@ -393,28 +411,30 @@ def find_jarvis_device(token):
     return None
 
 
-def ensure_jarvis_spotify(token, max_retries=2):
-    """Stellt sicher dass Spotify auf Jarvis l├ñuft und gibt Device-ID zur├╝ck.
+def ensure_jarvis_spotify(token, max_retries=3):
+    """Stellt sicher dass Spotify auf Jarvis läuft und gibt Device-ID zurück.
     
-    1. Pr├╝fe ob Echo Show 5 in Spotify-Ger├ñteliste
-    2. Falls nicht: ├ûffne Spotify per ADB, warte, pr├╝fe nochmal
+    1. Prüfe ob Echo Show 5 in Spotify-Geräteliste
+    2. Falls nicht: Öffne Spotify per ADB, warte, prüfe nochmal
     """
     dev = find_jarvis_device(token)
     if dev:
         return dev["id"]
     
-    print("WARN:Jarvis nicht in Spotify-Ger├ñteliste, wecke Spotify per ADB...")
-    adb_wake_spotify()
+    print("WARN:Jarvis nicht in Spotify-Geräteliste, wecke Spotify per ADB...")
+    if not adb_wake_spotify():
+        print("ERROR:ADB-Wakeup fehlgeschlagen")
+        return None
     
-    # Warten bis Spotify Connect sich registriert
+    # Warten bis Spotify Connect sich registriert (braucht ein paar Sekunden)
     for attempt in range(max_retries):
-        time.sleep(4)
+        time.sleep(5)
         dev = find_jarvis_device(token)
         if dev:
             print(f"INFO:Jarvis gefunden nach {attempt + 1} Versuch(en)")
             return dev["id"]
     
-    print("ERROR:Jarvis nach ADB-Wakeup nicht in Spotify-Ger├ñteliste")
+    print("ERROR:Jarvis nach ADB-Wakeup nicht in Spotify-Geräteliste")
     return None
 
 

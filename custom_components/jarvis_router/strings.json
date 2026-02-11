@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Jarvis Router",
+        "description": "Routed Custom Intents + Ollama Fallback"
+      }
+    },
+    "abort": {
+      "already_configured": "Jarvis Router ist bereits konfiguriert."
+    }
+  }
+}

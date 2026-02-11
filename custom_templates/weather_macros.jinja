@@ -1,0 +1,178 @@
+{#
+================================================================================
+WETTER MACROS - Professionelle wiederverwendbare Jinja2 Templates
+================================================================================
+Speicherort: /config/custom_templates/weather_macros.jinja
+Update-sicher: Ja, custom_templates werden bei HA-Updates nicht überschrieben
+
+Verwendung in Templates:
+{% from 'weather_macros.jinja' import get_day_index, get_day_name, get_condition_de %}
+#}
+
+{# ============================================================================
+   WETTERBEDINGUNGEN DEUTSCH
+   ============================================================================ #}
+{% macro get_condition_de(condition) %}
+{%- set conditions = {
+  'sunny': 'sonnig',
+  'clear-night': 'klare Nacht',
+  'partlycloudy': 'teilweise bewölkt',
+  'cloudy': 'bewölkt',
+  'fog': 'neblig',
+  'hail': 'Hagel',
+  'rainy': 'regnerisch',
+  'pouring': 'starker Regen',
+  'snowy': 'Schnee',
+  'snowy-rainy': 'Schneeregen',
+  'lightning': 'Gewitter',
+  'lightning-rainy': 'Gewitter mit Regen',
+  'windy': 'windig',
+  'windy-variant': 'stürmisch',
+  'exceptional': 'außergewöhnlich'
+} -%}
+{{ conditions.get(condition, condition) }}
+{%- endmacro %}
+
+{# ============================================================================
+   TAG-INDEX BERECHNUNG
+   Wandelt Tag-Eingabe (heute, morgen, montag, 0, 1, etc.) in Sensor-Index um
+   ============================================================================ #}
+{% macro get_day_index(day_input) %}
+{%- set day_val = day_input | string | lower | trim -%}
+{%- set weekday_map = {
+  'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3,
+  'freitag': 4, 'samstag': 5, 'sonntag': 6
+} -%}
+{%- set direct_map = {
+  'heute': '0', 'heut': '0', 'jetzt': '0',
+  'morgen': '1',
+  'übermorgen': '2', 'uebermorgen': '2'
+} -%}
+{%- if day_val == 'gestern' -%}
+gestern
+{%- elif day_val in ['0', '1', '2', '3', '4', '5', '6'] -%}
+{{ day_val }}
+{%- elif day_val in direct_map -%}
+{{ direct_map[day_val] }}
+{%- elif day_val == 'wochenende' -%}
+{{ ((5 - now().weekday()) % 7) }}
+{%- elif day_val in weekday_map -%}
+{%- set today_wd = now().weekday() -%}
+{%- set target_wd = weekday_map[day_val] -%}
+{%- set diff = (target_wd - today_wd) % 7 -%}
+{{ diff if diff > 0 else 7 }}
+{%- else -%}
+0
+{%- endif -%}
+{%- endmacro %}
+
+{# ============================================================================
+   TAG-NAME FÜR AUSGABE
+   ============================================================================ #}
+{% macro get_day_name(day_input) %}
+{%- set day_val = day_input | string | lower | trim -%}
+{%- set names = {
+  'gestern': 'Gestern',
+  'heute': 'Heute', 'heut': 'Heute', 'jetzt': 'Jetzt',
+  'morgen': 'Morgen',
+  'übermorgen': 'Übermorgen', 'uebermorgen': 'Übermorgen',
+  '0': 'Heute', '1': 'Morgen', '2': 'Übermorgen',
+  '3': 'In drei Tagen', '4': 'In vier Tagen', '5': 'In fünf Tagen', '6': 'In sechs Tagen',
+  'montag': 'Am Montag', 'dienstag': 'Am Dienstag', 'mittwoch': 'Am Mittwoch',
+  'donnerstag': 'Am Donnerstag', 'freitag': 'Am Freitag',
+  'samstag': 'Am Samstag', 'sonntag': 'Am Sonntag',
+  'wochenende': 'Am Wochenende'
+} -%}
+{{ names.get(day_val, 'Heute') }}
+{%- endmacro %}
+
+{# ============================================================================
+   SENSOR-NAME FÜR TAG-INDEX
+   ============================================================================ #}
+{% macro get_weather_sensor(day_index) %}
+{%- set sensors = {
+  '0': 'sensor.wetter_heute',
+  '1': 'sensor.wetter_morgen',
+  '2': 'sensor.wetter_uebermorgen',
+  '3': 'sensor.wetter_tag_3',
+  '4': 'sensor.wetter_tag_4',
+  '5': 'sensor.wetter_tag_5',
+  '6': 'sensor.wetter_tag_6'
+} -%}
+{{ sensors.get(day_index | string, 'sensor.wetter_heute') }}
+{%- endmacro %}
+
+{# ============================================================================
+   WINDRICHTUNG DEUTSCH
+   ============================================================================ #}
+{% macro get_wind_direction(bearing) %}
+{%- set directions = ['Norden', 'Nordosten', 'Osten', 'Südosten', 'Süden', 'Südwesten', 'Westen', 'Nordwesten'] -%}
+{%- set idx = (((bearing | float(0)) + 22.5) / 45) | int % 8 -%}
+{{ directions[idx] }}
+{%- endmacro %}
+
+{# ============================================================================
+   KLEIDUNGSEMPFEHLUNG
+   ============================================================================ #}
+{% macro get_clothing_advice(temp, condition, wind) %}
+{%- set t = temp | float(10) -%}
+{%- set w = wind | float(0) -%}
+{%- set rain = condition in ['rainy', 'pouring', 'snowy-rainy'] -%}
+{%- if t < -5 -%}
+Winterkleidung mit dicker Jacke, Mütze, Schal und Handschuhen
+{%- elif t < 5 -%}
+warme Winterjacke und Mütze{% if rain %}, plus Regenschirm{% endif %}{% if w > 20 %}, warm anziehen wegen Wind{% endif %}
+{%- elif t < 10 -%}
+warme Jacke{% if rain %} und Regenschirm{% endif %}
+{%- elif t < 15 -%}
+leichte Jacke oder Pullover{% if rain %}, Regenschirm nicht vergessen{% endif %}
+{%- elif t < 20 -%}
+leichte Kleidung, vielleicht eine dünne Jacke für später{% if rain %}, Schirm mitnehmen{% endif %}
+{%- elif t < 25 -%}
+leichte Sommerkleidung{% if rain %}, trotzdem Schirm einpacken{% endif %}
+{%- else -%}
+kurze Hose und T-Shirt, Sonnencreme nicht vergessen
+{%- endif -%}
+{%- endmacro %}
+
+{# ============================================================================
+   REGEN-BEWERTUNG
+   ============================================================================ #}
+{% macro get_rain_assessment(condition, precipitation) %}
+{%- set precip = precipitation | float(0) -%}
+{%- if condition == 'pouring' or precip > 10 -%}
+starker Regen erwartet
+{%- elif condition == 'rainy' or precip > 2 -%}
+Regen wahrscheinlich
+{%- elif precip > 0.5 -%}
+leichter Regen möglich
+{%- elif condition == 'snowy-rainy' -%}
+Schneeregen möglich
+{%- else -%}
+voraussichtlich trocken
+{%- endif -%}
+{%- endmacro %}
+
+{# ============================================================================
+   TEMPERATUR-KOMMENTAR
+   ============================================================================ #}
+{% macro get_temp_comment(temp) %}
+{%- set t = temp | float(10) -%}
+{%- if t > 30 -%}
+Sehr heiß!
+{%- elif t > 25 -%}
+Warm bis heiß.
+{%- elif t > 20 -%}
+Angenehm warm.
+{%- elif t > 15 -%}
+Mild.
+{%- elif t > 10 -%}
+Eher kühl.
+{%- elif t > 5 -%}
+Kühl.
+{%- elif t > 0 -%}
+Kalt.
+{%- else -%}
+Frostig!
+{%- endif -%}
+{%- endmacro %}

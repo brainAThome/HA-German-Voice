@@ -1,0 +1,534 @@
+# ================================================================================
+# HA-GERMAN-VOICE - Radio Intent Scripts
+# ================================================================================
+# Spielt Internet-Radio-Streams auf dem VACA Media Player (Echo Show 5)
+# Streams werden direkt über media_player.play_media abgespielt
+# ================================================================================
+
+# ============================================================================
+# Sender → Stream-URL Mapping (als Jinja-Macro)
+# ============================================================================
+# Die URLs werden in den Intent-Scripts per Jinja-Template aufgelöst.
+# Format: Sendername → HLS/MP3 Stream URL
+#
+# Hinweis: Die Streams sind redaktionell kuratiert und getestet.
+# Falls ein Stream nicht mehr funktioniert, URL hier aktualisieren.
+# ============================================================================
+
+RadioPlay:
+  action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.spotify_ducking_active
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.radio_current_station
+    data:
+      value: "{{ radio_station }}"
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.vaca_362812d56_mediaplayer
+    data:
+      media_content_type: music
+      media_content_id: >
+        {% set stations = {
+          "SWR3": "https://liveradio.swr.de/sw282p3/swr3/play.mp3",
+          "SWR1": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+          "SWR2": "https://liveradio.swr.de/sw282p3/swr2/play.mp3",
+          "WDR2": "https://wdr-wdr2-rheinland.icecastssl.wdr.de/wdr/wdr2/rheinland/mp3/128/stream.mp3",
+          "1LIVE": "https://wdr-1live-live.icecastssl.wdr.de/wdr/1live/live/mp3/128/stream.mp3",
+          "WDR5": "https://wdr-wdr5-live.icecastssl.wdr.de/wdr/wdr5/live/mp3/128/stream.mp3",
+          "Bayern3": "https://streams.br.de/bayern3_2.m3u8",
+          "Bayern1": "https://streams.br.de/bayern1_2.m3u8",
+          "NDR2": "https://www.ndr.de/resources/metadaten/audio_ssl/livestream/ndr2.m3u",
+          "HR3": "https://hr-hr3-live.sslcast.addradio.de/hr/hr3/live/mp3/128/stream.mp3",
+          "AntenneBayern": "https://stream.antenne.de/antenne/stream/mp3",
+          "RadioBob": "https://streams.radiobob.de/bob-live/mp3-192/mediaplayer",
+          "RockAntenne": "https://stream.rockantenne.de/rockantenne/stream/mp3",
+          "SunshineLive": "https://stream.sunshine-live.de/live/mp3-192/stream.mp3",
+          "Fritz": "https://dispatcher.rndfnk.com/rbb/fritz/live/mp3/mid",
+          "DLF": "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3",
+          "DLFKultur": "https://st02.sslstream.dlf.de/dlf/02/128/mp3/stream.mp3",
+          "Energy": "https://frontend.2.static.ert.hd-livestream.de/out/swr/swr_s01/default/11/hls/index_1.m3u8",
+          "BigFM": "https://streams.bigfm.de/bigfm-deutschland-128-mp3",
+          "KlassikRadio": "https://stream.klassikradio.de/live/mp3-192/stream.mp3",
+          "Radio7": "https://stream.radio7.de/radio7/mp3-128/stream.mp3",
+          "OE3": "https://orf-live.ors-shoutcast.at/oe3-q2a",
+          "FIP": "https://icecast.radiofrance.fr/fip-midfi.mp3",
+          "SwissJazz": "https://stream.srg-ssr.ch/m/rsj/mp3_128",
+          "LoungeFM": "https://stream.lounge.fm/",
+          "AbsolutRelax": "https://stream.absolutradio.de/absolut-relax/mp3-192/stream.mp3",
+          "PlanetRadio": "https://planetradio.streamabc.net/planetradio-hqlivestream-mp3",
+          "RadioHamburg": "https://streams.radiohamburg.de/rhh-live/mp3-192/stream.mp3",
+          "FFN": "https://player.ffn.de/ffn.mp3",
+          "NDR1": "https://www.ndr.de/resources/metadaten/audio_ssl/livestream/ndr1niedersachsen.m3u",
+          "NJOY": "https://www.ndr.de/resources/metadaten/audio_ssl/livestream/n-joy.m3u",
+          "RadioBremen": "https://rb-bremeneins-live.cast.addradio.de/rb/bremeneins/live/mp3/128/stream.mp3",
+          "DeltaRadio": "https://streams.deltaradio.de/delta-live/mp3-192/stream.mp3",
+          "RSH": "https://streams.rsh.de/rsh-live/mp3-192/stream.mp3",
+          "Ostseewelle": "https://stream.ostseewelle.de/osw/mp3-192/stream.mp3",
+          "AlsterRadio": "https://streams.alsterradio.de/alsterradio-live/mp3-192/stream.mp3",
+          "MDRJump": "https://mdr-jump-live.cast.addradio.de/mdr/jump/live/mp3/128/stream.mp3",
+          "MDRSputnik": "https://mdr-sputnik-live.cast.addradio.de/mdr/sputnik/live/mp3/128/stream.mp3",
+          "RadioPSR": "https://streams.radiopsr.de/psr-live/mp3-192/stream.mp3",
+          "Radio21": "https://streams.radio21.de/radio21-live/mp3-192/stream.mp3",
+          "HitRadioFFH": "https://streams.ffh.de/ffhchannels/hqffh.mp3",
+          "RPR1": "https://streams.rpr1.de/rpr-live/mp3-192/stream.mp3",
+          "RadioRegenbogen": "https://streams.regenbogen.de/rr-live/mp3-192/stream.mp3",
+          "DieNeue1077": "https://stream.dieneue1077.de/dieneue1077/mp3-128/stream.mp3",
+          "FluxFM": "https://streams.fluxfm.de/live/mp3-320/streams.fluxfm.de/",
+          "RadioPaloma": "https://pool.radiopaloma.de/RADIOPALOMA.mp3",
+          "RTLRadio": "https://stream.rtlradio.de/rtl/mp3-128/stream.mp3",
+          "JamFM": "https://streams.jamfm.de/jam-live/mp3-192/stream.mp3",
+          "StarFM": "https://stream.starfm.de/berlin/mp3-192/stream.mp3",
+          "RadioEins": "https://dispatcher.rndfnk.com/rbb/radioeins/live/mp3/mid",
+          "Cosmo": "https://wdr-cosmo-live.icecastssl.wdr.de/wdr/cosmo/live/mp3/128/stream.mp3",
+          "YouFM": "https://hr-youfm-live.sslcast.addradio.de/hr/youfm/live/mp3/128/stream.mp3",
+          "SomaFM": "https://ice1.somafm.com/groovesalad-128-mp3",
+          "SomaGrooveSalad": "https://ice1.somafm.com/groovesalad-128-mp3",
+          "SomaDroneZone": "https://ice1.somafm.com/dronezone-128-mp3",
+          "SomaSpaceStation": "https://ice1.somafm.com/spacestation-128-mp3",
+          "SomaIndiePop": "https://ice1.somafm.com/indiepop-128-mp3",
+          "SomaDefcon": "https://ice1.somafm.com/defcon-128-mp3"
+        } %}{{ stations.get(radio_station, stations["SWR3"]) }}
+  - service: view_assist.navigate
+    data:
+      device: sensor.quasselbuechse
+      path: /view-assist/radio
+      revert_timeout: 3600
+  speech:
+    text: >
+      {% set display_names = {
+        "SWR3": "SWR 3",
+        "SWR1": "SWR 1",
+        "SWR2": "SWR 2",
+        "WDR2": "WDR 2",
+        "1LIVE": "1Live",
+        "WDR5": "WDR 5",
+        "Bayern3": "Bayern 3",
+        "Bayern1": "Bayern 1",
+        "NDR2": "NDR 2",
+        "HR3": "HR 3",
+        "AntenneBayern": "Antenne Bayern",
+        "RadioBob": "Radio Bob",
+        "RockAntenne": "Rock Antenne",
+        "SunshineLive": "Sunshine Live",
+        "Fritz": "Fritz",
+        "DLF": "Deutschlandfunk",
+        "DLFKultur": "Deutschlandfunk Kultur",
+        "Energy": "Energy",
+        "BigFM": "Big FM",
+        "KlassikRadio": "Klassik Radio",
+        "Radio7": "Radio 7",
+        "OE3": "Ö 3",
+        "FIP": "FIP",
+        "SwissJazz": "Swiss Jazz",
+        "LoungeFM": "Lounge FM",
+        "AbsolutRelax": "Absolut Relax",
+        "PlanetRadio": "Planet Radio",
+        "RadioHamburg": "Radio Hamburg",
+        "FFN": "FFN",
+        "NDR1": "NDR 1",
+        "NJOY": "N-Joy",
+        "RadioBremen": "Radio Bremen",
+        "DeltaRadio": "Delta Radio",
+        "RSH": "R.SH",
+        "Ostseewelle": "Ostseewelle",
+        "AlsterRadio": "Alster Radio",
+        "MDRJump": "MDR Jump",
+        "MDRSputnik": "MDR Sputnik",
+        "RadioPSR": "Radio PSR",
+        "Radio21": "Radio 21",
+        "HitRadioFFH": "Hit Radio FFH",
+        "RPR1": "RPR 1",
+        "RadioRegenbogen": "Radio Regenbogen",
+        "DieNeue1077": "Die Neue 107.7",
+        "FluxFM": "Flux FM",
+        "RadioPaloma": "Radio Paloma",
+        "RTLRadio": "RTL Radio",
+        "JamFM": "Jam FM",
+        "StarFM": "Star FM",
+        "RadioEins": "Radio Eins",
+        "Cosmo": "Cosmo",
+        "YouFM": "You FM",
+        "SomaFM": "Soma FM",
+        "SomaGrooveSalad": "Soma FM Groove Salad",
+        "SomaDroneZone": "Soma FM Drone Zone",
+        "SomaSpaceStation": "Soma FM Space Station",
+        "SomaIndiePop": "Soma FM Indie Pop",
+        "SomaDefcon": "Soma FM Defcon"
+      } %}
+      {% set name = display_names.get(radio_station, radio_station) %}
+      {% set responses = [
+        "OK, " ~ name ~ " läuft.",
+        "Alles klar, ich schalte " ~ name ~ " ein.",
+        name ~ " wird gestartet.",
+        "Verstanden, " ~ name ~ " kommt."
+      ] %} {{ responses | random }}
+
+RadioPlayGenre:
+  action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.spotify_ducking_active
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.radio_current_station
+    data:
+      value: >
+        {% set genre_map = {
+          "rock": "RadioBob",
+          "pop": "SWR3",
+          "jazz": "SwissJazz",
+          "klassik": "KlassikRadio",
+          "chill": "LoungeFM",
+          "electronic": "SunshineLive",
+          "nachrichten": "DLF",
+          "80er": "AbsolutRelax",
+          "90er": "BigFM"
+        } %}{{ genre_map.get(radio_genre, "SWR3") }}
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.vaca_362812d56_mediaplayer
+    data:
+      media_content_type: music
+      media_content_id: >
+        {% set genre_streams = {
+          "rock": "https://streams.radiobob.de/bob-live/mp3-192/mediaplayer",
+          "pop": "https://liveradio.swr.de/sw282p3/swr3/play.mp3",
+          "jazz": "https://stream.srg-ssr.ch/m/rsj/mp3_128",
+          "klassik": "https://stream.klassikradio.de/live/mp3-192/stream.mp3",
+          "chill": "https://stream.lounge.fm/",
+          "electronic": "https://stream.sunshine-live.de/live/mp3-192/stream.mp3",
+          "nachrichten": "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3",
+          "80er": "https://stream.absolutradio.de/absolut-relax/mp3-192/stream.mp3",
+          "90er": "https://streams.bigfm.de/bigfm-deutschland-128-mp3"
+        } %}{{ genre_streams.get(radio_genre, "https://liveradio.swr.de/sw282p3/swr3/play.mp3") }}
+  - service: view_assist.navigate
+    data:
+      device: sensor.quasselbuechse
+      path: /view-assist/radio
+      revert_timeout: 3600
+  speech:
+    text: >
+      {% set genre_display = {
+        "rock": "Rock Radio (Radio Bob)",
+        "pop": "Pop Radio (SWR 3)",
+        "jazz": "Jazz Radio (Swiss Jazz)",
+        "klassik": "Klassik Radio",
+        "chill": "Lounge FM",
+        "electronic": "Sunshine Live",
+        "nachrichten": "Deutschlandfunk",
+        "80er": "80er Radio (Absolut Relax)",
+        "90er": "90er Radio (Big FM)"
+      } %}
+      {% set name = genre_display.get(radio_genre, radio_genre ~ " Radio") %}
+      {% set responses = [
+        "OK, " ~ name ~ " läuft.",
+        "Alles klar, " ~ name ~ " wird gestartet.",
+        name ~ " kommt."
+      ] %} {{ responses | random }}
+
+RadioPlayDefault:
+  action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.spotify_ducking_active
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.vaca_362812d56_mediaplayer
+    data:
+      media_content_type: music
+      media_content_id: >
+        {% set raw_last = states('input_text.radio_current_station') %}
+        {% if raw_last and '|' in raw_last %}
+          {% set last = raw_last.split('|')[0] %}
+        {% else %}
+          {% set last = raw_last %}
+        {% endif %}
+        {% set stations = {
+          "SWR3": "https://liveradio.swr.de/sw282p3/swr3/play.mp3",
+          "SWR1": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+          "SWR2": "https://liveradio.swr.de/sw282p3/swr2/play.mp3",
+          "WDR2": "https://wdr-wdr2-rheinland.icecastssl.wdr.de/wdr/wdr2/rheinland/mp3/128/stream.mp3",
+          "1LIVE": "https://wdr-1live-live.icecastssl.wdr.de/wdr/1live/live/mp3/128/stream.mp3",
+          "WDR5": "https://wdr-wdr5-live.icecastssl.wdr.de/wdr/wdr5/live/mp3/128/stream.mp3",
+          "Bayern3": "https://streams.br.de/bayern3_2.m3u8",
+          "Bayern1": "https://streams.br.de/bayern1_2.m3u8",
+          "NDR2": "https://www.ndr.de/resources/metadaten/audio_ssl/livestream/ndr2.m3u",
+          "HR3": "https://hr-hr3-live.sslcast.addradio.de/hr/hr3/live/mp3/128/stream.mp3",
+          "AntenneBayern": "https://stream.antenne.de/antenne/stream/mp3",
+          "RadioBob": "https://streams.radiobob.de/bob-live/mp3-192/mediaplayer",
+          "RockAntenne": "https://stream.rockantenne.de/rockantenne/stream/mp3",
+          "SunshineLive": "https://stream.sunshine-live.de/live/mp3-192/stream.mp3",
+          "Fritz": "https://dispatcher.rndfnk.com/rbb/fritz/live/mp3/mid",
+          "DLF": "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3",
+          "DLFKultur": "https://st02.sslstream.dlf.de/dlf/02/128/mp3/stream.mp3",
+          "Energy": "https://frontend.2.static.ert.hd-livestream.de/out/swr/swr_s01/default/11/hls/index_1.m3u8",
+          "BigFM": "https://streams.bigfm.de/bigfm-deutschland-128-mp3",
+          "KlassikRadio": "https://stream.klassikradio.de/live/mp3-192/stream.mp3",
+          "Radio7": "https://stream.radio7.de/radio7/mp3-128/stream.mp3",
+          "OE3": "https://orf-live.ors-shoutcast.at/oe3-q2a",
+          "FIP": "https://icecast.radiofrance.fr/fip-midfi.mp3",
+          "SwissJazz": "https://stream.srg-ssr.ch/m/rsj/mp3_128",
+          "LoungeFM": "https://stream.lounge.fm/",
+          "AbsolutRelax": "https://stream.absolutradio.de/absolut-relax/mp3-192/stream.mp3",
+          "PlanetRadio": "https://planetradio.streamabc.net/planetradio-hqlivestream-mp3",
+          "RadioHamburg": "https://streams.radiohamburg.de/rhh-live/mp3-192/stream.mp3",
+          "FFN": "https://player.ffn.de/ffn.mp3",
+          "NDR1": "https://www.ndr.de/resources/metadaten/audio_ssl/livestream/ndr1niedersachsen.m3u",
+          "NJOY": "https://www.ndr.de/resources/metadaten/audio_ssl/livestream/n-joy.m3u",
+          "RadioBremen": "https://rb-bremeneins-live.cast.addradio.de/rb/bremeneins/live/mp3/128/stream.mp3",
+          "DeltaRadio": "https://streams.deltaradio.de/delta-live/mp3-192/stream.mp3",
+          "RSH": "https://streams.rsh.de/rsh-live/mp3-192/stream.mp3",
+          "Ostseewelle": "https://stream.ostseewelle.de/osw/mp3-192/stream.mp3",
+          "AlsterRadio": "https://streams.alsterradio.de/alsterradio-live/mp3-192/stream.mp3",
+          "MDRJump": "https://mdr-jump-live.cast.addradio.de/mdr/jump/live/mp3/128/stream.mp3",
+          "MDRSputnik": "https://mdr-sputnik-live.cast.addradio.de/mdr/sputnik/live/mp3/128/stream.mp3",
+          "RadioPSR": "https://streams.radiopsr.de/psr-live/mp3-192/stream.mp3",
+          "Radio21": "https://streams.radio21.de/radio21-live/mp3-192/stream.mp3",
+          "HitRadioFFH": "https://streams.ffh.de/ffhchannels/hqffh.mp3",
+          "RPR1": "https://streams.rpr1.de/rpr-live/mp3-192/stream.mp3",
+          "RadioRegenbogen": "https://streams.regenbogen.de/rr-live/mp3-192/stream.mp3",
+          "DieNeue1077": "https://stream.dieneue1077.de/dieneue1077/mp3-128/stream.mp3",
+          "FluxFM": "https://streams.fluxfm.de/live/mp3-320/streams.fluxfm.de/",
+          "RadioPaloma": "https://pool.radiopaloma.de/RADIOPALOMA.mp3",
+          "RTLRadio": "https://stream.rtlradio.de/rtl/mp3-128/stream.mp3",
+          "JamFM": "https://streams.jamfm.de/jam-live/mp3-192/stream.mp3",
+          "StarFM": "https://stream.starfm.de/berlin/mp3-192/stream.mp3",
+          "RadioEins": "https://dispatcher.rndfnk.com/rbb/radioeins/live/mp3/mid",
+          "Cosmo": "https://wdr-cosmo-live.icecastssl.wdr.de/wdr/cosmo/live/mp3/128/stream.mp3",
+          "YouFM": "https://hr-youfm-live.sslcast.addradio.de/hr/youfm/live/mp3/128/stream.mp3",
+          "SomaFM": "https://ice1.somafm.com/groovesalad-128-mp3",
+          "SomaGrooveSalad": "https://ice1.somafm.com/groovesalad-128-mp3",
+          "SomaDroneZone": "https://ice1.somafm.com/dronezone-128-mp3",
+          "SomaSpaceStation": "https://ice1.somafm.com/spacestation-128-mp3",
+          "SomaIndiePop": "https://ice1.somafm.com/indiepop-128-mp3",
+          "SomaDefcon": "https://ice1.somafm.com/defcon-128-mp3"
+        } %}{{ stations.get(last, stations["SWR3"]) }}
+  - service: view_assist.navigate
+    data:
+      device: sensor.quasselbuechse
+      path: /view-assist/radio
+      revert_timeout: 3600
+  speech:
+    text: >
+      {% set raw_last = states('input_text.radio_current_station') %}
+      {% if raw_last and '|' in raw_last %}
+        {% set last = raw_last.split('|')[0] %}
+        {% set search_name = raw_last.split('|', 1)[1] %}
+      {% else %}
+        {% set last = raw_last %}
+        {% set search_name = '' %}
+      {% endif %}
+      {% set display_names = {
+        "SWR3": "SWR 3", "SWR1": "SWR 1", "SWR2": "SWR 2",
+        "WDR2": "WDR 2", "1LIVE": "1Live", "WDR5": "WDR 5",
+        "Bayern3": "Bayern 3", "Bayern1": "Bayern 1", "NDR2": "NDR 2",
+        "HR3": "HR 3", "AntenneBayern": "Antenne Bayern",
+        "RadioBob": "Radio Bob", "RockAntenne": "Rock Antenne",
+        "SunshineLive": "Sunshine Live", "Fritz": "Fritz",
+        "DLF": "Deutschlandfunk", "DLFKultur": "Deutschlandfunk Kultur",
+        "Energy": "Energy", "BigFM": "Big FM",
+        "KlassikRadio": "Klassik Radio", "Radio7": "Radio 7",
+        "OE3": "Ö 3", "FIP": "FIP", "SwissJazz": "Swiss Jazz",
+        "LoungeFM": "Lounge FM", "AbsolutRelax": "Absolut Relax",
+        "PlanetRadio": "Planet Radio",
+        "RadioHamburg": "Radio Hamburg", "FFN": "FFN",
+        "NDR1": "NDR 1", "NJOY": "N-Joy",
+        "RadioBremen": "Radio Bremen", "DeltaRadio": "Delta Radio",
+        "RSH": "R.SH", "Ostseewelle": "Ostseewelle",
+        "AlsterRadio": "Alster Radio", "MDRJump": "MDR Jump",
+        "MDRSputnik": "MDR Sputnik", "RadioPSR": "Radio PSR",
+        "Radio21": "Radio 21", "HitRadioFFH": "Hit Radio FFH",
+        "RPR1": "RPR 1", "RadioRegenbogen": "Radio Regenbogen",
+        "DieNeue1077": "Die Neue 107.7", "FluxFM": "Flux FM",
+        "RadioPaloma": "Radio Paloma", "RTLRadio": "RTL Radio",
+        "JamFM": "Jam FM", "StarFM": "Star FM",
+        "RadioEins": "Radio Eins", "Cosmo": "Cosmo",
+        "YouFM": "You FM", "SomaFM": "Soma FM",
+        "SomaGrooveSalad": "Soma FM Groove Salad",
+        "SomaDroneZone": "Soma FM Drone Zone",
+        "SomaSpaceStation": "Soma FM Space Station",
+        "SomaIndiePop": "Soma FM Indie Pop",
+        "SomaDefcon": "Soma FM Defcon"
+      } %}
+      {% if last and last != 'unknown' and last != '' %}
+        {% if search_name %}
+          {% set name = search_name %}
+        {% else %}
+          {% set name = display_names.get(last, last) %}
+        {% endif %}
+        {% set responses = [
+          "OK, " ~ name ~ " läuft wieder.",
+          "Alles klar, " ~ name ~ " geht weiter."
+        ] %} {{ responses | random }}
+      {% else %}
+        {% set responses = [
+          "OK, SWR 3 läuft.",
+          "Alles klar, ich starte SWR 3."
+        ] %} {{ responses | random }}
+      {% endif %}
+
+RadioStop:
+  action:
+  - service: media_player.media_stop
+    target:
+      entity_id: media_player.vaca_362812d56_mediaplayer
+    continue_on_error: true
+  - service: view_assist.navigate
+    data:
+      device: sensor.quasselbuechse
+      path: /view-assist/clock
+  speech:
+    text: >
+      {% set responses = [
+        "OK, Radio ist aus.",
+        "Radio gestoppt.",
+        "Alles klar, Radio beendet."
+      ] %} {{ responses | random }}
+
+RadioVolumeSet:
+  action:
+  - service: media_player.volume_set
+    target:
+      entity_id: media_player.vaca_362812d56_mediaplayer
+    data:
+      volume_level: "{{ volume_level | float / 100.0 }}"
+  speech:
+    text: "Lautstärke auf {{ volume_level }} Prozent."
+
+RadioVolumeUp:
+  action:
+  - service: media_player.volume_set
+    target:
+      entity_id: media_player.vaca_362812d56_mediaplayer
+    data:
+      volume_level: >
+        {{ [((state_attr('media_player.vaca_362812d56_mediaplayer', 'volume_level') or 0.5) + 0.1), 1.0] | min }}
+  speech:
+    text: >
+      {% set vol = [((state_attr('media_player.vaca_362812d56_mediaplayer', 'volume_level') or 0.5) + 0.1), 1.0] | min %}
+      Lauter. {{ (vol * 100) | int }} Prozent.
+
+RadioVolumeDown:
+  action:
+  - service: media_player.volume_set
+    target:
+      entity_id: media_player.vaca_362812d56_mediaplayer
+    data:
+      volume_level: >
+        {{ [((state_attr('media_player.vaca_362812d56_mediaplayer', 'volume_level') or 0.5) - 0.1), 0.0] | max }}
+  speech:
+    text: >
+      {% set vol = [((state_attr('media_player.vaca_362812d56_mediaplayer', 'volume_level') or 0.5) - 0.1), 0.0] | max %}
+      Leiser. {{ (vol * 100) | int }} Prozent.
+
+RadioNowPlaying:
+  speech:
+    text: >
+      {% set raw_station = states('input_text.radio_current_station') %}
+      {% set mp_state = states('media_player.vaca_362812d56_mediaplayer') %}
+      {% if raw_station and '|' in raw_station %}
+        {% set station = raw_station.split('|')[0] %}
+        {% set search_name = raw_station.split('|', 1)[1] %}
+      {% else %}
+        {% set station = raw_station %}
+        {% set search_name = '' %}
+      {% endif %}
+      {% set display_names = {
+        "SWR3": "SWR 3", "SWR1": "SWR 1", "SWR2": "SWR 2",
+        "WDR2": "WDR 2", "1LIVE": "1Live", "WDR5": "WDR 5",
+        "Bayern3": "Bayern 3", "Bayern1": "Bayern 1", "NDR2": "NDR 2",
+        "HR3": "HR 3", "AntenneBayern": "Antenne Bayern",
+        "RadioBob": "Radio Bob", "RockAntenne": "Rock Antenne",
+        "SunshineLive": "Sunshine Live", "Fritz": "Fritz",
+        "DLF": "Deutschlandfunk", "DLFKultur": "Deutschlandfunk Kultur",
+        "Energy": "Energy", "BigFM": "Big FM",
+        "KlassikRadio": "Klassik Radio", "Radio7": "Radio 7",
+        "OE3": "Ö 3", "FIP": "FIP", "SwissJazz": "Swiss Jazz",
+        "LoungeFM": "Lounge FM", "AbsolutRelax": "Absolut Relax",
+        "PlanetRadio": "Planet Radio",
+        "RadioHamburg": "Radio Hamburg", "FFN": "FFN",
+        "NDR1": "NDR 1", "NJOY": "N-Joy",
+        "RadioBremen": "Radio Bremen", "DeltaRadio": "Delta Radio",
+        "RSH": "R.SH", "Ostseewelle": "Ostseewelle",
+        "AlsterRadio": "Alster Radio", "MDRJump": "MDR Jump",
+        "MDRSputnik": "MDR Sputnik", "RadioPSR": "Radio PSR",
+        "Radio21": "Radio 21", "HitRadioFFH": "Hit Radio FFH",
+        "RPR1": "RPR 1", "RadioRegenbogen": "Radio Regenbogen",
+        "DieNeue1077": "Die Neue 107.7", "FluxFM": "Flux FM",
+        "RadioPaloma": "Radio Paloma", "RTLRadio": "RTL Radio",
+        "JamFM": "Jam FM", "StarFM": "Star FM",
+        "RadioEins": "Radio Eins", "Cosmo": "Cosmo",
+        "YouFM": "You FM", "SomaFM": "Soma FM",
+        "SomaGrooveSalad": "Soma FM Groove Salad",
+        "SomaDroneZone": "Soma FM Drone Zone",
+        "SomaSpaceStation": "Soma FM Space Station",
+        "SomaIndiePop": "Soma FM Indie Pop",
+        "SomaDefcon": "Soma FM Defcon"
+      } %}
+      {% if search_name %}
+        {% set name = search_name %}
+      {% else %}
+        {% set name = display_names.get(station, station) %}
+      {% endif %}
+      {% if station and station != 'unknown' and station != '' and mp_state == 'playing' %}
+        Gerade läuft {{ name }}.
+      {% elif station and station != 'unknown' and station != '' %}
+        Zuletzt lief {{ name }}, aber das Radio ist gerade aus.
+      {% else %}
+        Es läuft gerade kein Radio.
+      {% endif %}
+
+RadioList:
+  speech:
+    text: >
+      Ich habe über 60 Sender direkt verfügbar, zum Beispiel SWR 3, WDR 2, Bayern 3,
+      NDR 2, Radio Hamburg, FFN, Radio Bremen, N-Joy, Radio Bob, Rock Antenne,
+      Deutschlandfunk, Klassik Radio, Flux FM, Soma FM und viele mehr.
+      Sag zum Beispiel: Spiele Radio Hamburg. Oder ein Genre wie: Spiele Rock Radio.
+      Wenn du einen Sender suchst, sag: Suche Radio und den Namen.
+
+RadioSearch:
+  action:
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.radio_search_result
+    data:
+      value: "SEARCHING"
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.radio_search_query
+    data:
+      value: "{{ radio_query }}"
+  - service: shell_command.radio_search
+  - delay:
+      seconds: 3
+  - service: view_assist.navigate
+    data:
+      device: sensor.quasselbuechse
+      path: /view-assist/radio
+      revert_timeout: 3600
+  speech:
+    text: >
+      {% set result = states('input_text.radio_search_result') %}
+      {% if result.startswith('OK:') %}
+        {% set name = result[3:] %}
+        {% set responses = [
+          "OK, " ~ name ~ " gefunden und wird gestartet.",
+          "Alles klar, ich spiele " ~ name ~ ".",
+          name ~ " l\u00e4uft."
+        ] %} {{ responses | random }}
+      {% elif result.startswith('NOT_FOUND:') %}
+        {% set q = result[10:] %}
+        Leider habe ich keinen Sender mit dem Namen {{ q }} gefunden.
+      {% elif result.startswith('NO_STREAM:') %}
+        {% set name = result[10:] %}
+        {{ name }} wurde gefunden, hat aber leider keinen funktionierenden Stream.
+      {% elif result.startswith('LIST:') %}
+        {% set list = result[5:] %}
+        Ich habe folgende Sender gefunden: {{ list }}.
+      {% else %}
+        Die Suche l\u00e4uft noch. Bitte versuche es in ein paar Sekunden nochmal.
+      {% endif %}
