@@ -18,11 +18,16 @@ GetWeather:
         'rainy': 'regnerisch',
         'pouring': 'sehr regnerisch mit starkem Niederschlag',
         'snowy': 'winterlich mit Schnee',
+        'snowy-rainy': 'winterlich mit Schneeregen',
         'fog': 'neblig',
         'windy': 'windig',
-        'lightning': 'gewitterig'
+        'windy-variant': 'windig mit Wolken',
+        'lightning': 'gewitterig',
+        'lightning-rainy': 'gewittrig mit Regen',
+        'hail': 'mit Hagel',
+        'exceptional': 'außergewöhnlich'
       } %}
-      {% set cond = condition_map.get(weather, weather) %}
+      {% set cond = condition_map.get(weather, 'unbekannt') %}
       {% set responses = [
         "Draußen ist es gerade " ~ cond ~ ". Das Thermometer zeigt " ~ temp ~ " Grad und die Luftfeuchtigkeit liegt bei " ~ humidity ~ " Prozent.",
         "Aktuell haben wir " ~ cond ~ "es Wetter bei " ~ temp ~ " Grad. Die Luftfeuchtigkeit beträgt " ~ humidity ~ " Prozent.",
@@ -152,11 +157,29 @@ GetWeatherForecast:
       {% set sensor_map = {0: 'sensor.wetter_heute', 1: 'sensor.wetter_morgen', 2: 'sensor.wetter_uebermorgen'} %}
       {% set sensor = sensor_map.get(idx, 'sensor.wetter_morgen') %}
       {% set weather = states(sensor) %}
+      {% set condition_map = {
+        'sunny': 'sonnig',
+        'clear-night': 'klar',
+        'partlycloudy': 'leicht bewölkt',
+        'cloudy': 'bewölkt',
+        'rainy': 'regnerisch',
+        'pouring': 'stark regnerisch',
+        'snowy': 'winterlich',
+        'snowy-rainy': 'winterlich mit Schneeregen',
+        'fog': 'neblig',
+        'windy': 'windig',
+        'windy-variant': 'windig mit Wolken',
+        'lightning': 'gewitterig',
+        'lightning-rainy': 'gewittrig mit Regen',
+        'hail': 'mit Hagel',
+        'exceptional': 'außergewöhnlich'
+      } %}
+      {% set cond = condition_map.get(weather, 'wechselhaft') %}
       {% if weather and weather != 'unknown' and weather != 'unavailable' %}
         {% set r = [
-          day | capitalize ~ " wird es " ~ weather ~ ".",
-          "Für " ~ day ~ " ist " ~ weather ~ "es Wetter angesagt.",
-          "Die Vorhersage für " ~ day ~ ": " ~ weather ~ "."
+          day | capitalize ~ " wird es " ~ cond ~ ".",
+          "Für " ~ day ~ " ist " ~ cond ~ "es Wetter angesagt.",
+          "Die Vorhersage für " ~ day ~ ": " ~ cond ~ "."
         ] %}
         {{ r | random }}
       {% else %}
@@ -213,13 +236,16 @@ GetWeatherDay:
         'rainy': 'regnerisch',
         'pouring': 'sehr regnerisch mit starkem Niederschlag',
         'snowy': 'winterlich mit Schneefall',
+        'snowy-rainy': 'winterlich mit Schneeregen',
         'fog': 'neblig',
         'lightning': 'gewitterig',
         'lightning-rainy': 'gewittrig mit Regen',
         'windy': 'windig',
-        'hail': 'mit Hagel'
+        'windy-variant': 'windig mit Wolken',
+        'hail': 'mit Hagel',
+        'exceptional': 'außergewöhnlich'
       } %}
-      {% set weather_state = condition_map.get(weather_raw, weather_raw) %}
+      {% set weather_state = condition_map.get(weather_raw, 'wechselhaft') %}
       {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
       {% if weather_raw and weather_raw != 'unknown' and weather_raw != 'unavailable' %}
         {% if day_slot == 0 %}
@@ -304,12 +330,16 @@ GetWeatherTime:
         'rainy': 'regnerisch',
         'pouring': 'sehr regnerisch',
         'snowy': 'winterlich mit Schnee',
+        'snowy-rainy': 'winterlich mit Schneeregen',
         'fog': 'neblig',
         'lightning': 'gewitterig',
         'lightning-rainy': 'gewittrig mit Regen',
-        'windy': 'windig'
+        'windy': 'windig',
+        'windy-variant': 'windig mit Wolken',
+        'hail': 'mit Hagel',
+        'exceptional': 'außergewöhnlich'
       } %}
-      {% set weather_state = condition_map.get(weather_raw, weather_raw) %}
+      {% set weather_state = condition_map.get(weather_raw, 'wechselhaft') %}
       {% set day_name = day_names.get(day_slot, 'an diesem Tag') %}
       {% set time_name = time_display.get(time_slot, time_slot) %}
       {% if weather_raw and weather_raw != 'unknown' %}
@@ -339,10 +369,14 @@ GetWeatherWeek:
         'rainy': 'regnerisch',
         'pouring': 'stark regnerisch',
         'snowy': 'winterlich',
+        'snowy-rainy': 'winterlich mit Schneeregen',
         'fog': 'neblig',
         'lightning': 'gewitterig',
-        'lightning-rainy': 'gewitterig',
-        'windy': 'windig'
+        'lightning-rainy': 'gewittrig mit Regen',
+        'windy': 'windig',
+        'windy-variant': 'windig mit Wolken',
+        'hail': 'mit Hagel',
+        'exceptional': 'außergewöhnlich'
       } %}
       {% set heute = states('sensor.wetter_heute') | lower %}
       {% set morgen = states('sensor.wetter_morgen') | lower %}
@@ -350,9 +384,9 @@ GetWeatherWeek:
       {% set tag3 = states('sensor.wetter_tag_3') | lower %}
       {% set tag4 = states('sensor.wetter_tag_4') | lower %}
       {% set r = [
-        "Hier ist die Wetterübersicht für die nächsten Tage: Heute wird es " ~ condition_map.get(heute, heute) ~ ", morgen " ~ condition_map.get(morgen, morgen) ~ " und übermorgen " ~ condition_map.get(uebermorgen, uebermorgen) ~ ". Danach erwartet uns " ~ condition_map.get(tag3, tag3) ~ "es und später " ~ condition_map.get(tag4, tag4) ~ "es Wetter.",
-        "Die Wochenübersicht: Heute " ~ condition_map.get(heute, heute) ~ ", morgen " ~ condition_map.get(morgen, morgen) ~ ", übermorgen " ~ condition_map.get(uebermorgen, uebermorgen) ~ ". Dann wird es " ~ condition_map.get(tag3, tag3) ~ " und danach " ~ condition_map.get(tag4, tag4) ~ ".",
-        "Ein Blick auf die kommenden Tage: Heute " ~ condition_map.get(heute, heute) ~ ", morgen " ~ condition_map.get(morgen, morgen) ~ ", übermorgen " ~ condition_map.get(uebermorgen, uebermorgen) ~ ". Im weiteren Verlauf " ~ condition_map.get(tag3, tag3) ~ " bis " ~ condition_map.get(tag4, tag4) ~ "."
+        "Hier ist die Wetterübersicht für die nächsten Tage: Heute wird es " ~ condition_map.get(heute, 'wechselhaft') ~ ", morgen " ~ condition_map.get(morgen, 'wechselhaft') ~ " und übermorgen " ~ condition_map.get(uebermorgen, 'wechselhaft') ~ ". Danach erwartet uns " ~ condition_map.get(tag3, 'wechselhaft') ~ "es und später " ~ condition_map.get(tag4, 'wechselhaft') ~ "es Wetter.",
+        "Die Wochenübersicht: Heute " ~ condition_map.get(heute, 'wechselhaft') ~ ", morgen " ~ condition_map.get(morgen, 'wechselhaft') ~ ", übermorgen " ~ condition_map.get(uebermorgen, 'wechselhaft') ~ ". Dann wird es " ~ condition_map.get(tag3, 'wechselhaft') ~ " und danach " ~ condition_map.get(tag4, 'wechselhaft') ~ ".",
+        "Ein Blick auf die kommenden Tage: Heute " ~ condition_map.get(heute, 'wechselhaft') ~ ", morgen " ~ condition_map.get(morgen, 'wechselhaft') ~ ", übermorgen " ~ condition_map.get(uebermorgen, 'wechselhaft') ~ ". Im weiteren Verlauf " ~ condition_map.get(tag3, 'wechselhaft') ~ " bis " ~ condition_map.get(tag4, 'wechselhaft') ~ "."
       ] %}
       {{ r | random }}
 
@@ -641,10 +675,18 @@ GetSun:
         ] %}
         {{ r | random }}
       {% else %}
+        {% set condition_map = {
+          'rainy': 'regnerisch', 'pouring': 'stark regnerisch', 'snowy': 'winterlich',
+          'snowy-rainy': 'Schneeregen', 'fog': 'neblig', 'windy': 'windig',
+          'windy-variant': 'windig', 'lightning': 'gewitterig',
+          'lightning-rainy': 'gewittrig mit Regen', 'hail': 'Hagel',
+          'exceptional': 'außergewöhnlich'
+        } %}
+        {% set wetter_de = condition_map.get(weather, 'bewölkt') %}
         {% set r = [
-          "Die Sonne scheint gerade nicht. Das Wetter ist " ~ weather ~ ".",
-          "Kein Sonnenschein im Moment, es ist " ~ weather ~ ".",
-          "Von der Sonne ist nichts zu sehen, aktuell ist es " ~ weather ~ "."
+          "Die Sonne scheint gerade nicht. Es ist " ~ wetter_de ~ ".",
+          "Kein Sonnenschein im Moment, es ist " ~ wetter_de ~ ".",
+          "Von der Sonne ist nichts zu sehen, aktuell ist es " ~ wetter_de ~ "."
         ] %}
         {{ r | random }}
       {% endif %}
@@ -1552,10 +1594,10 @@ GetWeatherComparison:
       {% set morgen = states('sensor.wetter_morgen') | lower %}
       {% set temp_heute = state_attr('sensor.wetter_heute', 'temperature') %}
       {% set temp_morgen = state_attr('sensor.wetter_morgen', 'temperature') %}
-      {% set weather_de = {'sunny': 'sonnig', 'partlycloudy': 'teilweise bewölkt', 'cloudy': 'bewölkt', 'rainy': 'regnerisch', 'pouring': 'stark regnerisch', 'snowy': 'verschneit', 'windy': 'windig', 'fog': 'neblig', 'lightning': 'gewittrig', 'clear-night': 'klar'} %}
+      {% set weather_de = {'sunny': 'sonnig', 'partlycloudy': 'teilweise bewölkt', 'cloudy': 'bewölkt', 'rainy': 'regnerisch', 'pouring': 'stark regnerisch', 'snowy': 'verschneit', 'snowy-rainy': 'Schneeregen', 'windy': 'windig', 'windy-variant': 'windig mit Wolken', 'fog': 'neblig', 'lightning': 'gewittrig', 'lightning-rainy': 'gewittrig mit Regen', 'hail': 'mit Hagel', 'clear-night': 'klar', 'exceptional': 'außergewöhnlich'} %}
       {% if heute != 'unknown' and morgen != 'unknown' %}
-        {% set heute_de = weather_de.get(heute, heute) %}
-        {% set morgen_de = weather_de.get(morgen, morgen) %}
+        {% set heute_de = weather_de.get(heute, 'wechselhaft') %}
+        {% set morgen_de = weather_de.get(morgen, 'wechselhaft') %}
         {% set r = [
           "Heute ist es " ~ heute_de,
           "Aktuell haben wir " ~ heute_de ~ "es Wetter",
