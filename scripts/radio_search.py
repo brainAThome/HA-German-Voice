@@ -299,14 +299,16 @@ def main():
         # Ducking deaktivieren
         ha_set_state(DUCKING_ENTITY, False)
 
-        # Logo herunterladen
+        # Logo herunterladen - Dateiname = sanitized Station-Name
         logo_key = download_logo(station_name, favicon)
-        if not logo_key:
-            # Fallback: Verwende den Station-Key als Logo-Namen
-            logo_key = "".join(c for c in station_name if c.isalnum()).strip()
 
-        # Station-Name setzen (für Display)
-        ha_set_state(RADIO_STATION_ENTITY, logo_key or station_name[:50])
+        # Station-Name setzen (für Display) - schöner Name, nicht der Dateiname
+        # Wir speichern "<logo_key>|<display_name>" damit View beides hat
+        display_name = station_name
+        if logo_key:
+            ha_set_state(RADIO_STATION_ENTITY, f"{logo_key}|{display_name}")
+        else:
+            ha_set_state(RADIO_STATION_ENTITY, f"|{display_name}")
 
         # Stream abspielen
         ha_play_media(stream_url, station_name)

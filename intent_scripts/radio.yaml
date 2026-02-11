@@ -240,7 +240,12 @@ RadioPlayDefault:
     data:
       media_content_type: music
       media_content_id: >
-        {% set last = states('input_text.radio_current_station') %}
+        {% set raw_last = states('input_text.radio_current_station') %}
+        {% if raw_last and '|' in raw_last %}
+          {% set last = raw_last.split('|')[0] %}
+        {% else %}
+          {% set last = raw_last %}
+        {% endif %}
         {% set stations = {
           "SWR3": "https://liveradio.swr.de/sw282p3/swr3/play.mp3",
           "SWR1": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
@@ -308,7 +313,14 @@ RadioPlayDefault:
       revert_timeout: 3600
   speech:
     text: >
-      {% set last = states('input_text.radio_current_station') %}
+      {% set raw_last = states('input_text.radio_current_station') %}
+      {% if raw_last and '|' in raw_last %}
+        {% set last = raw_last.split('|')[0] %}
+        {% set search_name = raw_last.split('|', 1)[1] %}
+      {% else %}
+        {% set last = raw_last %}
+        {% set search_name = '' %}
+      {% endif %}
       {% set display_names = {
         "SWR3": "SWR 3", "SWR1": "SWR 1", "SWR2": "SWR 2",
         "WDR2": "WDR 2", "1LIVE": "1Live", "WDR5": "WDR 5",
@@ -342,7 +354,11 @@ RadioPlayDefault:
         "SomaDefcon": "Soma FM Defcon"
       } %}
       {% if last and last != 'unknown' and last != '' %}
-        {% set name = display_names.get(last, last) %}
+        {% if search_name %}
+          {% set name = search_name %}
+        {% else %}
+          {% set name = display_names.get(last, last) %}
+        {% endif %}
         {% set responses = [
           "OK, " ~ name ~ " läuft wieder.",
           "Alles klar, " ~ name ~ " geht weiter."
@@ -411,8 +427,15 @@ RadioVolumeDown:
 RadioNowPlaying:
   speech:
     text: >
-      {% set station = states('input_text.radio_current_station') %}
+      {% set raw_station = states('input_text.radio_current_station') %}
       {% set mp_state = states('media_player.vaca_362812d56_mediaplayer') %}
+      {% if raw_station and '|' in raw_station %}
+        {% set station = raw_station.split('|')[0] %}
+        {% set search_name = raw_station.split('|', 1)[1] %}
+      {% else %}
+        {% set station = raw_station %}
+        {% set search_name = '' %}
+      {% endif %}
       {% set display_names = {
         "SWR3": "SWR 3", "SWR1": "SWR 1", "SWR2": "SWR 2",
         "WDR2": "WDR 2", "1LIVE": "1Live", "WDR5": "WDR 5",
@@ -445,11 +468,14 @@ RadioNowPlaying:
         "SomaIndiePop": "Soma FM Indie Pop",
         "SomaDefcon": "Soma FM Defcon"
       } %}
-      {% if station and station != 'unknown' and station != '' and mp_state == 'playing' %}
+      {% if search_name %}
+        {% set name = search_name %}
+      {% else %}
         {% set name = display_names.get(station, station) %}
+      {% endif %}
+      {% if station and station != 'unknown' and station != '' and mp_state == 'playing' %}
         Gerade läuft {{ name }}.
       {% elif station and station != 'unknown' and station != '' %}
-        {% set name = display_names.get(station, station) %}
         Zuletzt lief {{ name }}, aber das Radio ist gerade aus.
       {% else %}
         Es läuft gerade kein Radio.
