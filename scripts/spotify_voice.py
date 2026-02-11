@@ -20,16 +20,19 @@ import json
 import argparse
 import time
 import os
+import shlex
 import urllib.request
 import urllib.parse
 import urllib.error
+
+# Secrets externalisiert — kein Token mehr im Code
+from secrets_config import HA_TOKEN, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 
 # ============================================================================
 # KONFIGURATION - ANPASSEN AN DEINE INSTALLATION
 # ============================================================================
 HA_API = "http://localhost:8123/api"
-# HA Long-Lived Access Token
-HA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIwZWJmMDhlZDk2MTc0MzRmOGRkOWRiNmIyMjhlNDAxOCIsImlhdCI6MTc3MDczNzA5NywiZXhwIjoyMDg2MDk3MDk3fQ.0l4LR5It8sfovVQKeFlfx0Thi_ZKw4ThMeY_EU7gIxA"
+# HA_TOKEN wird aus secrets_config importiert (Environment oder /config/secrets.yaml)
 # Pfad zur HA Storage-Datei
 STORAGE_PATH = "/config/.storage/core.config_entries"
 # Spotify Entity in HA
@@ -40,9 +43,9 @@ JARVIS_SPOTIFY_NAME = "Echo Show 5 (2nd Generation)"
 # ADB-Adresse f├╝r Spotify-App-Wakeup (falls App geschlossen)
 JARVIS_ADB_HOST = "192.168.178.103"
 JARVIS_ADB_PORT = 5555
-# Spotify App Credentials (aus HA Application Credentials)
-CLIENT_ID = "c1c5aa30a5cd4954854e16d0a9c2228e"
-CLIENT_SECRET = "16947c1cae2f44919a31f0cdc7c76182"
+# SPOTIFY_CLIENT_ID und SPOTIFY_CLIENT_SECRET werden aus secrets_config importiert
+CLIENT_ID = SPOTIFY_CLIENT_ID
+CLIENT_SECRET = SPOTIFY_CLIENT_SECRET
 # Spotify Markt f├╝r Suchergebnisse
 MARKET = "DE"
 # ADB-Key für Spotify-App-Wakeup (generiert oder von Windows kopiert)
@@ -383,7 +386,8 @@ def adb_wake_spotify(host=JARVIS_ADB_HOST, port=JARVIS_ADB_PORT, uri=""):
         dev.connect(rsa_keys=[signer], auth_timeout_s=10)
 
         if uri:
-            cmd = f"am start -a android.intent.action.VIEW -d '{uri}'"
+            # shlex.quote() verhindert Shell Injection via URI
+            cmd = f"am start -a android.intent.action.VIEW -d {shlex.quote(uri)}"
         else:
             cmd = "monkey -p com.spotify.music -c android.intent.category.LAUNCHER 1"
 

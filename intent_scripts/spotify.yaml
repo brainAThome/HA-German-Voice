@@ -147,7 +147,7 @@ SpotifyDevice:
 SpotifyPause:
   action:
   - *id001
-  - service: media_player.media_pause
+  - service: media_player.media_play_pause
     target:
       entity_id: media_player.spotify_sven
     continue_on_error: true
@@ -230,7 +230,7 @@ SpotifyNowPlaying:
 GeneralStop:
   action:
   - *id001
-  - service: media_player.media_pause
+  - service: media_player.media_play_pause
     target:
       entity_id: media_player.spotify_sven
     continue_on_error: true

@@ -19,13 +19,15 @@ import ssl
 import sys
 import urllib.request
 import urllib.parse
-import time
+
+# Secrets externalisiert — kein Token mehr im Code
+from secrets_config import HA_TOKEN
 
 # ============================================================================
 # Konfiguration
 # ============================================================================
 HA_URL = "http://localhost:8123"
-HA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIwZWJmMDhlZDk2MTc0MzRmOGRkOWRiNmIyMjhlNDAxOCIsImlhdCI6MTc3MDczNzA5NywiZXhwIjoyMDg2MDk3MDk3fQ.0l4LR5It8sfovVQKeFlfx0Thi_ZKw4ThMeY_EU7gIxA"
+# HA_TOKEN wird aus secrets_config importiert (Environment oder /config/secrets.yaml)
 MEDIA_PLAYER = "media_player.vaca_362812d56_mediaplayer"
 VA_DEVICE = "sensor.quasselbuechse"
 RADIO_STATION_ENTITY = "input_text.radio_current_station"
@@ -59,8 +61,8 @@ log = logging.getLogger("radio_search")
 # SSL Context (für Radio Browser API)
 # ============================================================================
 ssl_ctx = ssl.create_default_context()
-ssl_ctx.check_hostname = False
-ssl_ctx.verify_mode = ssl.CERT_NONE
+# SSL-Verifikation aktiv — sicherer als CERT_NONE
+# Falls Zertifikatsprobleme: certifi installieren oder CA-Bundle angeben
 
 
 def ha_api(endpoint, method="GET", data=None):
@@ -260,7 +262,7 @@ def main():
     if not query or query in ("unknown", "unavailable", ""):
         log.error("Leere Suchanfrage")
         ha_set_state("input_text.radio_search_result", "NOT_FOUND:unbekannt")
-        sys.exit(0)
+        sys.exit(1)
 
     log.info(f"=== Radio Search: '{query}' ===")
 
@@ -271,13 +273,13 @@ def main():
         log.warning(f"Kein Sender gefunden für: {query}")
         # Setze den Status damit das Intent-Script eine Fehlermeldung geben kann
         ha_set_state("input_text.radio_search_result", f"NOT_FOUND:{query}")
-        sys.exit(0)
+        sys.exit(1)
 
     # Besten Sender wählen
     best = pick_best_station(stations, query)
     if not best:
         ha_set_state("input_text.radio_search_result", f"NOT_FOUND:{query}")
-        sys.exit(0)
+        sys.exit(1)
 
     station_name = best.get("name", query).strip()
     stream_url = get_stream_url(best)
@@ -293,7 +295,7 @@ def main():
     if not stream_url:
         log.error("Keine Stream-URL gefunden")
         ha_set_state("input_text.radio_search_result", f"NO_STREAM:{station_name}")
-        sys.exit(0)
+        sys.exit(1)
 
     if args.action == "play":
         # Ducking deaktivieren

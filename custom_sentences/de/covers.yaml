@@ -132,6 +132,17 @@ intents:
             type: area
         response: "OK, Rolladen in {{ slots.area }} werden geöffnet."
 
+      # === Alle Rolladen ===
+      - sentences:
+          - "(öffne|mach|fahr) <polite> alle <cover_types> [(auf|hoch)]"
+          - "alle <cover_types> <action_open>"
+          - "<cover_types> überall <action_open>"
+          - "überall <cover_types> <action_open>"
+          - "überall [(die|alle)] <cover_types> (auf|hoch|öffnen)"
+          - "alle <cover_types> (in allen räumen|überall|im ganzen haus) <action_open>"
+          - "(mach|mache) <polite> überall (hell|licht)"
+        response: "OK, alle Rolladen werden geöffnet."
+
   # --------------------------------------------------------------------------
   # ROLLADEN SCHLIESSEN
   # --------------------------------------------------------------------------
@@ -183,6 +194,18 @@ intents:
           area:
             type: area
         response: "OK, Rolladen in {{ slots.area }} werden geschlossen."
+
+      # === Alle Rolladen ===
+      - sentences:
+          - "(schließe|mach|fahr) <polite> alle <cover_types> [(zu|runter)]"
+          - "alle <cover_types> <action_close>"
+          - "<cover_types> überall <action_close>"
+          - "überall <cover_types> <action_close>"
+          - "(verdunkle|verdunkeln) <polite> (alles|überall|alle räume|das ganze haus)"
+          - "(komplette|totale) verdunklung"
+          - "(mach|mache) <polite> überall dunkel"
+          - "alles dunkel [machen]"
+        response: "OK, alle Rolladen werden geschlossen."
 
   # --------------------------------------------------------------------------
   # ROLLADEN STOPPEN
@@ -268,34 +291,6 @@ intents:
           area:
             type: area
         response: "OK, Lamellen in {{ slots.area }} auf {{ slots.tilt_position or 50 }}%."
-
-  # --------------------------------------------------------------------------
-  # ALLE ROLLADEN
-  # --------------------------------------------------------------------------
-  HassOpenCover:
-    data:
-      - sentences:
-          - "(öffne|mach|fahr) <polite> alle <cover_types> [(auf|hoch)]"
-          - "alle <cover_types> <action_open>"
-          - "<cover_types> überall <action_open>"
-          - "überall <cover_types> <action_open>"
-          - "überall [(die|alle)] <cover_types> (auf|hoch|öffnen)"
-          - "alle <cover_types> (in allen räumen|überall|im ganzen haus) <action_open>"
-          - "(mach|mache) <polite> überall (hell|licht)"
-        response: "OK, alle Rolladen werden geöffnet."
-
-  HassCloseCover:
-    data:
-      - sentences:
-          - "(schließe|mach|fahr) <polite> alle <cover_types> [(zu|runter)]"
-          - "alle <cover_types> <action_close>"
-          - "<cover_types> überall <action_close>"
-          - "überall <cover_types> <action_close>"
-          - "(verdunkle|verdunkeln) <polite> (alles|überall|alle räume|das ganze haus)"
-          - "(komplette|totale) verdunklung"
-          - "(mach|mache) <polite> überall dunkel"
-          - "alles dunkel [machen]"
-        response: "OK, alle Rolladen werden geschlossen."
 
   # --------------------------------------------------------------------------
   # SONNENSCHUTZ
