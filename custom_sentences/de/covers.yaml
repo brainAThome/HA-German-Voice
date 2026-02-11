@@ -425,8 +425,14 @@ intents:
           {{ state_attr(slots.name, 'friendly_name') }} ist offen bei {{ pos }}%.
           {% elif states(slots.name) == 'closed' %}
           {{ state_attr(slots.name, 'friendly_name') }} ist geschlossen.
+          {% elif states(slots.name) == 'opening' %}
+          {{ state_attr(slots.name, 'friendly_name') }} fährt gerade hoch.
+          {% elif states(slots.name) == 'closing' %}
+          {{ state_attr(slots.name, 'friendly_name') }} fährt gerade runter.
+          {% elif states(slots.name) == 'unavailable' %}
+          {{ state_attr(slots.name, 'friendly_name') }} ist gerade nicht erreichbar.
           {% else %}
-          {{ state_attr(slots.name, 'friendly_name') }}: {{ states(slots.name) }}, {{ pos }}%.
+          {{ state_attr(slots.name, 'friendly_name') }} ist bei {{ pos }}%.
           {% endif %}
       
       - sentences:

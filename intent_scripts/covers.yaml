@@ -148,8 +148,10 @@ GetCoverState:
           Die Rolladen im {{ display }} fahren gerade hoch.
         {% elif state == 'closing' %}
           Die Rolladen im {{ display }} fahren gerade runter.
+        {% elif state == 'unavailable' %}
+          Die Rolladen im {{ display }} sind gerade nicht erreichbar.
         {% else %}
-          {{ display }} hat den Status {{ state }} und ist bei {{ pos }} Prozent.
+          Die Rolladen im {{ display }} sind bei {{ pos }} Prozent.
         {% endif %}
       {% else %}
         Rolladen in {{ display }}: Raumstatus kann nur für einzelne Rolladen abgefragt werden.
