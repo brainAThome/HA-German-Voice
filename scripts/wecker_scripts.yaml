@@ -1,0 +1,128 @@
+# ==============================================================================
+# HA-GERMAN-VOICE - Wecker Scripts
+# ==============================================================================
+# Alarm-Loop mit Klingelton, automatische Deaktivierung einmaliger Wecker.
+# Kopiere den Inhalt in deine /config/scripts.yaml oder füge ihn hinzu.
+#
+# Benötigt:
+#   - /config/www/alarm.wav (Klingelton)
+#   - input_boolean.wecker_klingelt
+#   - input_boolean.wecker_X_aktiv / _wiederkehrend
+#   - input_text.wecker_aktiver_slot
+#   - timer.wecker_snooze
+#   - media_player.vaca_362812d56_mediaplayer    # ANPASSEN
+#   - number.vaca_362812d56_musiklautstarke      # ANPASSEN
+#   - number.vaca_362812d56_sprachlautstarke     # ANPASSEN
+#   - assist_satellite.vaca_362812d56            # ANPASSEN
+# ==============================================================================
+
+wecker_alarm_loop:
+  alias: Wecker Alarm Loop
+  description: >
+    Spielt Weckerton in Schleife auf dem VACA-Satellite, bis
+    input_boolean.wecker_klingelt auf off gesetzt wird (StopWecker/Snooze).
+    Deaktiviert einmalige Wecker automatisch nach dem Stoppen.
+  mode: single
+  fields:
+    slot:
+      description: Wecker-Slot Nummer (1 oder 2)
+      selector:
+        number:
+          min: 1
+          max: 2
+  sequence:
+    # --- Originalwerte sichern ---
+    - variables:
+        original_music_vol: >
+          {{ states('number.vaca_362812d56_musiklautstarke') | int(4) }}
+        original_voice_vol: >
+          {{ states('number.vaca_362812d56_sprachlautstarke') | int(5) }}
+
+    # --- Aktiven Slot merken (fuer Snooze-Retrigger) ---
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.wecker_aktiver_slot
+      data:
+        value: "{{ slot }}"
+
+    # --- Bildschirm aufwecken ---
+    - action: button.press
+      target:
+        entity_id: button.vaca_362812d56_bildschirm_aufwecken
+      continue_on_error: true
+
+    # --- Musiklautstärke hochdrehen ---
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_musiklautstarke
+      data:
+        value: 10
+
+    # --- Media Player Lautstärke auf Maximum ---
+    - action: media_player.volume_set
+      target:
+        entity_id: media_player.vaca_362812d56_mediaplayer
+      data:
+        volume_level: 1.0
+      continue_on_error: true
+
+    # --- Klingelt-Flag setzen ---
+    - action: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.wecker_klingelt
+
+    # --- TTS Ankündigung: "Wecker!" ---
+    - action: assist_satellite.announce
+      target:
+        entity_id: assist_satellite.vaca_362812d56
+      data:
+        message: "Wecker! Aufstehen!"
+      continue_on_error: true
+    - delay:
+        seconds: 3
+
+    # --- Alarm-Loop: Sound abspielen bis gestoppt ---
+    - repeat:
+        while:
+          - condition: state
+            entity_id: input_boolean.wecker_klingelt
+            state: "on"
+          - condition: template
+            value_template: "{{ repeat.index <= 60 }}"
+        sequence:
+          - action: media_player.play_media
+            target:
+              entity_id: media_player.vaca_362812d56_mediaplayer
+            data:
+              media_content_id: /local/alarm.wav
+              media_content_type: music
+            continue_on_error: true
+          - delay:
+              seconds: 5
+
+    # --- Cleanup: Sound stoppen ---
+    - action: media_player.media_stop
+      target:
+        entity_id: media_player.vaca_362812d56_mediaplayer
+      continue_on_error: true
+
+    # --- Musiklautstärke wiederherstellen ---
+    - action: number.set_value
+      target:
+        entity_id: number.vaca_362812d56_musiklautstarke
+      data:
+        value: "{{ original_music_vol }}"
+
+    # --- Klingelt-Flag sicherheitshalber aus ---
+    - action: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.wecker_klingelt
+
+    # --- Einmaligen Wecker deaktivieren (nur wenn NICHT gesnoozed) ---
+    - condition: template
+      value_template: >
+        {{ states('timer.wecker_snooze') != 'active'
+           and states('input_boolean.wecker_' ~ slot ~ '_wiederkehrend') == 'off' }}
+    - action: input_boolean.turn_off
+      target:
+        entity_id: "input_boolean.wecker_{{ slot }}_aktiv"

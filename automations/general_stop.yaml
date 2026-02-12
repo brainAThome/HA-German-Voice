@@ -23,6 +23,12 @@
         - "sei [bitte] ruhig"
         - "sei [bitte] leise"
   actions:
+    # --- Wecker stoppen (falls aktiv) ---
+    - action: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.wecker_klingelt
+      continue_on_error: true
+    # --- Spotify/Musik stoppen ---
     - action: input_boolean.turn_off
       target:
         entity_id: input_boolean.spotify_ducking_active

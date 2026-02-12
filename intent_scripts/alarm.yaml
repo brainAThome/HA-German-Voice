@@ -132,6 +132,10 @@ StopWecker:
     - action: input_boolean.turn_off
       target:
         entity_id: input_boolean.wecker_klingelt
+    - action: media_player.media_stop
+      target:
+        entity_id: media_player.vaca_362812d56_mediaplayer
+      continue_on_error: true
 
 # --------------------------------------------------------------------------
 # SNOOZE
