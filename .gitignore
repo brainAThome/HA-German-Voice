@@ -1,0 +1,84 @@
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary
+*.tmp
+*.temp
+*.log
+
+# Secrets - NIEMALS committen!
+secrets.yaml
+scripts/secrets_config_local.py
+.env.local
+
+# Temporäre Debug/Test-Skripte (enthalten ggf. hardcoded Tokens)
+test_*.py
+diagnose_*.py
+disable_*.py
+check_entities.py
+check_yaml.py
+fix_*.py
+scripts/_*.py
+scripts/test_*.py
+scripts/test_*.sh
+scripts/spotify_latency_diag*.py
+scripts/ha_restart.py
+scripts/adb_verify.py
+scripts/adb_fix_timeout.py
+
+# Heruntergeladene Server-Kopien
+intent_scripts_spotify*.yaml
+server_intent_scripts.yaml
+intent_script.yaml
+automations.yaml
+scripts.yaml
+radio.yaml
+spotify.yaml
+
+# Einmal-Fix/Patch-Skripte (nicht Teil des Projekts)
+scripts/add_monitor_*.sh
+scripts/fix_monitor_*.sh
+scripts/check_anchors.py
+scripts/check_spotify.py
+scripts/check_va_*.py
+scripts/patch_va_*.sh
+!scripts/patch_va_response.py
+scripts/update_automation.sh
+scripts/add_wecker_helper.py
+scripts/cleanup_dead_entities.py
+scripts/delete_browsermod.txt
+scripts/deploy_spotify_runtime.sh
+scripts/deploy_wecker.py
+scripts/spotify_runtime_bundle.zip
+scripts/fix_weather_humor.py
