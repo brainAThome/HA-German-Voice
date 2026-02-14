@@ -1,394 +1,354 @@
-# ================================================================================
-# HA-GERMAN-VOICE - Deutsche Erinnerungs-Sprachbefehle
-# ================================================================================
-# TRUE STATE OF THE ART - Home Assistant 2024+ Syntax
-# ✅ Alle Zeiteinheiten (Sekunden, Minuten, Stunden, Uhrzeiten)
-# ✅ Optional mit Nachricht
-# ⚠️  Custom Intents → benötigen intent_script für Timer-Aktionen
-# ================================================================================
-
 language: de
-
-# ============================================================================
-# EXPANSION RULES
-# ============================================================================
 expansion_rules:
-  polite: "[bitte|mal|doch]"
-
-# ============================================================================
-# LISTEN - Zeit-Slots
-# ============================================================================
+  polite: '[bitte|mal|doch]'
 lists:
   seconds:
     values:
-      - in: "5"
-        out: 5
-      - in: "fünf"
-        out: 5
-      - in: "fuenf"
-        out: 5
-      - in: "10"
-        out: 10
-      - in: "zehn"
-        out: 10
-      - in: "15"
-        out: 15
-      - in: "fünfzehn"
-        out: 15
-      - in: "fuenfzehn"
-        out: 15
-      - in: "20"
-        out: 20
-      - in: "zwanzig"
-        out: 20
-      - in: "30"
-        out: 30
-      - in: "dreißig"
-        out: 30
-      - in: "dreissig"
-        out: 30
-      - in: "45"
-        out: 45
-      - in: "fünfundvierzig"
-        out: 45
-      - in: "fuenfundvierzig"
-        out: 45
-      - in: "60"
-        out: 60
-      - in: "sechzig"
-        out: 60
-
+    - in: (1|eins|eine)
+      out: 1
+    - in: (2|zwei)
+      out: 2
+    - in: (3|drei)
+      out: 3
+    - in: (4|vier)
+      out: 4
+    - in: (5|fünf|fuenf)
+      out: 5
+    - in: (6|sechs)
+      out: 6
+    - in: (7|sieben)
+      out: 7
+    - in: (8|acht)
+      out: 8
+    - in: (9|neun)
+      out: 9
+    - in: (10|zehn)
+      out: 10
+    - in: (15|fünfzehn|fuenfzehn)
+      out: 15
+    - in: (20|zwanzig)
+      out: 20
+    - in: (25|fünfundzwanzig|fuenfundzwanzig)
+      out: 25
+    - in: (30|dreißig|dreissig)
+      out: 30
+    - in: (35|fünfunddreißig|fuenfunddreissig)
+      out: 35
+    - in: (40|vierzig)
+      out: 40
+    - in: (45|fünfundvierzig|fuenfundvierzig)
+      out: 45
+    - in: (50|fünfzig|fuenfzig)
+      out: 50
+    - in: (55|fünfundfünfzig|fuenfundfuenfzig)
+      out: 55
+    - in: (60|sechzig)
+      out: 60
+    - in: (90|neunzig)
+      out: 90
+    - in: (120|hundertundzwanzig)
+      out: 120
   minutes:
     values:
-      - in: "(1|eine|einer|eins)"
-        out: 1
-      - in: "(2|zwei|zwo)"
-        out: 2
-      - in: "(3|drei)"
-        out: 3
-      - in: "(4|vier)"
-        out: 4
-      - in: "(5|fünf|fuenf)"
-        out: 5
-      - in: "(6|sechs)"
-        out: 6
-      - in: "(7|sieben)"
-        out: 7
-      - in: "(8|acht)"
-        out: 8
-      - in: "(9|neun)"
-        out: 9
-      - in: "(10|zehn)"
-        out: 10
-      - in: "(15|fünfzehn|viertel stunde)"
-        out: 15
-      - in: "(20|zwanzig)"
-        out: 20
-      - in: "(25|fünfundzwanzig)"
-        out: 25
-      - in: "(30|dreißig|halbe stunde)"
-        out: 30
-      - in: "(45|fünfundvierzig|dreiviertel stunde)"
-        out: 45
-      - in: "(60|sechzig)"
-        out: 60
-      - in: "(90|neunzig)"
-        out: 90
-
+    - in: (1|eine|einer|eins)
+      out: 1
+    - in: (2|zwei|zwo)
+      out: 2
+    - in: (3|drei)
+      out: 3
+    - in: (4|vier)
+      out: 4
+    - in: (5|fünf|fuenf)
+      out: 5
+    - in: (6|sechs)
+      out: 6
+    - in: (7|sieben)
+      out: 7
+    - in: (8|acht)
+      out: 8
+    - in: (9|neun)
+      out: 9
+    - in: (10|zehn)
+      out: 10
+    - in: (15|fünfzehn|viertel stunde)
+      out: 15
+    - in: (20|zwanzig)
+      out: 20
+    - in: (25|fünfundzwanzig)
+      out: 25
+    - in: (30|dreißig|halbe stunde)
+      out: 30
+    - in: (45|fünfundvierzig|dreiviertel stunde)
+      out: 45
+    - in: (60|sechzig)
+      out: 60
+    - in: (90|neunzig)
+      out: 90
   hours:
     values:
-      - in: "(1|eine|einer|eins)"
-        out: 1
-      - in: "(2|zwei)"
-        out: 2
-      - in: "(3|drei)"
-        out: 3
-      - in: "(4|vier)"
-        out: 4
-      - in: "(5|fünf)"
-        out: 5
-      - in: "(6|sechs)"
-        out: 6
-      - in: "(8|acht)"
-        out: 8
-      - in: "(10|zehn)"
-        out: 10
-      - in: "(12|zwölf)"
-        out: 12
-      - in: "(24|vierundzwanzig)"
-        out: 24
-
+    - in: (1|eine|einer|eins)
+      out: 1
+    - in: (2|zwei)
+      out: 2
+    - in: (3|drei)
+      out: 3
+    - in: (4|vier)
+      out: 4
+    - in: (5|fünf)
+      out: 5
+    - in: (6|sechs)
+      out: 6
+    - in: (8|acht)
+      out: 8
+    - in: (10|zehn)
+      out: 10
+    - in: (12|zwölf)
+      out: 12
+    - in: (24|vierundzwanzig)
+      out: 24
   clock_hour:
     values:
-      - in: "(0|null|mitternacht)"
-        out: 0
-      - in: "(1|eins)"
-        out: 1
-      - in: "(2|zwei)"
-        out: 2
-      - in: "(3|drei)"
-        out: 3
-      - in: "(4|vier)"
-        out: 4
-      - in: "(5|fünf)"
-        out: 5
-      - in: "(6|sechs)"
-        out: 6
-      - in: "(7|sieben)"
-        out: 7
-      - in: "(8|acht)"
-        out: 8
-      - in: "(9|neun)"
-        out: 9
-      - in: "(10|zehn)"
-        out: 10
-      - in: "(11|elf)"
-        out: 11
-      - in: "(12|zwölf|mittag)"
-        out: 12
-      - in: "(13|dreizehn)"
-        out: 13
-      - in: "(14|vierzehn)"
-        out: 14
-      - in: "(15|fünfzehn)"
-        out: 15
-      - in: "(16|sechzehn)"
-        out: 16
-      - in: "(17|siebzehn)"
-        out: 17
-      - in: "(18|achtzehn)"
-        out: 18
-      - in: "(19|neunzehn)"
-        out: 19
-      - in: "(20|zwanzig)"
-        out: 20
-      - in: "(21|einundzwanzig)"
-        out: 21
-      - in: "(22|zweiundzwanzig)"
-        out: 22
-      - in: "(23|dreiundzwanzig)"
-        out: 23
-
+    - in: (0|null|mitternacht)
+      out: 0
+    - in: (1|eins)
+      out: 1
+    - in: (2|zwei)
+      out: 2
+    - in: (3|drei)
+      out: 3
+    - in: (4|vier)
+      out: 4
+    - in: (5|fünf)
+      out: 5
+    - in: (6|sechs)
+      out: 6
+    - in: (7|sieben)
+      out: 7
+    - in: (8|acht)
+      out: 8
+    - in: (9|neun)
+      out: 9
+    - in: (10|zehn)
+      out: 10
+    - in: (11|elf)
+      out: 11
+    - in: (12|zwölf|mittag)
+      out: 12
+    - in: (13|dreizehn)
+      out: 13
+    - in: (14|vierzehn)
+      out: 14
+    - in: (15|fünfzehn)
+      out: 15
+    - in: (16|sechzehn)
+      out: 16
+    - in: (17|siebzehn)
+      out: 17
+    - in: (18|achtzehn)
+      out: 18
+    - in: (19|neunzehn)
+      out: 19
+    - in: (20|zwanzig)
+      out: 20
+    - in: (21|einundzwanzig)
+      out: 21
+    - in: (22|zweiundzwanzig)
+      out: 22
+    - in: (23|dreiundzwanzig)
+      out: 23
   clock_minute:
     values:
-      - in: "(0|null)"
-        out: 0
-      - in: "(5|fünf)"
-        out: 5
-      - in: "(10|zehn)"
-        out: 10
-      - in: "(15|fünfzehn|viertel)"
-        out: 15
-      - in: "(20|zwanzig)"
-        out: 20
-      - in: "(25|fünfundzwanzig)"
-        out: 25
-      - in: "(30|dreißig|halb)"
-        out: 30
-      - in: "(35|fünfunddreißig)"
-        out: 35
-      - in: "(40|vierzig)"
-        out: 40
-      - in: "(45|fünfundvierzig|dreiviertel)"
-        out: 45
-      - in: "(50|fünfzig)"
-        out: 50
-      - in: "(55|fünfundfünfzig)"
-        out: 55
-
-# ============================================================================
-# INTENTS - Erinnerungen/Timer
-# ============================================================================
+    - in: (0|null)
+      out: 0
+    - in: (5|fünf)
+      out: 5
+    - in: (10|zehn)
+      out: 10
+    - in: (15|fünfzehn|viertel)
+      out: 15
+    - in: (20|zwanzig)
+      out: 20
+    - in: (25|fünfundzwanzig)
+      out: 25
+    - in: (30|dreißig|halb)
+      out: 30
+    - in: (35|fünfunddreißig)
+      out: 35
+    - in: (40|vierzig)
+      out: 40
+    - in: (45|fünfundvierzig|dreiviertel)
+      out: 45
+    - in: (50|fünfzig)
+      out: 50
+    - in: (55|fünfundfünfzig)
+      out: 55
 intents:
-  # --------------------------------------------------------------------------
-  # SEKUNDEN
-  # --------------------------------------------------------------------------
   SetReminderSecondsSimple:
     data:
-      - sentences:
-          - "(erinnere|erinner|erinnerung) [mich] <polite> in {seconds} (sekunden|sekunde|sek)"
-          - "[in] {seconds} (sekunden|sekunde|sek) (erinnern|erinnerung|timer)"
-          - "timer [auf] {seconds} (sekunden|sekunde|sek)"
-          - "(weck|wecke|meld|melde) [mich] [dich] in {seconds} sekunden"
-        response: "OK, Timer auf {{ slots.seconds }} Sekunden."
-
+    - sentences:
+      - (erinnere|erinner|erinnerung) [mich] <polite> in {seconds} (sekunden|sekunde|sek)
+      - '[in] {seconds} (sekunden|sekunde|sek) (erinnern|erinnerung|timer)'
+      - timer [auf] {seconds} (sekunden|sekunde|sek)
+      - (weck|wecke|meld|melde) [mich] [dich] in {seconds} sekunden
+      response: OK, Timer auf {{ slots.seconds }} Sekunden.
   SetReminderSeconds:
     data:
-      - sentences:
-          - "(erinnere|erinner|erinnerung) [mich] <polite> in {seconds} (sekunden|sekunde|sek) (an|ans|wegen|dass) {message}"
-          - "(erinnere|erinner|erinnerung) [mich] in {seconds} (sekunden|sekunde|sek) an {message}"
-          - "[in] {seconds} (sekunden|sekunde|sek) (erinnern|erinnerung) [(an|ans)] {message}"
-          - "[in] {seconds} (sekunden|sekunde|sek) {message}"
-          - "timer [auf] {seconds} (sekunden|sekunde|sek) {message}"
-          - "{seconds} (sekunden|sekunde|sek) {message}"
-        slots:
-          message:
-            type: text
-        response: "OK, Timer auf {{ slots.seconds }} Sekunden: {{ slots.message }}."
-
-  # --------------------------------------------------------------------------
-  # MINUTEN
-  # --------------------------------------------------------------------------
+    - sentences:
+      - (erinnere|erinner|erinnerung) [mich] <polite> in {seconds} (sekunden|sekunde|sek) (an|ans|wegen|dass) {message}
+      - (erinnere|erinner|erinnerung) [mich] in {seconds} (sekunden|sekunde|sek) an {message}
+      - '[in] {seconds} (sekunden|sekunde|sek) (erinnern|erinnerung) [(an|ans)] {message}'
+      - '[in] {seconds} (sekunden|sekunde|sek) {message}'
+      - timer [auf] {seconds} (sekunden|sekunde|sek) {message}
+      - '{seconds} (sekunden|sekunde|sek) {message}'
+      - (erinnere|erinner|erinnerung) [mich] <polite> (an|ans|wegen) {message} in {seconds} (sekunden|sekunde|sek)
+      - (erinnere|erinner|erinnerung) [mich] (an|ans) {message} in {seconds} (sekunden|sekunde|sek)
+      slots:
+        message:
+          type: text
+      response: 'OK, Timer auf {{ slots.seconds }} Sekunden: {{ slots.message }}.'
   SetReminderMinutesSimple:
     data:
-      - sentences:
-          - "(erinnere|erinner|erinnerung) [mich] <polite> in {minutes} (minuten|minute|min)"
-          - "[in] {minutes} (minuten|minute|min) (erinnern|erinnerung|timer)"
-          - "timer [auf] {minutes} (minuten|minute|min)"
-          - "(wecker|weck|meld|melde) [mich] [dich] in {minutes} (minuten|minute|min)"
-          - "{minutes} (minuten|minute|min) (erinnerung|timer)"
-          - "[stell|stelle] [einen] timer [auf] {minutes} (minuten|minute|min)"
-        response: "OK, Timer auf {{ slots.minutes }} Minuten."
-
+    - sentences:
+      - (erinnere|erinner|erinnerung) [mich] <polite> in {minutes} (minuten|minute|min)
+      - '[in] {minutes} (minuten|minute|min) (erinnern|erinnerung|timer)'
+      - timer [auf] {minutes} (minuten|minute|min)
+      - (wecker|weck|meld|melde) [mich] [dich] in {minutes} (minuten|minute|min)
+      - '{minutes} (minuten|minute|min) (erinnerung|timer)'
+      - '[stell|stelle] [einen] timer [auf] {minutes} (minuten|minute|min)'
+      response: OK, Timer auf {{ slots.minutes }} Minuten.
   SetReminderMinutes:
     data:
-      - sentences:
-          - "(erinnere|erinner|erinnerung) [mich] <polite> in {minutes} (minuten|minute|min) (an|ans|an das|an die|an den) {message}"
-          - "(erinnere|erinner|erinnerung) [mich] in {minutes} (minuten|minute|min) an {message}"
-          - "[in] {minutes} (minuten|minute|min) (erinnern|erinnerung) (an|ans) {message}"
-          - "[in] {minutes} (minuten|minute|min) (an|ans) {message} erinnern"
-          - "(erinnere|erinner|erinnerung) [mich] in {minutes} (minuten|minute|min) (wegen|dass|daran) {message}"
-          - "(erinnere|erinner|erinnerung) {minutes} (minuten|minute|min) {message}"
-          - "[in] {minutes} (minuten|minute|min) {message}"
-          - "{minutes} (minuten|minute|min) {message}"
-          - "{minutes} (minuten|minute|min) (erinnerung|timer) {message}"
-          - "timer [auf] {minutes} (minuten|minute|min) {message}"
-          - "[stell|stelle] [einen] timer [auf] {minutes} (minuten|minute|min) {message}"
-          - "(wecker|weck|meld|melde) [mich] [dich] in {minutes} (minuten|minute|min) {message}"
-        slots:
-          message:
-            type: text
-        response: "OK, Timer auf {{ slots.minutes }} Minuten: {{ slots.message }}."
-
-  # --------------------------------------------------------------------------
-  # STUNDEN
-  # --------------------------------------------------------------------------
+    - sentences:
+      - (erinnere|erinner|erinnerung) [mich] <polite> in {minutes} (minuten|minute|min) (an|ans|an das|an die|an den) {message}
+      - (erinnere|erinner|erinnerung) [mich] in {minutes} (minuten|minute|min) an {message}
+      - '[in] {minutes} (minuten|minute|min) (erinnern|erinnerung) (an|ans) {message}'
+      - '[in] {minutes} (minuten|minute|min) (an|ans) {message} erinnern'
+      - (erinnere|erinner|erinnerung) [mich] in {minutes} (minuten|minute|min) (wegen|dass|daran) {message}
+      - (erinnere|erinner|erinnerung) {minutes} (minuten|minute|min) {message}
+      - '[in] {minutes} (minuten|minute|min) {message}'
+      - '{minutes} (minuten|minute|min) {message}'
+      - '{minutes} (minuten|minute|min) (erinnerung|timer) {message}'
+      - timer [auf] {minutes} (minuten|minute|min) {message}
+      - '[stell|stelle] [einen] timer [auf] {minutes} (minuten|minute|min) {message}'
+      - (wecker|weck|meld|melde) [mich] [dich] in {minutes} (minuten|minute|min) {message}
+      - (erinnere|erinner|erinnerung) [mich] <polite> (an|ans|wegen) {message} in {minutes} (minuten|minute|min)
+      - (erinnere|erinner|erinnerung) [mich] (an|ans) {message} in {minutes} (minuten|minute|min)
+      slots:
+        message:
+          type: text
+      response: 'OK, Timer auf {{ slots.minutes }} Minuten: {{ slots.message }}.'
   SetReminderHoursSimple:
     data:
-      - sentences:
-          - "(erinnere|erinner|erinnerung) [mich] <polite> in {hours} (stunden|stunde|std)"
-          - "(erinnere|erinner|erinnerung) [mich] <polite> in einer stunde"
-          - "[in] {hours} (stunden|stunde|std) (erinnern|erinnerung|timer)"
-          - "[in] einer stunde (erinnern|erinnerung|timer)"
-          - "timer [auf] {hours} (stunden|stunde|std)"
-          - "timer [auf] eine stunde"
-          - "(wecker|weck|meld|melde) [mich] [dich] in {hours} (stunden|stunde|std)"
-          - "{hours} (stunden|stunde|std) (erinnerung|timer)"
-        response: "OK, Timer auf {{ slots.hours or 1 }} Stunde(n)."
-
+    - sentences:
+      - (erinnere|erinner|erinnerung) [mich] <polite> in {hours} (stunden|stunde|std)
+      - (erinnere|erinner|erinnerung) [mich] <polite> in einer stunde
+      - '[in] {hours} (stunden|stunde|std) (erinnern|erinnerung|timer)'
+      - '[in] einer stunde (erinnern|erinnerung|timer)'
+      - timer [auf] {hours} (stunden|stunde|std)
+      - timer [auf] eine stunde
+      - (wecker|weck|meld|melde) [mich] [dich] in {hours} (stunden|stunde|std)
+      - '{hours} (stunden|stunde|std) (erinnerung|timer)'
+      response: OK, Timer auf {{ slots.hours or 1 }} Stunde(n).
   SetReminderHours:
     data:
-      - sentences:
-          - "(erinnere|erinner|erinnerung) [mich] <polite> in {hours} (stunden|stunde|std) (an|ans|wegen|dass) {message}"
-          - "(erinnere|erinner|erinnerung) [mich] <polite> in einer stunde (an|ans) {message}"
-          - "(erinnere|erinner|erinnerung) [mich] in {hours} (stunden|stunde|std) an {message}"
-          - "[in] {hours} (stunden|stunde|std) (erinnern|erinnerung) (an|ans) {message}"
-          - "[in] einer stunde (an|ans) {message} erinnern"
-          - "(erinnere|erinner|erinnerung) {hours} (stunden|stunde|std) {message}"
-          - "[in] {hours} (stunden|stunde|std) {message}"
-          - "[in] einer stunde {message}"
-          - "{hours} (stunden|stunde|std) {message}"
-          - "eine stunde {message}"
-          - "timer [auf] {hours} (stunden|stunde|std) {message}"
-          - "timer [auf] eine stunde {message}"
-        slots:
-          message:
-            type: text
-        response: "OK, Timer auf {{ slots.hours or 1 }} Stunde(n): {{ slots.message }}."
-
-  # --------------------------------------------------------------------------
-  # UHRZEIT
-  # --------------------------------------------------------------------------
+    - sentences:
+      - (erinnere|erinner|erinnerung) [mich] <polite> in {hours} (stunden|stunde|std) (an|ans|wegen|dass) {message}
+      - (erinnere|erinner|erinnerung) [mich] <polite> in einer stunde (an|ans) {message}
+      - (erinnere|erinner|erinnerung) [mich] in {hours} (stunden|stunde|std) an {message}
+      - '[in] {hours} (stunden|stunde|std) (erinnern|erinnerung) (an|ans) {message}'
+      - '[in] einer stunde (an|ans) {message} erinnern'
+      - (erinnere|erinner|erinnerung) {hours} (stunden|stunde|std) {message}
+      - '[in] {hours} (stunden|stunde|std) {message}'
+      - '[in] einer stunde {message}'
+      - '{hours} (stunden|stunde|std) {message}'
+      - eine stunde {message}
+      - timer [auf] {hours} (stunden|stunde|std) {message}
+      - timer [auf] eine stunde {message}
+      - (erinnere|erinner|erinnerung) [mich] <polite> (an|ans|wegen) {message} in {hours} (stunden|stunde|std)
+      - (erinnere|erinner|erinnerung) [mich] (an|ans) {message} in {hours} (stunden|stunde|std)
+      slots:
+        message:
+          type: text
+      response: 'OK, Timer auf {{ slots.hours or 1 }} Stunde(n): {{ slots.message }}.'
   SetReminderTimeSimple:
     data:
-      - sentences:
-          - "(erinnere|erinner|erinnerung) [mich] <polite> um {clock_hour} [uhr] [{clock_minute}]"
-          - "um {clock_hour} [uhr] [{clock_minute}] (erinnern|erinnerung)"
-          - "(wecker|weck|meld|melde) [mich] [dich] um {clock_hour} [uhr]"
-          - "{clock_hour} uhr (erinnerung|wecker)"
-        response: "OK, Erinnerung um {{ slots.clock_hour }}:{{ '%02d' | format(slots.clock_minute or 0) }} Uhr."
-
+    - sentences:
+      - (erinnere|erinner|erinnerung) [mich] <polite> um {clock_hour} [uhr] [{clock_minute}]
+      - um {clock_hour} [uhr] [{clock_minute}] (erinnern|erinnerung)
+      - (wecker|weck|meld|melde) [mich] [dich] um {clock_hour} [uhr]
+      - '{clock_hour} uhr (erinnerung|wecker)'
+      response: OK, Erinnerung um {{ slots.clock_hour }}:{{ '%02d' | format(slots.clock_minute or 0) }} Uhr.
   SetReminderTime:
     data:
-      - sentences:
-          - "(erinnere|erinner|erinnerung) [mich] <polite> um {clock_hour} [uhr] [{clock_minute}] (an|ans|wegen|dass) {message}"
-          - "(erinnere|erinner|erinnerung) [mich] um {clock_hour} [uhr] [{clock_minute}] an {message}"
-          - "um {clock_hour} [uhr] [{clock_minute}] (erinnern|erinnerung) [(an|ans)] {message}"
-          - "um {clock_hour} [uhr] {message}"
-          - "{clock_hour} uhr {message}"
-        slots:
-          message:
-            type: text
-        response: "OK, Erinnerung um {{ slots.clock_hour }}:{{ '%02d' | format(slots.clock_minute or 0) }} Uhr: {{ slots.message }}."
-
-  # --------------------------------------------------------------------------
-  # EINFACHE ERINNERUNG (nur Nachricht)
-  # --------------------------------------------------------------------------
+    - sentences:
+      - (erinnere|erinner|erinnerung) [mich] <polite> um {clock_hour} [uhr] [{clock_minute}] (an|ans|wegen|dass) {message}
+      - (erinnere|erinner|erinnerung) [mich] um {clock_hour} [uhr] [{clock_minute}] an {message}
+      - um {clock_hour} [uhr] [{clock_minute}] (erinnern|erinnerung) [(an|ans)] {message}
+      - um {clock_hour} [uhr] {message}
+      - '{clock_hour} uhr {message}'
+      slots:
+        message:
+          type: text
+      response: 'OK, Erinnerung um {{ slots.clock_hour }}:{{ ''%02d'' | format(slots.clock_minute or 0) }} Uhr: {{ slots.message }}.'
   SetReminderSimple:
     data:
-      - sentences:
-          - "(erinnere|erinner|erinnerung) [mich] <polite> (an|ans|an das|an die|an den|wegen|dass) {message}"
-          - "(merk|merke) [dir] {message}"
-          - "nicht vergessen {message}"
-          - "(denk|denke) dran {message}"
-          - "[ich] muss daran denken {message}"
-          - "[neue] erinnerung {message}"
-        slots:
-          message:
-            type: text
-        response: "OK, ich merke mir: {{ slots.message }}."
-
-  # --------------------------------------------------------------------------
-  # ERINNERUNGEN ABFRAGEN
-  # --------------------------------------------------------------------------
+    - sentences:
+      - (erinnere|erinner|erinnerung) [mich] <polite> (an|ans|an das|an die|an den|wegen|dass) {message}
+      - (merk|merke) [dir] {message}
+      - nicht vergessen {message}
+      - (denk|denke) dran {message}
+      - '[ich] muss daran denken {message}'
+      - '[neue] erinnerung {message}'
+      slots:
+        message:
+          type: text
+      response: 'OK, ich merke mir: {{ slots.message }}.'
   GetReminders:
     data:
-      - sentences:
-          - "(welche|was für|was sind) [meine] erinnerungen [habe ich|gibt es]"
-          - "(habe|hab) ich erinnerungen"
-          - "(zeig|liste) [mir] [meine|alle] erinnerungen [auf|an]"
-          - "erinnerungen (anzeigen|auflisten|zeigen)"
-          - "was (habe|hab) ich mir gemerkt"
-          - "woran (soll|muss) ich denken"
-          - "(offene|aktive|laufende|anstehende) (erinnerungen|timer)"
-          - "welche timer (habe ich|laufen|gibt es)"
-          - "(läuft|laufen) [ein] timer"
-          - "timer status"
-        response: "Aktive Timer werden abgefragt..."
-
-  # --------------------------------------------------------------------------
-  # ALLE LÖSCHEN
-  # --------------------------------------------------------------------------
+    - sentences:
+      - (welche|was für|was sind) [meine] erinnerungen [habe ich|gibt es]
+      - (habe|hab) ich erinnerungen
+      - (zeig|liste) [mir] [meine|alle] erinnerungen [auf|an]
+      - erinnerungen (anzeigen|auflisten|zeigen)
+      - was (habe|hab) ich mir gemerkt
+      - woran (soll|muss) ich denken
+      - (offene|aktive|laufende|anstehende) (erinnerungen|timer)
+      - welche timer (habe ich|laufen|gibt es)
+      - (läuft|laufen) [ein] timer
+      - timer status
+      response: Aktive Timer werden abgefragt...
   DeleteReminder:
     data:
-      - sentences:
-          - "(lösch|loesch|entfern) <polite> alle (erinnerungen|timer)"
-          - "alle (erinnerungen|timer) (löschen|loeschen|entfernen|stoppen|abbrechen)"
-          - "(stopp|beende) alle (erinnerungen|timer)"
-          - "(erinnerungen|timer) (löschen|stoppen|abbrechen)"
-        response: "OK, alle Timer gelöscht."
-
-  # --------------------------------------------------------------------------
-  # LETZTE LÖSCHEN
-  # --------------------------------------------------------------------------
+    - sentences:
+      - (lösch|loesch|entfern) <polite> alle (erinnerungen|timer)
+      - alle (erinnerungen|timer) (löschen|loeschen|entfernen|stoppen|abbrechen)
+      - (stopp|beende) alle (erinnerungen|timer)
+      - (erinnerungen|timer) (löschen|stoppen|abbrechen)
+      response: OK, alle Erinnerungen gelöscht.
   DeleteLastReminder:
     data:
-      - sentences:
-          - "(lösch|loesch|entfern) <polite> [die] letzte (erinnerung|timer)"
-          - "[die] letzte (erinnerung|timer) (löschen|loeschen|entfernen|stoppen|abbrechen)"
-          - "(stopp|beende) [den] letzten timer"
-          - "letzten timer (löschen|stoppen|abbrechen)"
-        response: "OK, letzter Timer gelöscht."
-
-  # --------------------------------------------------------------------------
-  # STOPP (wenn Erinnerung gerade läuft)
-  # --------------------------------------------------------------------------
+    - sentences:
+      - (lösch|loesch|entfern) <polite> [die] letzte (erinnerung|timer)
+      - '[die] letzte (erinnerung|timer) (löschen|loeschen|entfernen|stoppen|abbrechen)'
+      - (stopp|beende) [den] letzten timer
+      - letzten timer (löschen|stoppen|abbrechen)
+      response: OK, letzter Timer gelöscht.
   StopReminder:
     data:
-      - sentences:
-          - "(stopp|stop|halt|okay|ok|danke|verstanden|genug|ruhe|still)"
-          - "(alles klar|schon gut|ist gut)"
-          - "ich (weiß|weiss)"
-          - "(hör|hoer) auf"
-          - "(aufhören|aufhoeren)"
-        response: "OK."
+    - sentences:
+      - (stopp|stop|halt|okay|ok|danke|verstanden|genug|ruhe|still)
+      - (alles klar|schon gut|ist gut)
+      - ich (weiß|weiss)
+      - (hör|hoer) auf
+      - (aufhören|aufhoeren)
+      - (stopp|stop|halt|abbrechen) [die|den|das] (erinnerung|erinnerungen)
+      - erinnerung (stopp|stop|aus|aufhören|abbrechen|beenden)
+      response: OK.
+  DeleteAlles:
+    data:
+    - sentences:
+      - (lösch|loesch|entfern) <polite> alles
+      - alles (löschen|loeschen|entfernen|stoppen|abbrechen)
+      - (lösch|loesch|entfern) <polite> alle (erinnerungen|timer) und (wecker|alarme)
+      - (lösch|loesch|entfern) <polite> alle (wecker|alarme) und (erinnerungen|timer)
+      response: OK, alles gelöscht.

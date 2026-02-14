@@ -1,10 +1,9 @@
-# ================================================================================
-# HA-GERMAN-VOICE - Radio Sprachsteuerung
-# ================================================================================
-# Internet-Radio über den VACA Media Player (Echo Show 5)
-# Spielt Audio-Streams direkt auf media_player.vaca_362812d56_mediaplayer
-# Sender-Auswahl per Name, Genre oder "spiele Radio"
-# ================================================================================
+# ==============================================================================
+# HA-GERMAN-VOICE - Radio Sprachsteuerung (RadioDroid Edition)
+# ==============================================================================
+# Internet-Radio per RadioDroid über die Radio Browser API (30.000+ Sender).
+# Keine hardcodierten Sender mehr — alles wird live gesucht.
+# ==============================================================================
 
 language: de
 
@@ -15,136 +14,15 @@ expansion_rules:
   polite: "[bitte|mal|doch|eben]"
 
 # ============================================================================
-# LISTEN - Radiosender mit Stream-URLs
+# LISTEN
 # ============================================================================
 lists:
   radio_query:
     wildcard: true
 
+  # Sendername als Wildcard — Radio Browser findet den passenden Sender
   radio_station:
-    values:
-      # --- Gro\u00dfe deutsche Sender ---
-      - in: "(swr3|swr 3|s w r 3|s w r drei)"
-        out: "SWR3"
-      - in: "(swr1|swr 1|s w r 1|s w r eins)"
-        out: "SWR1"
-      - in: "(swr2|swr 2|s w r 2|s w r zwei)"
-        out: "SWR2"
-      - in: "(wdr2|wdr 2|w d r 2|w d r zwei)"
-        out: "WDR2"
-      - in: "(wdr 1live|1live|eins live|einslive|1 live)"
-        out: "1LIVE"
-      - in: "(wdr5|wdr 5|w d r 5|w d r fünf)"
-        out: "WDR5"
-      - in: "(bayern 3|bayern3|br3|b r 3)"
-        out: "Bayern3"
-      - in: "(bayern 1|bayern1|br1|b r 1)"
-        out: "Bayern1"
-      - in: "(ndr2|ndr 2|n d r 2|n d r zwei)"
-        out: "NDR2"
-      - in: "(hr3|hr 3|h r 3|hessen 3)"
-        out: "HR3"
-      - in: "(antenne bayern|antenne)"
-        out: "AntenneBayern"
-      - in: "(radio bob|bob|bobs)"
-        out: "RadioBob"
-      - in: "(rock antenne|rockantenne)"
-        out: "RockAntenne"
-      - in: "(sunshine live|sunshine)"
-        out: "SunshineLive"
-      - in: "(fritz|radio fritz)"
-        out: "Fritz"
-      - in: "(deutschlandfunk|dlf|d l f)"
-        out: "DLF"
-      - in: "(deutschlandfunk kultur|dlf kultur)"
-        out: "DLFKultur"
-      - in: "(radio energy|energy|nrj)"
-        out: "Energy"
-      - in: "(bigfm|big fm|big f m)"
-        out: "BigFM"
-      - in: "(klassik radio|klassikradio)"
-        out: "KlassikRadio"
-      - in: "(radio 7|radio sieben)"
-        out: "Radio7"
-      - in: "(hitradio ö3|ö3|oe3|hitradio)"
-        out: "OE3"
-      - in: "(fip|radio fip)"
-        out: "FIP"
-      - in: "(radio swiss jazz|swiss jazz)"
-        out: "SwissJazz"
-      - in: "(lounge fm|lounge|lounge radio)"
-        out: "LoungeFM"
-      - in: "(absolut relax|relax radio|relax)"
-        out: "AbsolutRelax"
-      - in: "(planet radio|planet)"
-        out: "PlanetRadio"
-      # --- Norddeutsche Sender ---
-      - in: "(radio hamburg|hamburg)"
-        out: "RadioHamburg"
-      - in: "(ffn|radio ffn|f f n)"
-        out: "FFN"
-      - in: "(ndr1|ndr 1|n d r 1|n d r eins)"
-        out: "NDR1"
-      - in: "(n-joy|njoy|n joy)"
-        out: "NJOY"
-      - in: "(radio bremen|bremen)"
-        out: "RadioBremen"
-      - in: "(delta radio|deltaradio|delta)"
-        out: "DeltaRadio"
-      - in: "(r punkt s h|rsh|r s h|radio schleswig holstein)"
-        out: "RSH"
-      - in: "(ostseewelle|ostsee welle)"
-        out: "Ostseewelle"
-      - in: "(alsterradio|alster radio|alster)"
-        out: "AlsterRadio"
-      # --- Mitteldeutsche Sender ---
-      - in: "(mdr jump|m d r jump)"
-        out: "MDRJump"
-      - in: "(mdr sputnik|sputnik|m d r sputnik)"
-        out: "MDRSputnik"
-      - in: "(radio psr|psr|p s r)"
-        out: "RadioPSR"
-      - in: "(radio 21|radio einundzwanzig)"
-        out: "Radio21"
-      # --- Hessen/Rheinland-Pfalz/S\u00fcddeutschland ---
-      - in: "(hitradio ffh|ffh|f f h)"
-        out: "HitRadioFFH"
-      - in: "(rpr1|r p r 1|rpr eins)"
-        out: "RPR1"
-      - in: "(radio regenbogen|regenbogen)"
-        out: "RadioRegenbogen"
-      - in: "(die neue 107 punkt 7|die neue|die neue welle|107 punkt 7)"
-        out: "DieNeue1077"
-      # --- \u00dcberregionale Sender ---
-      - in: "(flux fm|flux|fluxfm)"
-        out: "FluxFM"
-      - in: "(radio paloma|paloma)"
-        out: "RadioPaloma"
-      - in: "(rtl radio|rtl)"
-        out: "RTLRadio"
-      - in: "(jam fm|jam|jamfm)"
-        out: "JamFM"
-      - in: "(star fm|starfm)"
-        out: "StarFM"
-      - in: "(radio eins|radioeins|radio 1)"
-        out: "RadioEins"
-      - in: "(cosmo|wdr cosmo)"
-        out: "Cosmo"
-      - in: "(you fm|youfm|you f m)"
-        out: "YouFM"
-      # --- SomaFM ---
-      - in: "(soma fm|somafm|soma)"
-        out: "SomaFM"
-      - in: "(groove salad|groovesalad)"
-        out: "SomaGrooveSalad"
-      - in: "(drone zone|dronezone)"
-        out: "SomaDroneZone"
-      - in: "(space station soma|space station)"
-        out: "SomaSpaceStation"
-      - in: "(indie pop rocks|indie pop)"
-        out: "SomaIndiePop"
-      - in: "(def con radio|defcon)"
-        out: "SomaDefcon"
+    wildcard: true
 
   radio_genre:
     values:
@@ -173,7 +51,7 @@ lists:
 intents:
 
   # --------------------------------------------------------------------------
-  # RADIO SENDER ABSPIELEN (nach Name)
+  # RADIO SENDER ABSPIELEN (nach Name — wird per Radio Browser API gesucht)
   # --------------------------------------------------------------------------
   RadioPlay:
     data:
@@ -220,7 +98,7 @@ intents:
           - "(stopp|stop|beende|halt) <polite> [das] radio"
           - "radio (aus|ausschalten|stoppen|stopp|stop|beenden)"
           - "(mach|schalte) <polite> [das] radio (aus|ab)"
-          - "(h\u00f6r|hoer) <polite> auf [mit] [dem] radio"
+          - "(hör|hoer) <polite> auf [mit] [dem] radio"
 
   # --------------------------------------------------------------------------
   # LAUTSTÄRKE
@@ -228,8 +106,8 @@ intents:
   RadioVolumeSet:
     data:
       - sentences:
-          - "radio (lautst\u00e4rke|volume) [auf] {volume_level}"
-          - "[radio] lautst\u00e4rke [auf] {volume_level} [prozent]"
+          - "radio (lautstärke|volume) [auf] {volume_level}"
+          - "[radio] lautstärke [auf] {volume_level} [prozent]"
         slots:
           volume_level:
             type: number
@@ -241,25 +119,27 @@ intents:
     data:
       - sentences:
           - "[radio] lauter"
-          - "[radio] lautst\u00e4rke (hoch|rauf|erh\u00f6hen)"
+          - "[radio] lautstärke (hoch|rauf|erhöhen)"
           - "mach <polite> [das] [radio] lauter"
 
   RadioVolumeDown:
     data:
       - sentences:
           - "[radio] leiser"
-          - "[radio] lautst\u00e4rke (runter|senken|reduzieren)"
+          - "[radio] lautstärke (runter|senken|reduzieren)"
           - "mach <polite> [das] [radio] leiser"
 
   # --------------------------------------------------------------------------
-  # WELCHER SENDER LÄUFT?
+  # WELCHER SENDER LÄUFT? (mit Titelanzeige)
   # --------------------------------------------------------------------------
   RadioNowPlaying:
     data:
       - sentences:
-          - "welcher (radiosender|sender|radio) (l\u00e4uft|spielt) [gerade]"
-          - "was (l\u00e4uft|spielt) [gerade] (im|auf dem|am) radio"
-          - "welches radio (l\u00e4uft|spielt|ist an) [gerade]"
+          - "welcher (radiosender|sender|radio) (läuft|spielt) [gerade]"
+          - "was (läuft|spielt) [gerade] (im|auf dem|am) radio"
+          - "welches radio (läuft|spielt|ist an) [gerade]"
+          - "welcher (titel|song|lied) (läuft|spielt) [gerade] [im radio]"
+          - "was (läuft|spielt) [gerade] [für ein] (titel|song|lied)"
 
   # --------------------------------------------------------------------------
   # SENDERLISTE
@@ -267,32 +147,23 @@ intents:
   RadioList:
     data:
       - sentences:
-          - "welche (radiosender|sender) (gibt es|hast du|kannst du|kann ich h\u00f6ren)"
+          - "welche (radiosender|sender) (gibt es|hast du|kannst du|kann ich hören)"
           - "[zeig|zeige] [mir] [die|alle] (radiosender|sender)"
           - "radio senderliste"
 
   # --------------------------------------------------------------------------
-  # RADIO SUCHE (freie Suche \u00fcber Radio Browser API - 30.000+ Sender)
+  # RADIO SUCHE (freie Suche über Radio Browser API)
   # --------------------------------------------------------------------------
-  # WICHTIG: Mindestens ein Radio-Keyword (radiosender/sender/im radio) muss
-  # Pflicht sein, sonst fängt SpotifyPlay den Befehl ab!
-  # Default-Provider = Spotify. Radio braucht explizites Keyword.
   RadioSearch:
     data:
       - sentences:
-          # "suche radiosender X" / "suche den radiosender X"
           - "(such|suche) <polite> [den|einen] (radiosender|radio sender) {radio_query}"
           - "(such|suche) <polite> [nach] [einem|dem] (radiosender|radio sender) {radio_query}"
-          # "suche im radio X" / "suche im radio nach X"
           - "(such|suche) <polite> im radio [nach] {radio_query}"
-          # "suche den sender X" — "sender" als Pflicht-Keyword
           - "(such|suche) <polite> [den|einen] sender {radio_query}"
-          # "finde radiosender X" / "finde im radio X"
           - "(finde|finde mir|find) <polite> [den|einen] (radiosender|radio sender|sender) {radio_query}"
           - "(finde|finde mir|find) <polite> im radio {radio_query}"
-          # "spiele den radiosender X" (Compound-Keyword Pflicht)
           - "(spiel|spiele) <polite> [den] (radiosender|radio sender) {radio_query}"
           - "(starte|start) <polite> [den] (radiosender|radio sender) {radio_query}"
-          # Explizite Formulierungen
           - "radio suche {radio_query}"
           - "gibt es [den] (radiosender|radio sender|sender) {radio_query}"

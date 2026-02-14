@@ -32,13 +32,14 @@ import urllib.parse
 import urllib.error
 import signal
 import threading
+from datetime import datetime, timezone
 
 # ============================================================================
 # KONFIGURATION
 # ============================================================================
 
-POLL_INTERVAL = 0.5        # Sekunden zwischen Polls (ADB ist schnell genug!)
-POLL_INTERVAL_IDLE = 5     # Sekunden wenn Spotify idle/pausiert
+POLL_INTERVAL = float(os.getenv("SPOTIFY_POLL_INTERVAL", "0.5"))
+POLL_INTERVAL_IDLE = float(os.getenv("SPOTIFY_POLL_INTERVAL_IDLE", "1.0"))
 ADB_RECONNECT_WAIT = 10    # Sekunden zwischen Reconnect-Versuchen
 ADB_TIMEOUT = 8            # ADB-Verbindungs-Timeout
 
@@ -46,17 +47,41 @@ ECHO_HOST = "192.168.178.103"
 ECHO_PORT = 5555
 ADB_KEY_PATH = "/config/.storage/adbkey"
 
+
+def env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
 HA_API = "http://localhost:8123/api"
-SPOTIFY_ENTITY = "media_player.spotify_sven"
-SATELLITE_ENTITY = "assist_satellite.vaca_362812d56"
-RADIO_ENTITY = "media_player.vaca_362812d56_mediaplayer"
-VA_DEVICE = "sensor.quasselbuechse"
+SPOTIFY_ENTITY = os.getenv("SPOTIFY_ENTITY", "media_player.spotify_sven")
+SATELLITE_ENTITY = os.getenv("SATELLITE_ENTITY", "assist_satellite.vaca_362812d56")
+RADIO_ENTITY = os.getenv("RADIO_ENTITY", "media_player.vaca_362812d56_mediaplayer")
+VA_DEVICE = os.getenv("VA_DEVICE", "sensor.quasselbuechse")
 VA_MUSIC_PATH = "/view-assist/music"
 VA_HOME_PATH = "/view-assist/clock"
 
 # Keep-Alive
-KEEPALIVE_INTERVAL = 30    # Sekunden zwischen Prozess-Checks
+KEEPALIVE_INTERVAL = int(os.getenv("SPOTIFY_KEEPALIVE_INTERVAL", "8"))
+SPOTIFY_KEEPALIVE_MIN_RESTART_GAP_SECONDS = int(os.getenv("SPOTIFY_KEEPALIVE_MIN_RESTART_GAP_SECONDS", "30"))
 SPOTIFY_PACKAGE = "com.spotify.music"
+SPOTIFY_KEEPALIVE_ENABLED = env_bool("SPOTIFY_KEEPALIVE_ENABLED", default=True)
+SPOTIFY_KEEPALIVE_ONLY_WHEN_ACTIVE = env_bool("SPOTIFY_KEEPALIVE_ONLY_WHEN_ACTIVE", default=False)
+JARVIS_SPOTIFY_NAME = os.getenv("JARVIS_SPOTIFY_NAME", "").strip().strip("\"'")
+SPOTIFY_VOLUME_SYNC_ENABLED = env_bool("SPOTIFY_VOLUME_SYNC_ENABLED", default=True)
+SPOTIFY_VOLUME_SYNC_INTERVAL = float(os.getenv("SPOTIFY_VOLUME_SYNC_INTERVAL", "0.7"))
+SPOTIFY_VOLUME_MAX_STEPS = int(os.getenv("SPOTIFY_VOLUME_MAX_STEPS", "15"))
+SPOTIFY_VOLUME_SYNC_ONLY_WHEN_PLAYING = env_bool("SPOTIFY_VOLUME_SYNC_ONLY_WHEN_PLAYING", default=True)
+SPOTIFY_VOLUME_SYNC_REQUIRE_SOURCE_MATCH = env_bool("SPOTIFY_VOLUME_SYNC_REQUIRE_SOURCE_MATCH", default=True)
+SPOTIFY_VOLUME_CACHE_FILE = os.getenv("SPOTIFY_VOLUME_CACHE_FILE", "/config/scripts/.spotify_last_volume")
+SPOTIFY_HA_FAST_REFRESH_ENABLED = env_bool("SPOTIFY_HA_FAST_REFRESH_ENABLED", default=True)
+SPOTIFY_HA_FAST_REFRESH_INTERVAL = float(os.getenv("SPOTIFY_HA_FAST_REFRESH_INTERVAL", "1.2"))
+SPOTIFY_USER_STOP_COOLDOWN_SECONDS = int(os.getenv("SPOTIFY_USER_STOP_COOLDOWN_SECONDS", "900"))
+SPOTIFY_USER_STOP_MARKER_FILE = os.getenv("SPOTIFY_USER_STOP_MARKER_FILE", "/config/scripts/.spotify_user_stop_until")
+SPOTIFY_ALWAYS_REACHABLE = env_bool("SPOTIFY_ALWAYS_REACHABLE", default=True)
+SPOTIFY_STOP_PAUSE_VIA_HA = env_bool("SPOTIFY_STOP_PAUSE_VIA_HA", default=True)
+SPOTIFY_DUCKING_CONTROL_VIA_HA = env_bool("SPOTIFY_DUCKING_CONTROL_VIA_HA", default=True)
 
 LOG_DIR = "/config/logs"
 LOG_FILE = os.path.join(LOG_DIR, "spotify_monitor.log")
@@ -78,6 +103,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 
 log = logging.getLogger("spotify_monitor")
 log.setLevel(logging.INFO)
+log.propagate = False  # Prevent duplicate messages via root logger
 
 from logging.handlers import RotatingFileHandler
 fh = RotatingFileHandler(LOG_FILE, maxBytes=500_000, backupCount=1)
@@ -129,6 +155,91 @@ def http_get(url, headers=None, timeout=5):
             return json.loads(resp.read().decode("utf-8")), resp.status
     except Exception:
         return {}, 0
+
+
+def ha_entity_exists(entity_id):
+    if not entity_id:
+        return False
+    _, status = http_get(
+        f"{HA_API}/states/{entity_id}",
+        headers={"Authorization": f"Bearer {HA_TOKEN}"},
+        timeout=4,
+    )
+    return status == 200
+
+
+def ha_list_states():
+    data, status = http_get(
+        f"{HA_API}/states",
+        headers={"Authorization": f"Bearer {HA_TOKEN}"},
+        timeout=8,
+    )
+    if status == 200 and isinstance(data, list):
+        return data
+    return []
+
+
+def _find_first_entity(states, predicate):
+    for item in states:
+        entity_id = item.get("entity_id", "")
+        attrs = item.get("attributes", {}) or {}
+        if predicate(entity_id, attrs):
+            return entity_id
+    return ""
+
+
+def autodiscover_entities():
+    global SPOTIFY_ENTITY, SATELLITE_ENTITY, RADIO_ENTITY, VA_DEVICE
+
+    if all([
+        ha_entity_exists(SPOTIFY_ENTITY),
+        ha_entity_exists(SATELLITE_ENTITY),
+        ha_entity_exists(VA_DEVICE),
+    ]):
+        return
+
+    states = ha_list_states()
+    if not states:
+        log.warning("Auto-Discovery: keine /states-Daten erhalten")
+        return
+
+    if not ha_entity_exists(SPOTIFY_ENTITY):
+        discovered = _find_first_entity(
+            states,
+            lambda entity_id, attrs: entity_id.startswith("media_player.spotify"),
+        )
+        if discovered:
+            log.info("Auto-Discovery: SPOTIFY_ENTITY %s -> %s", SPOTIFY_ENTITY, discovered)
+            SPOTIFY_ENTITY = discovered
+
+    if not ha_entity_exists(SATELLITE_ENTITY):
+        discovered = _find_first_entity(
+            states,
+            lambda entity_id, attrs: entity_id.startswith("assist_satellite."),
+        )
+        if discovered:
+            log.info("Auto-Discovery: SATELLITE_ENTITY %s -> %s", SATELLITE_ENTITY, discovered)
+            SATELLITE_ENTITY = discovered
+
+    if not ha_entity_exists(RADIO_ENTITY):
+        discovered = _find_first_entity(
+            states,
+            lambda entity_id, attrs: entity_id.startswith("media_player.") and "vaca" in entity_id and "mediaplayer" in entity_id,
+        )
+        if discovered:
+            log.info("Auto-Discovery: RADIO_ENTITY %s -> %s", RADIO_ENTITY, discovered)
+            RADIO_ENTITY = discovered
+
+    if not ha_entity_exists(VA_DEVICE):
+        discovered = _find_first_entity(
+            states,
+            lambda entity_id, attrs: entity_id.startswith("sensor.") and (
+                "quassel" in entity_id.lower() or "vaca" in entity_id.lower() or "display" in entity_id.lower()
+            ),
+        )
+        if discovered:
+            log.info("Auto-Discovery: VA_DEVICE %s -> %s", VA_DEVICE, discovered)
+            VA_DEVICE = discovered
 
 # ============================================================================
 # ADB MediaSession — Kern des Monitors
@@ -199,20 +310,29 @@ def adb_get_media_session():
     """
     raw = adb_shell(
         "MS=$(dumpsys media_session 2>/dev/null); "
-        "echo \"$MS\" | grep 'description=' | tail -1; "
-        "echo '---SEP---'; "
-        "echo \"$MS\" | grep 'state=PlaybackState' | head -1; "
-        "echo '---SEP---'; "
-        "echo \"$MS\" | grep 'active=' | tail -1"
+        "echo \"$MS\" | awk '"
+        "/com\\.spotify\\.music/ {in_sp=1} "
+        "in_sp && /state=PlaybackState/ {print; next} "
+        "in_sp && /description=/ {print; next} "
+        "in_sp && /active=/ {print; next} "
+        "in_sp && /^ +package=/ && $0 !~ /com\\.spotify\\.music/ {in_sp=0} "
+        "'"
     )
 
     if not raw or "description=" not in raw:
         return None
 
-    parts = raw.split("---SEP---")
-    desc_line = parts[0].strip() if len(parts) > 0 else ""
-    state_line = parts[1].strip() if len(parts) > 1 else ""
-    active_line = parts[2].strip() if len(parts) > 2 else ""
+    lines = [line.strip() for line in raw.splitlines() if line.strip()]
+    desc_line = ""
+    state_line = ""
+    active_line = ""
+    for line in lines:
+        if "description=" in line:
+            desc_line = line
+        elif "state=PlaybackState" in line:
+            state_line = line
+        elif "active=" in line:
+            active_line = line
 
     desc_match = _RE_DESCRIPTION.search(desc_line)
     if not desc_match:
@@ -324,16 +444,143 @@ def ha_get_entity_state(entity_id):
         return data.get("state", "")
     return ""
 
+
+def ha_get_entity(entity_id):
+    """Liest ein HA-Entity inkl. attributes."""
+    data, status = http_get(
+        f"{HA_API}/states/{entity_id}",
+        headers={"Authorization": f"Bearer {HA_TOKEN}"},
+        timeout=5,
+    )
+    if status == 200 and isinstance(data, dict):
+        return data
+    return None
+
+
+def _clamp(value, low, high):
+    return max(low, min(high, value))
+
+
+def _source_is_jarvis(source_name):
+    source_l = (source_name or "").strip().lower()
+    if not source_l:
+        return False
+    if JARVIS_SPOTIFY_NAME:
+        return source_l == JARVIS_SPOTIFY_NAME.lower()
+    return ("jarvis" in source_l) or ("echo" in source_l) or ("show" in source_l)
+
+
+def _save_cached_volume_index(index_value):
+    try:
+        with open(SPOTIFY_VOLUME_CACHE_FILE, "w", encoding="utf-8") as handle:
+            handle.write(str(int(index_value)))
+    except Exception:
+        pass
+
+
+def _load_cached_volume_index():
+    try:
+        with open(SPOTIFY_VOLUME_CACHE_FILE, "r", encoding="utf-8") as handle:
+            raw = handle.read().strip()
+        if raw == "":
+            return None
+        return int(raw)
+    except Exception:
+        return None
+
+
+def _set_user_stop_cooldown():
+    if SPOTIFY_USER_STOP_COOLDOWN_SECONDS <= 0:
+        return
+    try:
+        until_ts = int(time.time() + SPOTIFY_USER_STOP_COOLDOWN_SECONDS)
+        with open(SPOTIFY_USER_STOP_MARKER_FILE, "w", encoding="utf-8") as handle:
+            handle.write(str(until_ts))
+        log.info("Keep-Alive: Nutzer-Stopp erkannt, Cooldown %ds aktiv", SPOTIFY_USER_STOP_COOLDOWN_SECONDS)
+    except Exception:
+        pass
+
+
+def _get_user_stop_cooldown_remaining():
+    try:
+        with open(SPOTIFY_USER_STOP_MARKER_FILE, "r", encoding="utf-8") as handle:
+            raw = handle.read().strip()
+        if raw == "":
+            return 0
+        until_ts = int(raw)
+        remaining = until_ts - int(time.time())
+        return remaining if remaining > 0 else 0
+    except Exception:
+        return 0
+
+
+def _clear_user_stop_cooldown():
+    try:
+        os.remove(SPOTIFY_USER_STOP_MARKER_FILE)
+        log.info("Keep-Alive: Nutzer-Stopp-Cooldown aufgehoben")
+    except FileNotFoundError:
+        pass
+    except Exception:
+        pass
+
+
+def sync_volume_from_ha(last_volume_level):
+    """Übernimmt HA-Volume (0..1) auf Echo STREAM_MUSIC via ADB cmd media_session."""
+    if not SPOTIFY_VOLUME_SYNC_ENABLED:
+        return last_volume_level
+
+    state = ha_get_entity(SPOTIFY_ENTITY)
+    if not state:
+        return last_volume_level
+
+    playback_state = (state.get("state") or "").lower()
+    attrs = state.get("attributes", {}) or {}
+    source_name = (attrs.get("source") or "").strip()
+
+    if SPOTIFY_VOLUME_SYNC_ONLY_WHEN_PLAYING and playback_state != "playing":
+        return last_volume_level
+
+    if SPOTIFY_VOLUME_SYNC_REQUIRE_SOURCE_MATCH and not _source_is_jarvis(source_name):
+        return last_volume_level
+
+    raw_level = attrs.get("volume_level")
+    if raw_level is None:
+        return last_volume_level
+
+    try:
+        level = float(raw_level)
+    except (TypeError, ValueError):
+        return last_volume_level
+
+    level = _clamp(level, 0.0, 1.0)
+    if last_volume_level is not None and abs(level - last_volume_level) < 0.01:
+        return last_volume_level
+
+    max_steps = SPOTIFY_VOLUME_MAX_STEPS if SPOTIFY_VOLUME_MAX_STEPS > 0 else 15
+    target_index = int(round(level * max_steps))
+    target_index = _clamp(target_index, 0, max_steps)
+
+    adb_shell(
+        f"cmd media_session volume --stream 3 --set {target_index}",
+        timeout_s=3,
+    )
+    _save_cached_volume_index(target_index)
+    log.info("Volume-Sync: HA %.2f -> Echo index %d/%d", level, target_index, max_steps)
+    return level
+
 # ============================================================================
 # KEEP-ALIVE: Spotify App permanent im Hintergrund
 # ============================================================================
 
 _keepalive_initialized = False
+_last_keepalive_launch_ts = 0.0
 
 
 def keepalive_init():
     """Einmaliges Setup: Doze-Whitelist + Spotify im Hintergrund starten."""
     global _keepalive_initialized
+    if not SPOTIFY_KEEPALIVE_ENABLED:
+        return
     if _keepalive_initialized:
         return
 
@@ -346,22 +593,89 @@ def keepalive_init():
     )
     if result is not None:
         log.info("Keep-Alive: Spotify in Doze-Whitelist + Background-Erlaubnis gesetzt")
+        cached_volume = _load_cached_volume_index()
+        if cached_volume is not None:
+            adb_shell(
+                f"cmd media_session volume --stream 3 --set {cached_volume}",
+                timeout_s=3,
+            )
+            log.info("Volume-Restore: Echo index %d aus Cache gesetzt", cached_volume)
         _keepalive_initialized = True
 
-    # Initiales Keep-Alive: Sicherstellen dass Spotify läuft
-    keepalive_check()
+def _keepalive_should_run_now():
+    if not SPOTIFY_KEEPALIVE_ONLY_WHEN_ACTIVE:
+        return True
+
+    data, status = http_get(
+        f"{HA_API}/states/{SPOTIFY_ENTITY}",
+        headers={"Authorization": f"Bearer {HA_TOKEN}"},
+        timeout=5,
+    )
+    if status != 200:
+        return False
+
+    state = (data.get("state") or "").lower()
+    attrs = data.get("attributes", {}) or {}
+    source = (attrs.get("source") or "").strip()
+
+    if state != "playing":
+        return False
+
+    position_updated_at = attrs.get("media_position_updated_at")
+    if position_updated_at:
+        try:
+            ts = datetime.fromisoformat(position_updated_at.replace("Z", "+00:00"))
+            age = (datetime.now(timezone.utc) - ts).total_seconds()
+            if age > (KEEPALIVE_INTERVAL + 20):
+                return False
+        except Exception:
+            pass
+
+    if not source:
+        return False
+
+    src_l = source.lower()
+    if JARVIS_SPOTIFY_NAME:
+        return src_l == JARVIS_SPOTIFY_NAME.lower()
+
+    return ("echo" in src_l) or ("show" in src_l)
 
 
-def keepalive_check():
+def keepalive_check(force=False):
     """Prüft ob Spotify läuft. Falls nicht: im Hintergrund starten.
 
     Startet Spotify und bringt sofort VACA wieder in den Vordergrund.
     """
+    if not SPOTIFY_KEEPALIVE_ENABLED:
+        return True
+
+    if not force and not _keepalive_should_run_now():
+        return True
+
     result = adb_shell(f"pidof {SPOTIFY_PACKAGE}", timeout_s=3)
     if result and result.strip():
         return True  # Spotify läuft
 
+    cooldown_remaining = _get_user_stop_cooldown_remaining()
+    if cooldown_remaining > 0 and not SPOTIFY_ALWAYS_REACHABLE:
+        log.info("Keep-Alive: Nutzer-Stopp-Cooldown aktiv (%ds verbleibend), kein Auto-Restart", cooldown_remaining)
+        return True
+
+    if cooldown_remaining > 0 and SPOTIFY_ALWAYS_REACHABLE:
+        log.info("Keep-Alive: Nutzer-Stopp-Cooldown aktiv (%ds), starte nur App für Connect-Erreichbarkeit", cooldown_remaining)
+
+    global _last_keepalive_launch_ts
+
+    now_mono = time.monotonic()
+    if SPOTIFY_KEEPALIVE_MIN_RESTART_GAP_SECONDS > 0:
+        since_last = now_mono - _last_keepalive_launch_ts
+        if _last_keepalive_launch_ts > 0 and since_last < SPOTIFY_KEEPALIVE_MIN_RESTART_GAP_SECONDS:
+            wait_left = int(SPOTIFY_KEEPALIVE_MIN_RESTART_GAP_SECONDS - since_last)
+            log.info("Keep-Alive: Restart-Backoff aktiv (%ds), überspringe Neustart", wait_left)
+            return False
+
     log.warning("Keep-Alive: Spotify-Prozess nicht gefunden, starte...")
+    _last_keepalive_launch_ts = now_mono
 
     # Spotify starten — monkey ist der zuverlässigste Weg
     adb_shell(
@@ -372,8 +686,7 @@ def keepalive_check():
     time.sleep(2)
     adb_shell(
         "am start -n com.msp1974.vacompanion/.MainActivity "
-        "-a android.intent.action.MAIN "
-        "-c android.intent.category.HOME",
+        "-a android.intent.action.MAIN",
         timeout_s=5,
     )
     time.sleep(0.3)
@@ -450,8 +763,15 @@ def ducking_check(current_spotify_state):
                 json_data={"entity_id": "input_boolean.spotify_ducking_active"},
             )
 
-            # ADB pausiert den aktuellen AudioFocus-Halter
-            adb_shell("input keyevent KEYCODE_MEDIA_PAUSE", timeout_s=3)
+            # Spotify pausieren (prefer HA service to avoid MEDIA_BUTTON ANR)
+            if _ducking_was_spotify and SPOTIFY_DUCKING_CONTROL_VIA_HA:
+                http_post(
+                    f"{HA_API}/services/media_player/media_pause",
+                    headers={"Authorization": f"Bearer {HA_TOKEN}"},
+                    json_data={"entity_id": SPOTIFY_ENTITY},
+                )
+            else:
+                adb_shell("input keyevent KEYCODE_MEDIA_PAUSE", timeout_s=3)
 
             # Radio zusätzlich via HA pausieren (falls nicht via ADB)
             if _ducking_was_radio:
@@ -507,10 +827,10 @@ def ducking_check(current_spotify_state):
                 log.info("🔇 Ducking: Boolean='%s' nach %.1fs → Stopp erkannt → KEIN Resume",
                          ducking_bool, elapsed)
                 log.info("🔇 Ducking: Pipeline-Dauer bis Boolean OFF: %.1fs", elapsed)
-                # MEDIA_STOP senden damit Spotify WIRKLICH stoppt
-                if _ducking_was_spotify:
-                    adb_shell("input keyevent KEYCODE_MEDIA_STOP", timeout_s=3)
-                    log.info("🔇 Ducking: MEDIA_STOP gesendet → Spotify gestoppt")
+                _set_user_stop_cooldown()
+                # Automation hat bereits media_pause gesendet → hier NICHT
+                # nochmal senden, um doppelte Befehle zu vermeiden.
+                log.info("🔇 Ducking: Stopp-Automation hat pausiert, kein erneuter Pause-Befehl nötig")
                 break
 
         if not stop_detected:
@@ -522,7 +842,14 @@ def ducking_check(current_spotify_state):
             log.info("🔊 Ducking Ende: Resume nach %.1fs (%s) — Boolean blieb ON",
                      elapsed, sources)
             if _ducking_was_spotify:
-                adb_shell("input keyevent KEYCODE_MEDIA_PLAY", timeout_s=3)
+                if SPOTIFY_DUCKING_CONTROL_VIA_HA:
+                    http_post(
+                        f"{HA_API}/services/media_player/media_play",
+                        headers={"Authorization": f"Bearer {HA_TOKEN}"},
+                        json_data={"entity_id": SPOTIFY_ENTITY},
+                    )
+                else:
+                    adb_shell("input keyevent KEYCODE_MEDIA_PLAY", timeout_s=3)
             if _ducking_was_radio:
                 http_post(
                     f"{HA_API}/services/media_player/media_play",
@@ -559,8 +886,16 @@ def kill_old_instance():
             old_pid = int(f.read().strip())
         if old_pid != os.getpid():
             os.kill(old_pid, signal.SIGTERM)
-            log.info("Alte Instanz (PID %d) beendet", old_pid)
-            time.sleep(1)
+            log.info("Alte Instanz (PID %d) SIGTERM gesendet", old_pid)
+            time.sleep(2)
+            # Prüfen ob noch am Leben → SIGKILL
+            try:
+                os.kill(old_pid, 0)  # Existenz prüfen
+                os.kill(old_pid, signal.SIGKILL)
+                log.warning("Alte Instanz (PID %d) SIGKILL gesendet", old_pid)
+                time.sleep(1)
+            except ProcessLookupError:
+                pass  # Bereits beendet
     except (FileNotFoundError, ValueError, ProcessLookupError, PermissionError):
         pass
 
@@ -588,16 +923,28 @@ def main():
     log.info("Modus: ADB MediaSession + Keep-Alive + Ducking")
     log.info("Echo Show: %s:%d", ECHO_HOST, ECHO_PORT)
     log.info("Poll: %.1fs aktiv, %ds idle", POLL_INTERVAL, POLL_INTERVAL_IDLE)
-    log.info("Keep-Alive: alle %ds", KEEPALIVE_INTERVAL)
+    if SPOTIFY_KEEPALIVE_ENABLED:
+        log.info("Keep-Alive: aktiv (Intervall %ds)", KEEPALIVE_INTERVAL)
+    else:
+        log.info("Keep-Alive: deaktiviert (HA-only Modus)")
     log.info("=" * 50)
+
+    autodiscover_entities()
+    log.info("Entities: spotify=%s satellite=%s radio=%s display=%s",
+             SPOTIFY_ENTITY, SATELLITE_ENTITY, RADIO_ENTITY, VA_DEVICE)
 
     # State-Tracking
     last_description = None
     last_state = None
     last_active_item = None
     consecutive_errors = 0
+    consecutive_none = 0          # Session-Flicker-Debounce
+    SESSION_NONE_THRESHOLD = 3    # N aufeinanderfolgende None-Polls nötig
     display_on_music = False
     last_keepalive_check = 0
+    last_volume_sync_check = 0.0
+    last_ha_volume_level = None
+    last_fast_refresh_check = 0.0
 
     while True:
         try:
@@ -612,6 +959,7 @@ def main():
                     time.sleep(wait)
                     continue
                 consecutive_errors = 0
+                autodiscover_entities()
                 # Einmaliges Setup bei erster Verbindung
                 keepalive_init()
 
@@ -619,9 +967,13 @@ def main():
             # Keep-Alive Check (alle 30s)
             # ============================================================
             now = time.monotonic()
-            if now - last_keepalive_check > KEEPALIVE_INTERVAL:
+            if SPOTIFY_KEEPALIVE_ENABLED and now - last_keepalive_check > KEEPALIVE_INTERVAL:
                 keepalive_check()
                 last_keepalive_check = now
+
+            if SPOTIFY_VOLUME_SYNC_ENABLED and now - last_volume_sync_check > SPOTIFY_VOLUME_SYNC_INTERVAL:
+                last_ha_volume_level = sync_volume_from_ha(last_ha_volume_level)
+                last_volume_sync_check = now
 
             # ============================================================
             # MediaSession auslesen (~94ms)
@@ -635,9 +987,15 @@ def main():
             ducking_check(current_state)
 
             # ============================================================
-            # FALL 1: Kein Spotify aktiv
+            # FALL 1: Kein Spotify aktiv (mit Flicker-Debounce)
             # ============================================================
             if current is None:
+                consecutive_none += 1
+                if consecutive_none < SESSION_NONE_THRESHOLD:
+                    # Noch nicht sicher ob wirklich weg → kurzer Poll
+                    time.sleep(POLL_INTERVAL)
+                    continue
+                # Sicher: Session ist wirklich weg
                 if last_state is not None and last_state == STATE_PLAYING:
                     log.info("Spotify gestoppt (keine aktive Session)")
                     ha_update_entity()
@@ -657,6 +1015,17 @@ def main():
             description = current["description"]
             active_item = current["active_item_id"]
             consecutive_errors = 0
+            consecutive_none = 0  # Session da → Flicker-Zähler zurücksetzen
+
+            if (
+                SPOTIFY_HA_FAST_REFRESH_ENABLED
+                and state == STATE_PLAYING
+                and now - last_fast_refresh_check > SPOTIFY_HA_FAST_REFRESH_INTERVAL
+            ):
+                if _get_user_stop_cooldown_remaining() > 0:
+                    _clear_user_stop_cooldown()
+                ha_update_entity()
+                last_fast_refresh_check = now
 
             # ============================================================
             # FALL 2: Titelwechsel erkannt!

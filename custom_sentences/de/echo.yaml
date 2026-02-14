@@ -20,7 +20,7 @@ expansion_rules:
 lists:
   echo_level:
     values:
-      - in: "(0|null)"
+      - in: "(0|null|0%)"
         out: 0
       - in: "(1|eins)"
         out: 1
@@ -30,7 +30,7 @@ lists:
         out: 3
       - in: "(4|vier)"
         out: 4
-      - in: "(5|fünf)"
+      - in: "(5|fünf|5%)"
         out: 5
       - in: "(6|sechs)"
         out: 6
@@ -45,47 +45,47 @@ lists:
 
   echo_percent:
     values:
-      - in: "(0|null)"
+      - in: "(0|null|0%)"
         out: 0
-      - in: "(5|fünf)"
+      - in: "(5|fünf|5%)"
         out: 5
-      - in: "(10|zehn)"
+      - in: "(10|zehn|10%)"
         out: 10
-      - in: "(15|fünfzehn)"
+      - in: "(15|fünfzehn|15%)"
         out: 15
-      - in: "(20|zwanzig)"
+      - in: "(20|zwanzig|20%)"
         out: 20
-      - in: "(25|fünfundzwanzig|viertel)"
+      - in: "(25|fünfundzwanzig|viertel|25%)"
         out: 25
-      - in: "(30|dreißig)"
+      - in: "(30|dreißig|30%)"
         out: 30
-      - in: "(35|fünfunddreißig)"
+      - in: "(35|fünfunddreißig|35%)"
         out: 35
-      - in: "(40|vierzig)"
+      - in: "(40|vierzig|40%)"
         out: 40
-      - in: "(45|fünfundvierzig)"
+      - in: "(45|fünfundvierzig|45%)"
         out: 45
-      - in: "(50|fünfzig|halb|halbe|hälfte)"
+      - in: "(50|fünfzig|halb|halbe|hälfte|50%)"
         out: 50
-      - in: "(55|fünfundfünfzig)"
+      - in: "(55|fünfundfünfzig|55%)"
         out: 55
-      - in: "(60|sechzig)"
+      - in: "(60|sechzig|60%)"
         out: 60
-      - in: "(65|fünfundsechzig)"
+      - in: "(65|fünfundsechzig|65%)"
         out: 65
-      - in: "(70|siebzig)"
+      - in: "(70|siebzig|70%)"
         out: 70
-      - in: "(75|fünfundsiebzig|dreiviertel)"
+      - in: "(75|fünfundsiebzig|dreiviertel|75%)"
         out: 75
-      - in: "(80|achtzig)"
+      - in: "(80|achtzig|80%)"
         out: 80
-      - in: "(85|fünfundachtzig)"
+      - in: "(85|fünfundachtzig|85%)"
         out: 85
-      - in: "(90|neunzig)"
+      - in: "(90|neunzig|90%)"
         out: 90
-      - in: "(95|fünfundneunzig)"
+      - in: "(95|fünfundneunzig|95%)"
         out: 95
-      - in: "(100|hundert|voll|maximum|max)"
+      - in: "(100|hundert|voll|maximum|max|100%)"
         out: 100
 
   on_off:
@@ -260,9 +260,9 @@ intents:
   EchoBildschirmHelligkeit:
     data:
       - sentences:
-          - "[setz|stell] [die] (helligkeit|bildschirmhelligkeit) [auf] {echo_percent} [prozent]"
-          - "(helligkeit|bildschirmhelligkeit) [auf] {echo_percent} [prozent]"
-          - "<bildschirm> [auf] {echo_percent} [prozent] [helligkeit]"
+          - "[setz|stell] [die] (helligkeit|bildschirmhelligkeit) [auf] {echo_percent} [prozent|%]"
+          - "(helligkeit|bildschirmhelligkeit) [auf] {echo_percent} [prozent|%]"
+          - "<bildschirm> [auf] {echo_percent} [prozent|%] [helligkeit]"
 
   # ==========================================================================
   #  BILDSCHIRM - AN / AUS

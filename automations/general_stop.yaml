@@ -1,6 +1,6 @@
 ﻿- id: general_stop_sentence_trigger
   alias: "Sprache: Allgemeiner Stopp"
-  description: "Sentence Trigger fuer bare stop/stopp - hat Prioritaet ueber HA Builtins"
+  description: "Sentence Trigger fuer bare stop/stopp - hat Prioritaet ueber HA Builtins. Stopp = Pause bei laufender Wiedergabe."
   triggers:
     - trigger: conversation
       command:
@@ -28,23 +28,59 @@
       target:
         entity_id: input_boolean.wecker_klingelt
       continue_on_error: true
-    # --- Spotify/Musik stoppen ---
-    - action: input_boolean.turn_off
-      target:
-        entity_id: input_boolean.spotify_ducking_active
-    - action: media_player.media_pause
-      target:
-        entity_id: media_player.spotify_sven
-      continue_on_error: true
-    - action: media_player.media_stop
-      target:
-        entity_id: media_player.vaca_362812d56_mediaplayer
-      continue_on_error: true
-    - action: shell_command.spotify_close
-      continue_on_error: true
-    - action: view_assist.navigate
-      data:
-        device: sensor.quasselbuechse
-        path: /view-assist/clock
-    - set_conversation_response: ''
+    # --- Kontextabhängig: Spotify pausieren, Radio pausieren, oder alles aufräumen ---
+    - choose:
+        # Spotify läuft → nur pausieren (kein Kill)
+        - conditions:
+            - condition: state
+              entity_id: media_player.spotify_sven
+              state: playing
+          sequence:
+            - action: input_boolean.turn_off
+              target:
+                entity_id: input_boolean.spotify_ducking_active
+            - action: media_player.media_pause
+              target:
+                entity_id: media_player.spotify_sven
+              continue_on_error: true
+            - action: view_assist.navigate
+              data:
+                device: sensor.quasselbuechse
+                path: /view-assist/clock
+            - set_conversation_response: ''
+        # Radio läuft → nur pausieren (kein force-stop)
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.radio_playing
+              state: "on"
+          sequence:
+            - action: shell_command.radio_pause
+              continue_on_error: true
+            - action: view_assist.navigate
+              data:
+                device: sensor.quasselbuechse
+                path: /view-assist/clock
+            - set_conversation_response: ''
+      # Default: nichts erkannt als aktiv → alles sicherheitshalber aufräumen
+      default:
+        - action: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.spotify_ducking_active
+        - action: media_player.media_pause
+          target:
+            entity_id: media_player.spotify_sven
+          continue_on_error: true
+        - action: shell_command.radio_stop
+          continue_on_error: true
+        - action: media_player.media_stop
+          target:
+            entity_id: media_player.vaca_362812d56_mediaplayer
+          continue_on_error: true
+        - action: shell_command.spotify_close
+          continue_on_error: true
+        - action: view_assist.navigate
+          data:
+            device: sensor.quasselbuechse
+            path: /view-assist/clock
+        - set_conversation_response: ''
 

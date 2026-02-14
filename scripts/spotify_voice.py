@@ -59,18 +59,18 @@ HA_API = "http://localhost:8123/api"
 # Pfad zur HA Storage-Datei
 STORAGE_PATH = "/config/.storage/core.config_entries"
 # Spotify Entity in HA
-SPOTIFY_ENTITY = "media_player.spotify_sven"
+SPOTIFY_ENTITY = os.getenv("SPOTIFY_ENTITY", "media_player.spotify_sven")
 # Spotify Connect Name des Echo Show 5 (wie in HA source_list)
-JARVIS_SPOTIFY_NAME = "Echo Show 5 (2nd Generation)"
+JARVIS_SPOTIFY_NAME = os.getenv("JARVIS_SPOTIFY_NAME", "Echo Show 5 (2nd Generation)")
 # Spotify API Credentials (aus secrets_config)
 CLIENT_ID = SPOTIFY_CLIENT_ID
 CLIENT_SECRET = SPOTIFY_CLIENT_SECRET
 # Spotify Markt für Suchergebnisse
 MARKET = "DE"
 # View Assist Navigation
-VA_DEVICE = "sensor.quasselbuechse"
-VA_MUSIC_PATH = "/view-assist/music"
-VA_HOME_PATH = "/view-assist/clock"
+VA_DEVICE = os.getenv("VA_DEVICE", "sensor.quasselbuechse")
+VA_MUSIC_PATH = os.getenv("VA_MUSIC_PATH", "/view-assist/music")
+VA_HOME_PATH = os.getenv("VA_HOME_PATH", "/view-assist/clock")
 
 # ANPASSEN: Alias-Map für Geräte-Namen (deutsch → Spotify Connect Name)
 # Eigene Spotify Connect Geräte hier eintragen!
@@ -146,6 +146,57 @@ def http_post(url, headers=None, data=None, json_data=None, timeout=10):
         return {"error": body}, e.code
     except Exception as e:
         return {"error": str(e)}, 0
+
+
+def ha_entity_exists(entity_id):
+    if not entity_id:
+        return False
+    _, status = http_get(
+        f"{HA_API}/states/{entity_id}",
+        headers={"Authorization": f"Bearer {HA_TOKEN}"},
+        timeout=4,
+    )
+    return status == 200
+
+
+def ha_list_states():
+    data, status = http_get(
+        f"{HA_API}/states",
+        headers={"Authorization": f"Bearer {HA_TOKEN}"},
+        timeout=8,
+    )
+    if status == 200 and isinstance(data, list):
+        return data
+    return []
+
+
+def autodiscover_entities():
+    global SPOTIFY_ENTITY, VA_DEVICE
+
+    if ha_entity_exists(SPOTIFY_ENTITY) and ha_entity_exists(VA_DEVICE):
+        return
+
+    states = ha_list_states()
+    if not states:
+        return
+
+    if not ha_entity_exists(SPOTIFY_ENTITY):
+        for item in states:
+            entity_id = item.get("entity_id", "")
+            if entity_id.startswith("media_player.spotify"):
+                log.info("Auto-Discovery: SPOTIFY_ENTITY %s -> %s", SPOTIFY_ENTITY, entity_id)
+                SPOTIFY_ENTITY = entity_id
+                break
+
+    if not ha_entity_exists(VA_DEVICE):
+        for item in states:
+            entity_id = item.get("entity_id", "")
+            if entity_id.startswith("sensor.") and (
+                "quassel" in entity_id.lower() or "vaca" in entity_id.lower() or "display" in entity_id.lower()
+            ):
+                log.info("Auto-Discovery: VA_DEVICE %s -> %s", VA_DEVICE, entity_id)
+                VA_DEVICE = entity_id
+                break
 
 
 # ============================================================================
@@ -633,6 +684,9 @@ def main():
     )
     parser.add_argument("--device", default="", help="Zielgerät (Name)")
     args = parser.parse_args()
+
+    autodiscover_entities()
+    log.info("Entities: spotify=%s display=%s", SPOTIFY_ENTITY, VA_DEVICE)
 
     # from_ha: Liest Query/Type/Device direkt aus HA input_text-Entities
     if args.action == "from_ha":

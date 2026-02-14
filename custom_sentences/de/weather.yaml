@@ -172,6 +172,7 @@ intents:
           - "(außen|aussen)temperatur"
           - "[<polite_question>][<polite>]sag mir die temperatur"
           - "zeig mir die temperatur"
+          - "wie (sind|werden) [die] temperatur[en] [<time_prep>][draußen|drausen]"
 
   GetTemperatureDay:
     data:
@@ -366,6 +367,7 @@ intents:
           - "ist es (schwül|feucht|drückend)"
           - "feuchtigkeit [draußen]"
           - "zeig mir die luftfeuchtigkeit"
+          - "ist [die] luftfeuchtigkeit [hoch|niedrig|draußen]"
 
   GetHumidityDay:
     data:

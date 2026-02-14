@@ -1,6 +1,6 @@
 # 🇩🇪 HA-German-Voice
 
-**Deutsche Sprachbefehle für Home Assistant** — Modulare Custom Sentences + Intent Scripts für Assist/Voice Pipelines.
+**Deutsche Sprachbefehle für Home Assistant** — Modulare Custom Sentences + Intent Scripts für Assist/Voice Pipelines mit View Assist (VACA) Display-Integration.
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1+-blue.svg)](https://www.home-assistant.io/)
@@ -16,6 +16,32 @@
 - **Keine Doppelverarbeitung**: `prefer_local_intents: true` in der Pipeline sorgt dafür, dass lokale Intents **nicht** zusätzlich ans LLM gehen
 - **Display-Steuerung**: Lokale Intents → kein AI Response Overlay, Ollama-Antworten → AI Response auf dem Display
 
+### ⏰ Erinnerungen (mit Alarm-Sound + Info-Karte + Lautstärke-Boost)
+- **Sekunden/Minuten/Stunden**: "Erinnere mich in 30 Sekunden an die Pizza"
+- **Uhrzeiten**: "Erinnere mich um 14 Uhr an den Termin"
+- **Flexible Satzstruktur**: Nachricht vor oder nach der Zeitangabe — "Erinnere mich an Pizza in 5 Minuten" oder "Erinnere mich in 5 Minuten an Pizza"
+- **3-fach Alarm**: Bei Ablauf wird die Erinnerung 3× angesagt + nativer Alarm-Sound (3.5s)
+- **Info-Karte**: Erinnerungstext wird auf dem VACA Display als native VA Info-Karte angezeigt
+- **Lautstärke-Boost**: Sprachlautstärke wird für die Ansage um 50% erhöht, danach zurückgesetzt
+- **Display-Timeout deaktiviert**: `view_timeout` wird während der Erinnerung auf `0,0` gesetzt, damit die Info-Karte sichtbar bleibt
+- **Abfragen**: "Welche Erinnerungen habe ich?" / "Welche Timer laufen?"
+- **Gezielt löschen**: "Lösche alle Erinnerungen" (nur Erinnerungen) / "Lösche alle Wecker" (nur Wecker) / "Lösche alles" (beides)
+- **Stopp**: "Stopp" / "Halt" bricht einen laufenden Alarm sofort ab (Erinnerung oder Wecker)
+- **Erweiterter Sekunden-Bereich**: 1–120 Sekunden inkl. aller Zahlwörter
+
+### ⏰ Wecker/Alarm
+- **Wecker stellen**: "Stelle den Wecker auf 7 Uhr 30" / "Weck mich um 6:30"
+- **Wiederkehrend**: "Wecker werktags um 6 Uhr" / "Wecker jeden Tag um 7"
+- **Wecker löschen**: "Lösche den Wecker" / "Wecker aus" (nur Wecker)
+- **Wecker abfragen**: "Wann klingelt der Wecker?" / "Welche Wecker habe ich?"
+- **Snooze**: "Schlummern" / "Noch 10 Minuten" / "Snooze"
+- **Alarm-Loop**: Nativer VA Alarm-Switch mit TTS-Ansage, automatischer Stopp nach 5 Min oder per Sprachbefehl
+
+### 🛑 Universeller Stopp & Löschen
+- **Stopp**: "Stopp" / "Halt" / "OK" — bricht laufenden Alarm ab (Erinnerung ODER Wecker), stoppt Alarm-Switch, beendet Alarm-Loop, räumt Display auf
+- **Löschen getrennt**: "Lösche alle Erinnerungen" → nur Erinnerungen | "Lösche alle Wecker" → nur Wecker | "Lösche alles" → beides
+- **Aufräumen**: Display-Navigation zurück zur Uhr, `view_timeout` zurückgesetzt, Nachricht gelöscht
+
 ### 📻 Radio Player (60+ Sender)
 - **Direktwahl**: "Spiele SWR3" / "Spiele Radio Bob" / "Spiele 1Live"
 - **Radiosuche**: "Suche ChillHop im Radio" — sucht über Radio Browser API
@@ -26,15 +52,11 @@
 ### 🌤️ Wetter (mit Jinja2 Macros)
 - **Aktuelles Wetter**: "Wie ist das Wetter?" / "Wie warm ist es draußen?"
 - **Vorhersagen**: "Wie wird das Wetter morgen?" / "Regnet es am Wochenende?"
-- **Spezifische Werte**: "Was ist die Luftfeuchtigkeit?" / "Wie stark ist der Wind?"
+- **Spezifische Werte**: Luftfeuchtigkeit, Wind, Niederschlag, Luftdruck, Nebel, Schnee, Gewitter
 - **Zeitbereiche**: "Wetter heute Nachmittag" / "Wie wird der Abend?"
-
-### ⏰ Erinnerungen (mit TTS-Ansage + Lautstärke-Boost)
-- **Sekunden/Minuten/Stunden**: "Erinnere mich in 30 Sekunden an die Pizza"
-- **Uhrzeiten**: "Erinnere mich um 14 Uhr an den Termin"
-- **TTS-Ansage**: Bei Ablauf wird die Erinnerung per Sprachansage durchgegeben
-- **Lautstärke-Boost**: Sprachlautstärke wird für die Ansage um 50% erhöht, danach zurückgesetzt
-- **Abfragen/Löschen**: "Welche Erinnerungen habe ich?" / "Lösche alle Timer"
+- **Vergleiche**: "Wie wird das Wetter morgen im Vergleich zu heute?"
+- **Empfehlungen**: "Was soll ich anziehen?" / "Kann ich draußen Sport machen?"
+- **Sonnenauf-/untergang**: "Wann geht die Sonne auf/unter?"
 
 ### 💡 Lichter
 - **Ein/Aus**: "Mach das Licht im Wohnzimmer an"
@@ -51,7 +73,6 @@
 - **Gesamtlautstärke**: "Lautstärke auf 7" / "Lauter" / "Leiser"
 - **Bildschirm**: "Bildschirm auf 80%" / "Heller" / "Dunkler"
 - **Mikrofon**: "Mikrofon auf 10" / "Mikrofon lauter"
-- **Routinen**: "Starte Guten Morgen" / "Routine Feierabend"
 - **Media-Player**: "Pause" / "Weiter" / "Nächstes Lied" / "Stopp"
 
 ### 🪟 Rolladen/Jalousien
@@ -59,44 +80,30 @@
 - **Area-basiert**: "Rolladen im Wohnzimmer auf"
 - **Position**: "Rolladen auf 50 Prozent"
 - **Szenen**: "Guten Morgen" / "Kino Modus" / "Gute Nacht"
-
-### 🎵 Medien
-- **Wiedergabe**: "Spiele Musik ab" / "Pause" / "Weiter"
-- **Lautstärke**: "Lauter" / "Lautstärke auf 50%"
+- **Sonnenschutz**: "Sonnenschutz Wohnzimmer an/aus"
+- **Automatik**: "Rolladen-Automatik Schlafzimmer an/aus"
 
 ### 🎵 Spotify Sprachsteuerung
 - **Song suchen + abspielen**: "Spiele Highway to Hell auf Spotify"
 - **Künstler abspielen**: "Spiele Musik von Rammstein auf Spotify"
 - **Playlist abspielen**: "Spiele die Playlist Goa Trance auf Spotify"
 - **Album abspielen**: "Spiele das Album Appetite for Destruction auf Spotify"
-- **Pause/Weiter**: "Spotify Pause" / "Spotify weiter"
-- **Nächstes/Vorheriges**: "Spotify nächstes Lied" / "Spotify zurück"
-- **Shuffle**: "Spotify Shuffle an" / "Spotify Shuffle aus"
-- **Gerätewechsel**: "Spiele Spotify auf Echo Dot" / "Spotify auf HAL"
-- **Was spielt?**: "Was spielt gerade auf Spotify?" mit Artist, Titel, Album
+- **Steuerung**: Pause, Weiter, Zurück, Shuffle, Gerätewechsel
+- **Now Playing**: "Was spielt gerade auf Spotify?" mit Artist, Titel, Album
 - **Spotify Web API**: Direkte Suche über die Spotify API — kein Spotcast nötig
 
 ### 🎛️ Spotify Monitor (ADB Daemon)
 - **Track Monitor**: Erkennt Titelwechsel/Play/Pause via ADB MediaSession → HA Entity-Update
-- **Keep-Alive**: Hält Spotify App permanent am Leben (Doze-Whitelist, Prozess-Check alle 30s)
+- **Keep-Alive**: Hält Spotify App permanent am Leben (Doze-Whitelist, 30s Prozess-Check)
 - **Audio-Ducking**: Pausiert Musik automatisch bei Sprachbefehlen via ADB KeyEvent
-  - Erkennt Satellite-State (listening/processing/responding/idle)
-  - Boolean-basierte Stopp-Erkennung: Resume nur wenn kein Stopp-Intent erkannt
   - Race-Condition-sicher: Boolean ON vor ADB-Befehlen, Polling mit 15s Timeout
   - MEDIA_STOP bei Stopp-Intent → kein Spotify Connect Auto-Reconnect
 - **Display-Navigation**: Automatisch Music-View bei Wiedergabe, Clock-View bei Stopp
 
-### ⏰ Wecker/Alarm
-- **Wecker stellen**: "Stelle den Wecker auf 7 Uhr" / "Wecker auf halb 8"
-- **Wecker löschen**: "Lösche den Wecker" / "Wecker aus"
-- **Wecker abfragen**: "Wann klingelt der Wecker?"
-- **Snooze**: "Schlummern" / "Snooze" / "5 Minuten noch"
-
-### 🛑 Allgemeiner Stopp (Sentence Trigger)
-- **Einwort-Befehle**: "Stopp" / "Stop" / "Aus" / "Schluss" / "Ende"
-- **Mehwort**: "Halt an" / "Es reicht" / "Sei still" / "Jetzt Ruhe"
-- **Priorität**: Sentence Trigger hat Vorrang vor HA-Builtins
-- **Navigation**: Display geht automatisch zurück zur Uhr
+### 🎵 Medien
+- **Wiedergabe**: "Spiele Musik ab" / "Pause" / "Weiter"
+- **Lautstärke**: "Lauter" / "Lautstärke auf 50%"
+- **Shuffle/Repeat**: "Shuffle an" / "Wiederholen"
 
 ---
 
@@ -104,50 +111,64 @@
 
 ```
 ha-german-voice/
-├── automations/             # Sentence Trigger Automations
-│   └── general_stop.yaml    # Stopp-Automation (Priorität über HA-Builtins)
-├── custom_components/       # Custom Components
-│   └── jarvis_router/       # Conversation Agent Router
+├── automations/                    # Sentence Trigger Automations
+│   └── general_stop.yaml           # Stopp-Automation (Priorität über HA-Builtins)
+├── custom_components/              # Custom Components
+│   └── jarvis_router/              # Conversation Agent Router
 │       ├── __init__.py
 │       ├── config_flow.py
-│       ├── conversation.py  # Lokale Intents → Ollama Fallback
+│       ├── conversation.py         # Lokale Intents → Ollama Fallback
 │       ├── manifest.json
 │       └── strings.json
-├── custom_sentences/de/     # Sprachbefehle (Sentence-Dateien)
-│   ├── alarm.yaml           # Wecker/Alarm
-│   ├── covers.yaml          # Rolladen/Jalousien
-│   ├── echo.yaml            # Echo/VACA Steuerung
-│   ├── lights.yaml          # Lichter
-│   ├── media.yaml           # Medien
-│   ├── radio.yaml           # Radio (60+ Sender + Suche)
-│   ├── reminders.yaml       # Erinnerungen/Timer
-│   ├── spotify.yaml         # Spotify + GeneralStop
-│   └── weather.yaml         # Wetter
-├── custom_templates/        # Jinja2 Macros
-│   └── weather_macros.jinja # Wetter-Übersetzungen, Prognosen
-├── intent_scripts/          # Intent Handler (Aktionen + Antworten)
-│   ├── alarm.yaml           # Wecker/Alarm-Aktionen
-│   ├── covers.yaml          # Rolladen-Szenen
-│   ├── echo.yaml            # Echo/VACA + ShowStartseite
-│   ├── lights.yaml          # Licht-Aktionen (mit Alias-Map)
-│   ├── radio.yaml           # Radio Player + Suche + Steuerung
-│   ├── reminders.yaml       # Timer + Watcher-Script-Aufrufe
-│   ├── spotify.yaml         # Spotify Intent-Skripte + GeneralStop
-│   └── weather.yaml         # Wetter-Abfragen
-├── scripts/                 # Python-Skripte
-│   ├── erinnerung_scripts.yaml
-│   ├── radio_search.py      # Radio Browser API Suche
-│   ├── spotify_monitor.py   # ADB Track Monitor + Ducking Daemon
-│   ├── spotify_monitor_start.sh # Startskript für Monitor
-│   ├── spotify_voice.py     # Spotify Web API Bridge
-│   └── download_radio_logos.py # Radio-Logos herunterladen
-├── www/                     # Web Assets
-│   └── radio_logos/         # Senderlogos (PNG)
-│       └── radio_default.png # Fallback-Logo
-├── conversation_logging.yaml
-├── hacs.json
+├── custom_sentences/de/            # Sprachbefehle (Sentence-Dateien)
+│   ├── alarm.yaml                  # Wecker/Alarm (7 Intents)
+│   ├── covers.yaml                 # Rolladen/Jalousien (10 Intents)
+│   ├── echo.yaml                   # Echo/VACA Steuerung (22 Intents)
+│   ├── lights.yaml                 # Lichter (9 Intents)
+│   ├── media.yaml                  # Medien (10 Intents)
+│   ├── radio.yaml                  # Radio (9 Intents, 60+ Sender)
+│   ├── reminders.yaml              # Erinnerungen/Timer (14 Intents)
+│   ├── spotify.yaml                # Spotify (13 Intents)
+│   └── weather.yaml                # Wetter (30 Intents)
+├── custom_templates/               # Jinja2 Macros
+│   └── weather_macros.jinja        # Wetter-Übersetzungen, Prognosen
+├── scripts/                        # Python-Skripte & YAML
+│   ├── erinnerung_scripts.yaml     # Erinnerungs-Watcher Scripts
+│   ├── wecker_scripts.yaml         # Wecker Alarm-Loop Script
+│   ├── radio_search.py             # Radio Browser API Suche
+│   ├── spotify_monitor.py          # ADB Track Monitor + Ducking Daemon
+│   ├── spotify_monitor_start.sh    # Startskript für Monitor
+│   ├── spotify_monitor_supervisor.sh # Supervisor mit auto-restart
+│   ├── spotify_voice.py            # Spotify Web API Bridge
+│   ├── spotify.env.example         # Beispiel-Konfiguration für Monitor
+│   └── download_radio_logos.py     # Radio-Logos herunterladen
+├── www/                            # Web Assets
+│   └── radio_logos/                # Senderlogos (PNG)
+│       └── radio_default.png       # Fallback-Logo
+├── docs/                           # Dokumentation
+├── conversation_logging.yaml       # Konversations-Logging
+├── hacs.json                       # HACS Konfiguration
+├── CHANGELOG.md
+├── LICENSE
 └── README.md
 ```
+
+---
+
+## 📊 Intent-Übersicht
+
+| Modul | Datei | Intents | Beschreibung |
+|-------|-------|---------|-------------|
+| Wetter | `weather.yaml` | 30 | Temperatur, Regen, Wind, Schnee, Nebel, Sturm, UV, Kleidung, Outdoor |
+| Erinnerungen | `reminders.yaml` | 14 | Sekunden/Minuten/Stunden/Uhrzeit, mit/ohne Nachricht, Abfrage, Löschen, Stopp, Löschen-Alles |
+| Echo/VACA | `echo.yaml` | 22 | Sprach-/Musik-/Gesamtlautstärke, Bildschirm, Mikrofon, Media |
+| Spotify | `spotify.yaml` | 13 | Suche, Wiedergabe, Steuerung, Gerätewechsel, GeneralStop |
+| Rolladen | `covers.yaml` | 10 | Öffnen, Schließen, Position, Szenen, Sonnenschutz, Automatik |
+| Lichter | `lights.yaml` | 9 | Ein/Aus, Helligkeit, Farbe, Entity/Area-basiert, Alias-Map |
+| Radio | `radio.yaml` | 9 | Direktwahl, Suche, Lautstärke, Now Playing, Senderliste |
+| Medien | `media.yaml` | 10 | Play, Pause, Stop, Lautstärke, Shuffle, Repeat |
+| Wecker | `alarm.yaml` | 7 | Stellen, Wiederkehrend, Stopp, Snooze, Abfrage, Löschen |
+| **Gesamt** | | **124** | |
 
 ---
 
@@ -169,9 +190,8 @@ ha-german-voice/
 # Sprachbefehle
 cp -r custom_sentences/de/*.yaml /config/custom_sentences/de/
 
-# Intent Scripts (modulares System)
-mkdir -p /config/intent_scripts/
-cp intent_scripts/*.yaml /config/intent_scripts/
+# Intent Scripts
+cp intent_script.yaml /config/intent_script.yaml
 ```
 
 ---
@@ -181,13 +201,11 @@ cp intent_scripts/*.yaml /config/intent_scripts/
 ### 1. configuration.yaml
 
 ```yaml
-# Intent Scripts - Modulares System (NICHT !include intent_script.yaml)
-intent_script: !include_dir_merge_named intent_scripts/
+# Intent Scripts
+intent_script: !include intent_script.yaml
 ```
 
 ### 2. Erinnerungs-Helper
-
-Folgendes in `configuration.yaml` hinzufügen:
 
 ```yaml
 timer:
@@ -241,185 +259,109 @@ input_boolean:
     initial: false
 ```
 
-### 3. Erinnerungs-Scripts (TTS-Ansage)
+### 3. Wecker-Helper
 
-Damit Erinnerungen **per Sprache angesagt** werden (mit Lautstärke-Boost), kopiere den Inhalt von `scripts/erinnerung_scripts.yaml` in deine `/config/scripts.yaml`.
+```yaml
+input_datetime:
+  wecker_1_zeit:
+    name: Wecker 1 Zeit
+    has_time: true
+  wecker_2_zeit:
+    name: Wecker 2 Zeit
+    has_time: true
 
-> ⚠️ **WICHTIG**: Passe die Entity-IDs an dein Setup an! Suche nach `ANPASSEN` in der Datei:
-> - `assist_satellite.vaca_362812d56` → Dein Assist Satellite
-> - `number.vaca_362812d56_sprachlautstarke` → Deine Sprachlautstärke-Entity
+input_boolean:
+  wecker_1_aktiv:
+    name: Wecker 1 Aktiv
+    initial: false
+  wecker_2_aktiv:
+    name: Wecker 2 Aktiv
+    initial: false
+  wecker_1_wiederkehrend:
+    name: Wecker 1 Wiederkehrend
+    initial: false
+  wecker_2_wiederkehrend:
+    name: Wecker 2 Wiederkehrend
+    initial: false
+  wecker_klingelt:
+    name: Wecker Klingelt
+    initial: false
 
-### 4. Echo/VACA Steuerung (Optional)
+input_text:
+  wecker_1_tage:
+    name: Wecker 1 Tage
+    max: 255
+    initial: ""
+  wecker_2_tage:
+    name: Wecker 2 Tage
+    max: 255
+    initial: ""
+  wecker_aktiver_slot:
+    name: Wecker Aktiver Slot
+    max: 5
+    initial: ""
 
-Die Echo/VACA-Intents in `echo.yaml` steuern einen jailbroken Echo Show 5 über VACA.
-Voraussetzung: [VACA Integration](https://github.com/) mit Assist Satellite.
+timer:
+  wecker_snooze:
+    name: Wecker Snooze
+    duration: "00:10:00"
+```
 
-Die Entity-IDs in `intent_scripts/echo.yaml` müssen an dein Gerät angepasst werden.
+### 4. Erinnerungs-Automationen
 
-### 5. Jarvis Router (Ollama LLM Fallback)
+Die Erinnerungs-Automationen (`Erinnerung: Timer abgelaufen` und `Erinnerung: Uhrzeit erreicht`) werden als HA-Automationen angelegt. Sie beinhalten:
 
-Der Jarvis Router ist ein Custom Conversation Agent, der lokale Intents und Ollama LLM kombiniert:
+- **Bildschirm aufwecken**
+- **View-Timeout deaktivieren** (`0,0`) damit Info-Karte sichtbar bleibt
+- **Erinnerungstext als Message** auf dem VA Sensor setzen
+- **Navigation zur Info-Karte** (`/view-assist/info`)
+- **Lautstärke-Boost** (+50%, max 10)
+- **3× Ansage + Alarm** (TTS "Erinnerung: ..." + 3.5s nativer Alarm-Switch)
+- **Aufräumen**: Message löschen, View-Timeout zurücksetzen (`20,0`), Navigation zur Uhr
 
-#### a) Custom Component kopieren
+> ⚠️ **ANPASSEN**: Entity-IDs für deinen VACA Satellite, Alarm-Switch und Sprachlautstärke
+
+### 5. Wecker-Automationen & Script
+
+Die Wecker-Automationen (`Wecker: Zeit-Trigger` und `Wecker: Snooze Retrigger`) triggern das `wecker_alarm_loop` Script:
+
+- **TTS-Ansage** "Wecker! Aufstehen!"
+- **Alarm-Switch aktivieren** (nativer VA Alarm-Sound)
+- **Wartet auf Stopp** (`input_boolean.wecker_klingelt` → off) oder 5 Min Timeout
+- **Einmal-Wecker deaktivieren** nach Stopp (wiederkehrende bleiben aktiv)
+
+### 6. Jarvis Router (Ollama LLM Fallback)
 
 ```bash
 cp -r custom_components/jarvis_router/ /config/custom_components/jarvis_router/
 ```
 
-#### b) configuration.yaml
+Pipeline konfigurieren:
+1. Settings → Voice Assistants → Pipeline → Conversation Agent: **Jarvis Router**
+2. `prefer_local_intents: true` aktivieren
 
-```yaml
-jarvis_router:
-```
-
-#### c) Ollama einrichten
-
-1. [Ollama](https://ollama.ai/) auf einem Server installieren
-2. Ollama Conversation Integration in HA einrichten (Settings → Integrations → Ollama)
-3. Jarvis Router Integration hinzufügen (Settings → Integrations → Jarvis Router)
-
-#### d) Pipeline konfigurieren
-
-1. Settings → Voice Assistants → Pipeline bearbeiten
-2. Conversation Agent: **Jarvis Router** auswählen
-3. `prefer_local_intents: true` aktivieren (Settings → Voice Assistants → Pipeline → Details)
-
-> **Hinweis**: `prefer_local_intents` sorgt dafür, dass lokale Intents (Radio, Spotify, Licht etc.)
-> **vor** dem LLM verarbeitet werden. Nur unbekannte Fragen gehen an Ollama.
-> Außerdem wird bei lokalen Intents **kein** AI Response Overlay auf dem Display angezeigt.
-
-### 6. Radio Player (Optional)
-
-#### a) Python-Script + Logos kopieren
+### 7. Radio Player (Optional)
 
 ```bash
 cp scripts/radio_search.py /config/scripts/
 cp -r www/radio_logos/ /config/www/radio_logos/
 ```
 
-#### b) Shell Commands + Helper in `configuration.yaml`
-
 ```yaml
 shell_command:
   radio_search: "python3 /config/scripts/radio_search.py '{{ states('input_text.radio_search_query') }}'"
-
-input_text:
-  radio_current_station:
-    name: Aktueller Radiosender
-    max: 255
-    initial: ""
-  radio_search_query:
-    name: Radio Suchanfrage
-    max: 255
-    initial: ""
 ```
 
-### 7. Allgemeiner Stopp (Sentence Trigger Automation)
-
-Die Datei `automations/general_stop.yaml` enthält eine Sentence Trigger Automation,
-die bei "Stopp", "Stop", "Aus" etc. alle Medienwiedergabe stoppt und zum Clock-Display navigiert.
-
-```yaml
-# In automations.yaml einfügen (Entity-IDs anpassen!)
-```
-
-> ⚠️ **ANPASSEN**: `media_player.spotify_sven`, `media_player.vaca_*`, `sensor.quasselbuechse`
-
-### 8. Wetter-Macros (Optional)
-
-```bash
-cp custom_templates/weather_macros.jinja /config/custom_templates/
-```
-
-Die Macros werden von den Wetter-Intents referenziert und übersetzen Wetterbedingungen,
-Windrichtungen und Kleidungsempfehlungen ins Deutsche.
-
-### 9. Spotify Sprachsteuerung (Optional)
-
-Voraussetzungen:
-- **Spotify Integration** in HA eingerichtet (mit Application Credentials)
-- **Spotify Premium** Konto (für Playback-Steuerung)
-
-#### a) Python-Script kopieren
+### 8. Spotify (Optional)
 
 ```bash
 cp scripts/spotify_voice.py /config/scripts/
-```
-
-> ⚠️ **ANPASSEN** in `spotify_voice.py`:
-> - `HA_TOKEN` — Dein Long-Lived Access Token
-> - `CLIENT_ID` / `CLIENT_SECRET` — Deine Spotify App Credentials
-> - `SPOTIFY_ENTITY` — Dein Spotify Media Player Entity
-> - Geräte-Aliase in `find_device()` — Deine Spotify Connect Geräte
-
-#### b) Shell Commands + Helper in `configuration.yaml`
-
-```yaml
-shell_command:
-  spotify_voice: "python3 /config/scripts/spotify_voice.py --action search_play --query '{{ states('input_text.spotify_query') }}' --type '{{ states('input_text.spotify_type') }}' --device '{{ states('input_text.spotify_device') }}'"
-  spotify_device_transfer: "python3 /config/scripts/spotify_voice.py --action device --device '{{ states('input_text.spotify_device') }}'"
-
-input_text:
-  spotify_query:
-    name: Spotify Suchanfrage
-    max: 255
-    initial: ""
-  spotify_type:
-    name: Spotify Suchtyp
-    max: 20
-    initial: "track"
-  spotify_device:
-    name: Spotify Zielgerät
-    max: 100
-    initial: ""
-  spotify_last_played:
-    name: Spotify Zuletzt Gespielt
-    max: 255
-    initial: ""
-```
-
-### 10. Spotify Monitor (Optional — für VACA/Echo Show)
-
-Der Spotify Monitor ist ein ADB-basierter Daemon, der Titelwechsel erkennt, HA-Entities aktualisiert
-und Audio-Ducking bei Sprachbefehlen steuert.
-
-Voraussetzungen:
-- **Jailbroken Echo Show 5** (LineageOS) mit ADB-Zugang
-- **VACA Integration** mit Assist Satellite
-- **Spotify App** auf dem Echo Show installiert
-
-#### a) Monitor + Startskript kopieren
-
-```bash
 cp scripts/spotify_monitor.py /config/scripts/
 cp scripts/spotify_monitor_start.sh /config/scripts/
-chmod +x /config/scripts/spotify_monitor_start.sh
+cp scripts/spotify_monitor_supervisor.sh /config/scripts/
 ```
 
-> ⚠️ **ANPASSEN** in `spotify_monitor.py`:
-> - `ECHO_HOST` — IP-Adresse deines Echo Show
-> - `SPOTIFY_ENTITY` — Dein Spotify Media Player Entity
-> - `SATELLITE_ENTITY` — Dein Assist Satellite Entity
-> - `RADIO_ENTITY` — Dein VACA Media Player Entity
-> - `VA_DEVICE` — Dein View Assist Sensor Entity
-
-#### b) Shell Command + Helper in `configuration.yaml`
-
-```yaml
-shell_command:
-  spotify_monitor_start: "/config/scripts/spotify_monitor_start.sh"
-
-input_boolean:
-  spotify_ducking_active:
-    name: Spotify Ducking Active
-    initial: false
-```
-
-#### c) Monitor starten
-
-```bash
-python3 /config/scripts/spotify_monitor.py &
-```
+> ⚠️ **ANPASSEN** in `spotify_voice.py`: `HA_TOKEN`, `CLIENT_ID`/`CLIENT_SECRET`, `SPOTIFY_ENTITY`, Geräte-Aliase
 
 ---
 
@@ -429,25 +371,25 @@ python3 /config/scripts/spotify_monitor.py &
 |--------|----------|
 | "Wie ist das Wetter?" | Aktuelle Wetterbedingungen |
 | "Wird es morgen regnen?" | Wettervorhersage |
-| "Erinnere mich in 5 Minuten ans Essen" | Timer + TTS bei Ablauf |
+| "Erinnere mich in 5 Minuten ans Essen" | Timer + 3× Alarm bei Ablauf |
+| "Erinnere mich an Pizza in 30 Sekunden" | Nachricht vor Zeitangabe |
 | "Erinnere mich um 14 Uhr an den Termin" | Zeitbasierte Erinnerung |
+| "Welche Erinnerungen habe ich?" | Aktive Timer abfragen |
+| "Lösche alle Erinnerungen" | Nur Erinnerungen löschen |
+| "Lösche alle Wecker" | Nur Wecker löschen |
+| "Lösche alles" | Erinnerungen + Wecker löschen |
+| "Stopp" | Laufenden Alarm sofort abbrechen |
+| "Wecker auf 7 Uhr 30" | Einmal-Wecker stellen |
+| "Wecker werktags um 6 Uhr" | Wiederkehrender Wecker |
+| "Schlummern" / "Noch 5 Minuten" | Snooze |
 | "Mach das Wohnzimmerlicht an" | Licht einschalten |
 | "Wandlicht auf 50 Prozent" | Entity-basierte Helligkeit |
 | "Sprachlautstärke auf 8" | Echo Sprachlautstärke |
-| "Lauter" / "Leiser" | Gesamtlautstärke |
 | "Rolladen im Schlafzimmer zu" | Rolladen schließen |
-| "Starte Guten Morgen" | Echo Routine starten |
-| "Welche Erinnerungen habe ich?" | Aktive Timer abfragen |
-| "Spiele SWR3" | Radio starten (Direktwahl) |
+| "Spiele SWR3" | Radio starten |
 | "Suche ChillHop im Radio" | Radio Browser API Suche |
-| "Radio lauter" / "Radio leiser" | Radio-Lautstärke |
-| "Stopp" / "Aus" / "Ende" | Alles stoppen + zurück zur Uhr |
-| "Spiele Enter Sandman auf Spotify" | Spotify Song suchen + abspielen |
-| "Spiele Musik von Rammstein auf Spotify" | Spotify Künstler abspielen |
-| "Spiele die Playlist Goa Trance auf Spotify" | Spotify Playlist abspielen |
-| "Spotify Pause" / "Spotify weiter" | Spotify Steuerung |
-| "Was spielt auf Spotify?" | Aktueller Spotify-Track |
-| "Spiele Spotify auf Echo Dot" | Gerätewechsel |
+| "Spiele Enter Sandman auf Spotify" | Spotify Song abspielen |
+| "Was spielt auf Spotify?" | Aktueller Track |
 | "Was ist die Hauptstadt von Frankreich?" | Ollama LLM Fallback |
 
 ---
@@ -470,46 +412,52 @@ User spricht → STT (Cloud) → Assist Pipeline
       ├─ conversation.home_assistant (Default Agent)
       │   └─ Versuch lokale Verarbeitung
       └─ Fallback → conversation.ollama_conversation
-          └─ LLM-Antwort → processed_locally=false
-              → AI Response Overlay auf Display
+          └─ LLM-Antwort → AI Response Overlay auf Display
 ```
-
-### Modulares System
-
-Das Projekt verwendet `!include_dir_merge_named intent_scripts/` statt einer monolithischen Datei:
-
-- **custom_sentences/de/*.yaml** — Sprachmuster (was der User sagen kann)
-- **intent_scripts/*.yaml** — Handler (was HA bei Erkennung tut)
-- **custom_components/jarvis_router/** — Conversation Agent Router (lokal → Ollama)
-- **custom_templates/*.jinja** — Wiederverwendbare Jinja2 Macros
-- **automations/** — Sentence Trigger (Priorität über Built-ins)
-- **scripts/*.py** — Python-Skripte (Spotify API, Radio Browser API)
 
 ### Erinnerungs-Ablauf
 
 ```
 User: "Erinnere mich in 5 Minuten an Pizza"
-  → Intent: SetReminderMinutes
-  → Action: timer.start + input_text.set_value
-  → Action: script.turn_on (erinnerung_timer_watcher)
-    → Watcher wartet auf timer.finished
-    → Sprachlautstärke +50% (max 10)
-    → TTS: "Erinnerung: Pizza"
-    → Sprachlautstärke zurücksetzen
-    → Nachricht aufräumen
+  → Intent: SetReminderMinutes (message = "Pizza", minutes = 5)
+  → Action: timer.start (300s) + input_text.set_value ("Pizza")
+  → Response: "Alles klar, in 5 Minuten erinnere ich dich: Pizza."
+
+  ... 5 Minuten später ...
+
+  → Automation: "Erinnerung: Timer abgelaufen"
+  → Bildschirm aufwecken
+  → view_timeout = "0,0" (Display bleibt stehen)
+  → message = "Erinnerung: Pizza" auf VA Sensor
+  → Navigation → /view-assist/info (Info-Karte zeigt Text)
+  → Lautstärke +50%
+  → 3× Runde:
+      ├─ TTS: "Erinnerung: Pizza"
+      └─ Alarm-Switch ON → 3.5s → Alarm-Switch OFF
+  → Aufräumen: message löschen, view_timeout = "20,0", → /view-assist/clock
+  → Lautstärke zurücksetzen
 ```
 
-### Alias-Map (Lichter)
+### Stopp/Löschen-Logik
 
-STT erkennt Eigennamen oft falsch. Die `alias_map` in `intent_scripts/lights.yaml` korrigiert dies:
+```
+"Stopp" / "Halt" / "OK"
+  → StopReminder / StopWecker (identische Aktionen)
+  → Alarm-Switch OFF
+  → Wecker-Klingeln OFF
+  → Media-Player STOP
+  → Erinnerungs-Automationen abbrechen + neu aktivieren
+  → Wecker-Alarm-Loop-Script stoppen
+  → Display aufräumen (view_timeout, message, clock)
 
-```yaml
-# "Wadenlicht" → light.wandlicht
-# "Bürolicht" → light.buro
-alias_map:
-  wadenlicht: light.h61a2_d4ea
-  wandlampe: light.h61a2_d4ea
-  bürolicht: light.buro
+"Lösche alle Erinnerungen"
+  → DeleteReminder: Stopp + Timer cancel + Erinnerungen deaktivieren
+
+"Lösche alle Wecker"
+  → DeleteWecker: Stopp + Wecker deaktivieren
+
+"Lösche alles"
+  → DeleteAlles: Stopp + alles deaktivieren
 ```
 
 ---
@@ -520,6 +468,7 @@ alias_map:
 - Wetter-Integration (z.B. Met.no)
 - Assist/Voice Pipeline aktiviert
 - Für Echo-Steuerung: VACA Integration mit jailbroken Echo Show 5
+- Für Info-Karte: View Assist mit `/view-assist/info` View
 - Für LLM-Fallback: Ollama Server + Ollama Conversation Integration
 - Für Radio: Radio Browser API (über `radio_search.py`)
 - Für Spotify: Spotify Premium + Application Credentials
