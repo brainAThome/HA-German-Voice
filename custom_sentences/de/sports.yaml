@@ -24,7 +24,7 @@ expansion_rules:
   result_noun: "(ergebnis|spielstand|resultat|endergebnis|stand)"
   next_word: "(nächste|nächstes|kommende|kommendes)"
   last_word: "(letzte|letztes|vergangene|vergangenes)"
-  tabelle_noun: "(tabelle|tabellenstand|tabellenplatz|platzierung|rangliste|liga tabelle)"
+  tabelle_noun: "(tabelle|bundesligatabelle|bundesliga tabelle|tabellenstand|tabellenplatz|platzierung|rangliste|liga tabelle|ligatabelle)"
 
 # ============================================================================
 # SLOT LISTS - Alle 18 Bundesliga-Teams
@@ -122,7 +122,7 @@ intents:
           - "[<polite_sport>]auf welchem platz (steht|ist) <werder_name>"
           - "[<polite_sport>]welcher (platz|tabellenplatz) [ist] <werder_name>"
           # Zeig die Tabelle
-          - "[<polite_sport>]zeig [mir] [die] [bundesliga] <tabelle_noun>"
+          - "[<polite_sport>](zeig|zeige) [mir] [die] [bundesliga] <tabelle_noun>"
           # Liga-Stand
           - "[<polite_sport>]wie (sieht|steht) es in der [ersten] bundesliga [aus]"
           - "[<polite_sport>]bundesliga [stand|überblick|zusammenfassung]"
@@ -146,8 +146,9 @@ intents:
   ShowSportsView:
     data:
       - sentences:
-          - "[<polite_sport>]zeig [mir] [die|das] (sport|sports|bundesliga|fussball|fußball|werder)[karte|ergebnis|ansicht|anzeige|view]"
-          - "[<polite_sport>]zeig [mir] <werder_name> [auf dem display|auf dem bildschirm]"
+          - "[<polite_sport>](zeig|zeige) [mir] [die|das] (sport|sports|bundesliga|fussball|fußball|werder)[karte|ergebnis|ansicht|anzeige|view]"
+          - "[<polite_sport>](zeig|zeige) [mir] [die] sportkarte [an]"
+          - "[<polite_sport>](zeig|zeige) [mir] <werder_name> [auf dem display|auf dem bildschirm]"
           - "[<polite_sport>](sport|sports|fussball|fußball|bundesliga) [anzeige|karte|ansicht] [anzeigen|zeigen]"
 
   # --------------------------------------------------------------------------
@@ -156,5 +157,6 @@ intents:
   ShowTableView:
     data:
       - sentences:
-          - "[<polite_sport>]zeig [mir] [die] [bundesliga] <tabelle_noun> [auf dem display|auf dem bildschirm|an]"
+          - "[<polite_sport>](zeig|zeige) [mir] [die] [bundesliga] <tabelle_noun> [auf dem display|auf dem bildschirm|an]"
           - "[<polite_sport>][bundesliga] <tabelle_noun> (anzeigen|zeigen)"
+          - "[<polite_sport>](zeig|zeige) [mir] [die] bundesligatabelle [an]"
