@@ -3,6 +3,7 @@
 # ============================================================================
 # Teil von: intent_script: !include_dir_merge_named intent_scripts/
 # Verwendet: sensor.werder_bremen (TeamTracker)
+# Verwendet: sensor.bundesliga_tabelle (ESPN Standings API)
 # ============================================================================
 
 GetSportsResult:
@@ -93,6 +94,57 @@ GetNextMatch:
         Ich konnte den nächsten Spieltermin von {{ team_long }} leider nicht finden.
       {% endif %}
 
+# ============================================================================
+# BUNDESLIGA TABELLE
+# ============================================================================
+GetBundesligaTable:
+  speech:
+    text: >
+      {% set tabelle = state_attr('sensor.bundesliga_tabelle', 'table') %}
+      {% if tabelle and tabelle | length > 0 %}
+        {% set top5 = tabelle[:5] %}
+        {% set werder = tabelle | selectattr('name', 'search', 'Werder') | list | first %}
+        {% set intro = [
+          "Hier die aktuelle Bundesliga-Tabelle.",
+          "Die Bundesliga-Tabelle sieht so aus.",
+          "Aktueller Stand der Bundesliga."
+        ] %}
+        {{ intro | random }}
+        {% for t in top5 %}
+          Platz {{ t.rank }}: {{ t.name }} mit {{ t.pts }} Punkten.
+        {% endfor %}
+        {% if werder and werder.rank > 5 %}
+          Und Werder Bremen steht auf Platz {{ werder.rank }} mit {{ werder.pts }} Punkten. {{ werder.w }} Siege, {{ werder.d }} Unentschieden, {{ werder.l }} Niederlagen.
+        {% endif %}
+      {% else %}
+        Die Bundesliga-Tabelle ist gerade nicht verfügbar.
+      {% endif %}
+
+# ============================================================================
+# TEAM-POSITION ABFRAGEN
+# ============================================================================
+GetTeamPosition:
+  speech:
+    text: >
+      {% set team_input = team_name %}
+      {% set tabelle = state_attr('sensor.bundesliga_tabelle', 'table') %}
+      {% if tabelle and tabelle | length > 0 %}
+        {% set found = tabelle | selectattr('name', 'search', team_input) | list %}
+        {% if found | length > 0 %}
+          {% set t = found[0] %}
+          {% set results = [
+            t.name ~ " steht aktuell auf Platz " ~ t.rank ~ " mit " ~ t.pts ~ " Punkten. Bilanz: " ~ t.w ~ " Siege, " ~ t.d ~ " Unentschieden, " ~ t.l ~ " Niederlagen.",
+            "Platz " ~ t.rank ~ " für " ~ t.name ~ ". " ~ t.pts ~ " Punkte bei " ~ t.gp ~ " Spielen. Torverhältnis " ~ t.gf ~ " zu " ~ t.ga ~ ".",
+            t.name ~ " ist auf Tabellenplatz " ~ t.rank ~ ". " ~ t.pts ~ " Punkte, " ~ t.w ~ " Siege und " ~ t.l ~ " Niederlagen."
+          ] %}
+          {{ results | random }}
+        {% else %}
+          Ich konnte {{ team_input }} leider nicht in der Bundesliga-Tabelle finden.
+        {% endif %}
+      {% else %}
+        Die Bundesliga-Tabelle ist gerade nicht verfügbar.
+      {% endif %}
+
 ShowSportsView:
   speech:
     text: >
@@ -110,4 +162,21 @@ ShowSportsView:
         Hier die Sportkarte. {{ team_long }} spielt demnächst gegen {{ opponent }}.
       {% else %}
         Hier die Sportkarte.
+      {% endif %}
+
+# ============================================================================
+# TABELLEN-VIEW ANZEIGEN
+# ============================================================================
+ShowTableView:
+  speech:
+    text: >
+      {% set tabelle = state_attr('sensor.bundesliga_tabelle', 'table') %}
+      {% if tabelle and tabelle | length > 0 %}
+        {% set werder = tabelle | selectattr('name', 'search', 'Werder') | list | first %}
+        Hier die Bundesliga-Tabelle. {{ tabelle[0].name }} führt mit {{ tabelle[0].pts }} Punkten.
+        {% if werder %}
+          Werder Bremen auf Platz {{ werder.rank }}.
+        {% endif %}
+      {% else %}
+        Hier die Bundesliga-Tabelle.
       {% endif %}

@@ -1,12 +1,13 @@
 # ================================================================================
 # HA-GERMAN-VOICE - Deutsche Sport-Sprachbefehle
 # ================================================================================
-# Bundesliga / Fußball Ergebnisse via TeamTracker
+# Bundesliga / Fußball Ergebnisse via TeamTracker + ESPN Standings
 # ✅ Expansion Rules für natürliche Sprache
+# ✅ Alle 18 Bundesliga-Teams als Slot-Liste
 # ⚙️  Custom Intents → benötigen intent_script für Aktionen
 # ================================================================================
 # GitHub: https://github.com/brainAThome/HA-German-Voice
-# Version: 1.0.0
+# Version: 2.0.0
 # ================================================================================
 
 language: de
@@ -23,13 +24,57 @@ expansion_rules:
   result_noun: "(ergebnis|spielstand|resultat|endergebnis|stand)"
   next_word: "(nächste|nächstes|kommende|kommendes)"
   last_word: "(letzte|letztes|vergangene|vergangenes)"
+  tabelle_noun: "(tabelle|tabellenstand|tabellenplatz|platzierung|rangliste|liga tabelle)"
+
+# ============================================================================
+# SLOT LISTS - Alle 18 Bundesliga-Teams
+# ============================================================================
+lists:
+  team_name:
+    values:
+      - in: "(bayern [münchen]|fc bayern|bayern munich|fcb)"
+        out: "Bayern München"
+      - in: "(dortmund|borussia dortmund|bvb)"
+        out: "Borussia Dortmund"
+      - in: "(hoffenheim|tsg [hoffenheim]|tsg 1899)"
+        out: "Hoffenheim"
+      - in: "(stuttgart|vfb [stuttgart])"
+        out: "Stuttgart"
+      - in: "(leverkusen|bayer [leverkusen]|bayer 04|werkself)"
+        out: "Bayer Leverkusen"
+      - in: "(leipzig|rb leipzig|rasenball)"
+        out: "RB Leipzig"
+      - in: "(frankfurt|eintracht [frankfurt]|sge)"
+        out: "Eintracht Frankfurt"
+      - in: "(freiburg|sc freiburg|sport club freiburg)"
+        out: "SC Freiburg"
+      - in: "(hamburg|hamburger sv|hsv)"
+        out: "Hamburg SV"
+      - in: "(union [berlin]|fc union|fcu)"
+        out: "Union Berlin"
+      - in: "(köln|fc köln|1 fc köln|cologne|effzeh|geißböcke)"
+        out: "1. FC Köln"
+      - in: "(gladbach|mönchengladbach|borussia mönchengladbach|bmg|fohlen)"
+        out: "Mönchengladbach"
+      - in: "(augsburg|fc augsburg|fca)"
+        out: "FC Augsburg"
+      - in: "(mainz|mainz 05|fsv mainz)"
+        out: "Mainz 05"
+      - in: "(wolfsburg|vfl wolfsburg|wob|wölfe)"
+        out: "VfL Wolfsburg"
+      - in: "(werder [bremen]|bremen|svw)"
+        out: "Werder Bremen"
+      - in: "(st pauli|sankt pauli|fcsp|kiezclub)"
+        out: "St. Pauli"
+      - in: "(heidenheim|fc heidenheim|fch)"
+        out: "Heidenheim"
 
 # ============================================================================
 # INTENTS
 # ============================================================================
 intents:
   # --------------------------------------------------------------------------
-  # AKTUELLES/LETZTES ERGEBNIS
+  # AKTUELLES/LETZTES ERGEBNIS (Werder)
   # --------------------------------------------------------------------------
   GetSportsResult:
     data:
@@ -51,7 +96,7 @@ intents:
           - "<werder_name> [<result_noun>] [heute|gestern]"
 
   # --------------------------------------------------------------------------
-  # NÄCHSTES SPIEL
+  # NÄCHSTES SPIEL (Werder)
   # --------------------------------------------------------------------------
   GetNextMatch:
     data:
@@ -64,6 +109,38 @@ intents:
           - "wann ist [das nächste] (bundesliga|werder) <match_noun>"
 
   # --------------------------------------------------------------------------
+  # BUNDESLIGA TABELLE
+  # --------------------------------------------------------------------------
+  GetBundesligaTable:
+    data:
+      - sentences:
+          # Direkt
+          - "[<polite_q_sport>][<polite_sport>][die|den|der] [aktuelle|aktuellen] [bundesliga] <tabelle_noun>"
+          - "[<polite_sport>]wie <sport_verb> [es in|die|der] [bundesliga] <tabelle_noun>"
+          - "[<polite_sport>]wer (führt|steht oben|ist erster|ist erste) [in der bundesliga]"
+          - "[<polite_sport>]wer (ist letzter|steht unten|steigt ab) [in der bundesliga]"
+          - "[<polite_sport>]auf welchem platz (steht|ist) <werder_name>"
+          - "[<polite_sport>]welcher (platz|tabellenplatz) [ist] <werder_name>"
+          # Zeig die Tabelle
+          - "[<polite_sport>]zeig [mir] [die] [bundesliga] <tabelle_noun>"
+          # Liga-Stand
+          - "[<polite_sport>]wie (sieht|steht) es in der [ersten] bundesliga [aus]"
+          - "[<polite_sport>]bundesliga [stand|überblick|zusammenfassung]"
+
+  # --------------------------------------------------------------------------
+  # TEAM-POSITION ABFRAGEN (beliebiges Team)
+  # --------------------------------------------------------------------------
+  GetTeamPosition:
+    data:
+      - sentences:
+          - "[<polite_sport>]auf welchem platz (steht|ist) {team_name}"
+          - "[<polite_sport>]welcher (platz|tabellenplatz) [ist] {team_name}"
+          - "[<polite_sport>]wie <sport_verb> es [um|für|bei] {team_name} [in der tabelle]"
+          - "[<polite_sport>]wo (steht|ist) {team_name} [in der tabelle|in der bundesliga]"
+          - "[<polite_sport>]{team_name} (platz|tabellenplatz|position|tabelle)"
+          - "[<polite_sport>]was macht {team_name} [in der bundesliga|in der liga]"
+
+  # --------------------------------------------------------------------------
   # SPORTS VIEW ANZEIGEN
   # --------------------------------------------------------------------------
   ShowSportsView:
@@ -72,3 +149,12 @@ intents:
           - "[<polite_sport>]zeig [mir] [die|das] (sport|sports|bundesliga|fussball|fußball|werder)[karte|ergebnis|ansicht|anzeige|view]"
           - "[<polite_sport>]zeig [mir] <werder_name> [auf dem display|auf dem bildschirm]"
           - "[<polite_sport>](sport|sports|fussball|fußball|bundesliga) [anzeige|karte|ansicht] [anzeigen|zeigen]"
+
+  # --------------------------------------------------------------------------
+  # TABELLEN-VIEW ANZEIGEN
+  # --------------------------------------------------------------------------
+  ShowTableView:
+    data:
+      - sentences:
+          - "[<polite_sport>]zeig [mir] [die] [bundesliga] <tabelle_noun> [auf dem display|auf dem bildschirm|an]"
+          - "[<polite_sport>][bundesliga] <tabelle_noun> (anzeigen|zeigen)"
