@@ -1,0 +1,32 @@
+language: de
+# ==============================================================================
+# HA-GERMAN-VOICE - Wikipedia Sprachbefehle
+# ==============================================================================
+# Wikipedia-Suche mit Ollama-Zusammenfassung.
+# Expliziter Trigger ("Wikipedia ...") → kein Konflikt mit Ollama-Fallback.
+# ==============================================================================
+
+intents:
+  WikipediaSearch:
+    data:
+      - sentences:
+          # Direkt: "Wikipedia Quantenphysik"
+          - "wikipedia {thema}"
+          - "wikipedia suche [nach] {thema}"
+          # Suche: "Suche in Wikipedia nach ..."
+          - "(suche|such) [auf|in|bei] wikipedia [nach] {thema}"
+          - "(suche|such) [nach] {thema} [auf|in|bei] wikipedia"
+          # Was sagt/steht: "Was sagt Wikipedia zu ..."
+          - "was sagt wikipedia [zu|über] {thema}"
+          - "was steht [auf|in|bei] wikipedia [zu|über] {thema}"
+          # Nachschlagen: "Schlag mal Relativitätstheorie nach"
+          - "schlag [mal] {thema} [auf|in|bei] wikipedia nach"
+          - "schlag [mal] [auf|in|bei] wikipedia {thema} nach"
+          # Erzähl mir: "Erzähl mir was über Planeten aus Wikipedia"
+          - "erzähl [mir] [etwas|was] über {thema} [aus|von|auf] wikipedia"
+          # Informationen: "Gib mir Infos zu ... aus Wikipedia"
+          - "(gib|geb) [mir] (infos|informationen) [zu|über] {thema} [aus|von] wikipedia"
+
+lists:
+  thema:
+    wildcard: true

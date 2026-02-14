@@ -1,0 +1,10 @@
+WikipediaSearch:
+  action:
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.wikipedia_query
+      data:
+        value: "{{ thema }}"
+    - action: shell_command.wikipedia_search
+  speech:
+    text: "{{ state_attr('sensor.wikipedia_result', 'summary') | default('Ich konnte leider keine Informationen finden.') }}"

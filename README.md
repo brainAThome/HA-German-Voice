@@ -102,6 +102,13 @@
 - **Stopp via HA API** (`SPOTIFY_STOP_PAUSE_VIA_HA=True`) — kein Spotify Connect Auto-Reconnect
 - **Display-Navigation**: Automatisch Music-View bei Wiedergabe, Clock-View bei Stopp
 
+### 📚 Wikipedia (mit Ollama-Zusammenfassung)
+- **Sprachsuche**: "Wikipedia Quantenphysik" / "Was sagt Wikipedia zu Einstein?"
+- **Ollama-Zusammenfassung**: Wikipedia-Extrakt wird von Ollama in 2-3 TTS-taugliche Sätze zusammengefasst
+- **Fallback**: Falls Ollama nicht erreichbar, wird der Wikipedia-Extrakt direkt verwendet
+- **Freitext-Suche**: Findet auch Artikel bei ungenauen Begriffen (Wikipedia Search API Fallback)
+- **Kein Konflikt mit Ollama-Fallback**: Expliziter Trigger ("Wikipedia ...") — freie Wissensfragen gehen weiterhin direkt an Ollama
+
 ### 🎵 Medien
 - **Wiedergabe**: "Spiele Musik ab" / "Pause" / "Weiter"
 - **Lautstärke**: "Lauter" / "Lautstärke auf 50%"
@@ -133,7 +140,8 @@ ha-german-voice/
 │   ├── radio.yaml                  # Radio (9 Intents, 60+ Sender)
 │   ├── reminders.yaml              # Erinnerungen/Timer (14 Intents)
 │   ├── spotify.yaml                # Spotify (13 Intents)
-│   └── weather.yaml                # Wetter (30 Intents)
+│   ├── weather.yaml                # Wetter (30 Intents)
+│   └── wikipedia.yaml              # Wikipedia (1 Intent)
 ├── custom_templates/               # Jinja2 Macros
 │   └── weather_macros.jinja        # Wetter-Übersetzungen, Prognosen
 ├── scripts/                        # Python-Skripte & YAML
@@ -145,12 +153,22 @@ ha-german-voice/
 │   ├── spotify_monitor_supervisor.sh # Supervisor mit auto-restart
 │   ├── spotify_voice.py            # Spotify Web API Bridge
 │   ├── spotify.env.example         # Beispiel-Konfiguration für Monitor
+│   ├── wikipedia_search.py         # Wikipedia + Ollama Zusammenfasser
 │   └── download_radio_logos.py     # Radio-Logos herunterladen
+├── intent_scripts/                 # Intent Scripts (modular, 125 Intents)
+│   ├── alarm.yaml                  # Wecker/Alarm
+│   ├── covers.yaml                 # Rolladen/Jalousien
+│   ├── echo.yaml                   # Echo/VACA Steuerung
+│   ├── lights.yaml                 # Lichter
+│   ├── radio.yaml                  # Radio
+│   ├── reminders.yaml              # Erinnerungen
+│   ├── spotify.yaml                # Spotify
+│   ├── weather.yaml                # Wetter
+│   └── wikipedia.yaml              # Wikipedia
 ├── www/                            # Web Assets
 │   └── radio_logos/                # Senderlogos (PNG)
 │       └── radio_default.png       # Fallback-Logo
 ├── docs/                           # Dokumentation
-├── intent_script.yaml              # Alle Intent Scripts (124 Intents)
 ├── conversation_logging.yaml       # Konversations-Logging
 ├── hacs.json                       # HACS Konfiguration
 ├── CHANGELOG.md
@@ -173,7 +191,8 @@ ha-german-voice/
 | Radio | `radio.yaml` | 9 | Direktwahl, Suche, Lautstärke, Now Playing, Senderliste |
 | Medien | `media.yaml` | 10 | Play, Pause, Stop, Lautstärke, Shuffle, Repeat |
 | Wecker | `alarm.yaml` | 7 | Stellen, Wiederkehrend, Stopp, Snooze, Abfrage, Löschen |
-| **Gesamt** | | **124** | |
+| Wikipedia | `wikipedia.yaml` | 1 | Wikipedia-Suche mit Ollama-Zusammenfassung |
+| **Gesamt** | | **125** | |
 
 ---
 
@@ -195,8 +214,8 @@ ha-german-voice/
 # Sprachbefehle
 cp -r custom_sentences/de/*.yaml /config/custom_sentences/de/
 
-# Intent Scripts
-cp intent_script.yaml /config/intent_script.yaml
+# Intent Scripts (modular)
+cp -r intent_scripts/ /config/intent_scripts/
 ```
 
 ---
@@ -206,8 +225,8 @@ cp intent_script.yaml /config/intent_script.yaml
 ### 1. configuration.yaml
 
 ```yaml
-# Intent Scripts
-intent_script: !include intent_script.yaml
+# Intent Scripts (modular aus intent_scripts/ Verzeichnis)
+intent_script: !include_dir_merge_named intent_scripts/
 ```
 
 ### 2. Erinnerungs-Helper
@@ -370,6 +389,26 @@ cp scripts/spotify_monitor_supervisor.sh /config/scripts/
 
 > ⚠️ **ANPASSEN** in `spotify_voice.py`: `HA_TOKEN`, `CLIENT_ID`/`CLIENT_SECRET`, `SPOTIFY_ENTITY`, Geräte-Aliase
 
+### 9. Wikipedia (Optional)
+
+```bash
+cp scripts/wikipedia_search.py /config/scripts/
+```
+
+```yaml
+# configuration.yaml
+shell_command:
+  wikipedia_search: 'python3 /config/scripts/wikipedia_search.py "{{ states("input_text.wikipedia_query") }}"'
+
+input_text:
+  wikipedia_query:
+    name: Wikipedia Suche
+    max: 255
+    initial: ""
+```
+
+> ⚠️ **ANPASSEN** in `wikipedia_search.py`: `OLLAMA_API` (URL des Ollama-Servers) und `OLLAMA_MODEL` (z.B. `qwen2.5:7b`, `llama3.1:latest`). Der HA-Token wird automatisch aus `/config/secrets.yaml` gelesen (`secrets_config.py`).
+
 ---
 
 ## 🗣️ Beispiele
@@ -397,6 +436,8 @@ cp scripts/spotify_monitor_supervisor.sh /config/scripts/
 | "Suche ChillHop im Radio" | Radio Browser API Suche |
 | "Spiele Enter Sandman auf Spotify" | Spotify Song abspielen |
 | "Was spielt auf Spotify?" | Aktueller Track |
+| "Wikipedia Quantenphysik" | Wikipedia + Ollama Zusammenfassung |
+| "Was sagt Wikipedia zu Einstein?" | Wikipedia-Suche mit natürlicher Formulierung |
 | "Was ist die Hauptstadt von Frankreich?" | Ollama LLM Fallback |
 
 ---
