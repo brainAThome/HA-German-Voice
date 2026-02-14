@@ -2,6 +2,25 @@
 
 Alle wichtigen Änderungen an diesem Projekt werden hier dokumentiert.
 
+## [5.1.0] - 2026-02-14
+
+### 📚 Wikipedia-Suche mit Ollama-Zusammenfassung
+
+- **WikipediaSearch Intent**: "Wikipedia Quantenphysik" / "Was sagt Wikipedia zu Einstein?"
+- **Ollama-Zusammenfassung**: Wikipedia-Extrakt → 2-3 natürliche, TTS-taugliche Sätze via Ollama
+- **Fallback**: Falls Ollama nicht erreichbar, wird der Wikipedia-Extrakt direkt verwendet (gekürzt)
+- **Freitext-Suche**: Wikipedia Search API Fallback bei ungenauen Begriffen
+- **Kein Konflikt mit Ollama**: Explizite Trigger ("Wikipedia ...") — freie Wissensfragen gehen weiterhin an Ollama
+
+### Geändert
+- **README**: Wikipedia-Feature dokumentiert, Projektstruktur korrigiert (modulare intent_scripts/)
+- **Intent-Übersicht**: 124 → 125 Intents
+
+### Dateien
+- `custom_sentences/de/wikipedia.yaml` — Sentence-Patterns
+- `intent_scripts/wikipedia.yaml` — Intent-Handler
+- `scripts/wikipedia_search.py` — Wikipedia API + Ollama Zusammenfasser
+
 ## [5.0.0] - 2026-02-14
 
 ### ⏰🛑 Erinnerungs-Komplettsystem + Universeller Stopp & Löschen
