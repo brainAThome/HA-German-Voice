@@ -1,0 +1,258 @@
+# ==============================================================================
+# HA-GERMAN-VOICE - Wecker Intent Scripts
+# ==============================================================================
+# Sprachgesteuerter Wecker: Stellen, Stopp, Snooze, Abfragen, Löschen
+# 2 Wecker-Slots, einmalig oder wiederkehrend
+#
+# WICHTIG: In HA laufen Actions VOR Speech-Rendering!
+# Speech darf keinen State prüfen, den die Action gerade ändert.
+# ==============================================================================
+
+# --------------------------------------------------------------------------
+# WECKER STELLEN (einmalig)
+# --------------------------------------------------------------------------
+SetWecker:
+  speech:
+    text: >
+      {% set h = stunde | int %}
+      {% set m = minute | default(0) | int %}
+      {% set zeit1 = states('input_datetime.wecker_1_zeit') %}
+      {% set zeit2 = states('input_datetime.wecker_2_zeit') %}
+      {% set w1 = states('input_boolean.wecker_1_aktiv') == 'on' %}
+      {% set w2 = states('input_boolean.wecker_2_aktiv') == 'on' %}
+      {% set target = '%02d:%02d:00' | format(h, m) %}
+      {% if w1 and w2 and zeit1 != target and zeit2 != target %}
+        Beide Wecker-Plätze sind belegt. Lösche erst einen Wecker.
+      {% else %}
+        {% set r = [
+          "Wecker auf " ~ h ~ " Uhr " ~ ('%02d' | format(m)) ~ " gestellt.",
+          "Alles klar, ich wecke dich um " ~ h ~ " Uhr " ~ ('%02d' | format(m)) ~ ".",
+          "Wecker gestellt auf " ~ h ~ " Uhr " ~ ('%02d' | format(m)) ~ "."
+        ] %}
+        {{ r | random }}
+      {% endif %}
+  action:
+    - variables:
+        h: "{{ stunde | int }}"
+        m: "{{ minute | default(0) | int }}"
+        slot: >
+          {% if states('input_boolean.wecker_1_aktiv') == 'off' %}1
+          {% elif states('input_boolean.wecker_2_aktiv') == 'off' %}2
+          {% else %}0{% endif %}
+    - condition: template
+      value_template: "{{ slot | int > 0 }}"
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: "input_datetime.wecker_{{ slot }}_zeit"
+      data:
+        time: "{{ '%02d:%02d:00' | format(h | int, m | int) }}"
+    - action: input_boolean.turn_off
+      target:
+        entity_id: "input_boolean.wecker_{{ slot }}_wiederkehrend"
+    - action: input_text.set_value
+      target:
+        entity_id: "input_text.wecker_{{ slot }}_tage"
+      data:
+        value: ""
+    - action: input_boolean.turn_on
+      target:
+        entity_id: "input_boolean.wecker_{{ slot }}_aktiv"
+
+# --------------------------------------------------------------------------
+# WECKER STELLEN (wiederkehrend)
+# --------------------------------------------------------------------------
+SetWeckerWiederkehrend:
+  speech:
+    text: >
+      {% set h = stunde | int %}
+      {% set m = minute | default(0) | int %}
+      {% set tage = wecker_tage %}
+      {% set w1 = states('input_boolean.wecker_1_aktiv') == 'on' %}
+      {% set w2 = states('input_boolean.wecker_2_aktiv') == 'on' %}
+      {% set target = '%02d:%02d:00' | format(h, m) %}
+      {% set zeit1 = states('input_datetime.wecker_1_zeit') %}
+      {% set zeit2 = states('input_datetime.wecker_2_zeit') %}
+      {% if w1 and w2 and zeit1 != target and zeit2 != target %}
+        Beide Wecker-Plätze sind belegt. Lösche erst einen Wecker.
+      {% else %}
+        {% set tage_map = {
+          'montag,dienstag,mittwoch,donnerstag,freitag': 'werktags',
+          'samstag,sonntag': 'am Wochenende',
+          'montag,dienstag,mittwoch,donnerstag,freitag,samstag,sonntag': 'jeden Tag'
+        } %}
+        {% set tage_text = tage_map.get(tage, tage) %}
+        {% set r = [
+          "Wecker gestellt: " ~ tage_text ~ " um " ~ h ~ " Uhr " ~ ('%02d' | format(m)) ~ ".",
+          "Alles klar, ich wecke dich " ~ tage_text ~ " um " ~ h ~ " Uhr " ~ ('%02d' | format(m)) ~ ".",
+          "Wiederkehrender Wecker: " ~ tage_text ~ " um " ~ h ~ " Uhr " ~ ('%02d' | format(m)) ~ "."
+        ] %}
+        {{ r | random }}
+      {% endif %}
+  action:
+    - variables:
+        h: "{{ stunde | int }}"
+        m: "{{ minute | default(0) | int }}"
+        tage: "{{ wecker_tage }}"
+        slot: >
+          {% if states('input_boolean.wecker_1_aktiv') == 'off' %}1
+          {% elif states('input_boolean.wecker_2_aktiv') == 'off' %}2
+          {% else %}0{% endif %}
+    - condition: template
+      value_template: "{{ slot | int > 0 }}"
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: "input_datetime.wecker_{{ slot }}_zeit"
+      data:
+        time: "{{ '%02d:%02d:00' | format(h | int, m | int) }}"
+    - action: input_boolean.turn_on
+      target:
+        entity_id: "input_boolean.wecker_{{ slot }}_wiederkehrend"
+    - action: input_text.set_value
+      target:
+        entity_id: "input_text.wecker_{{ slot }}_tage"
+      data:
+        value: "{{ tage }}"
+    - action: input_boolean.turn_on
+      target:
+        entity_id: "input_boolean.wecker_{{ slot }}_aktiv"
+
+# --------------------------------------------------------------------------
+# WECKER STOPP
+# --------------------------------------------------------------------------
+StopWecker:
+  speech:
+    text: >
+      {% set r = [
+        "Wecker gestoppt. Guten Morgen!",
+        "Alarm aus. Aufgestanden!",
+        "Wecker ist aus. Guten Morgen!"
+      ] %}
+      {{ r | random }}
+  action:
+    - action: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.wecker_klingelt
+    - action: media_player.media_stop
+      target:
+        entity_id: media_player.vaca_362812d56_mediaplayer
+      continue_on_error: true
+
+# --------------------------------------------------------------------------
+# SNOOZE
+# --------------------------------------------------------------------------
+SnoozeWecker:
+  speech:
+    text: >
+      {% set mins = snooze_minuten | default(5) | int %}
+      {% set r = [
+        "Okay, noch " ~ mins ~ " Minuten. Schlaf schön!",
+        "Snooze! Ich wecke dich in " ~ mins ~ " Minuten wieder.",
+        mins ~ " Minuten Schlummern. Genieß es!"
+      ] %}
+      {{ r | random }}
+  action:
+    - variables:
+        mins: "{{ snooze_minuten | default(5) | int }}"
+    - action: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.wecker_klingelt
+    - action: timer.start
+      target:
+        entity_id: timer.wecker_snooze
+      data:
+        duration: "{{ '%02d:%02d:%02d' | format(0, mins | int, 0) }}"
+
+# --------------------------------------------------------------------------
+# WECKER ABFRAGEN (nur lesen, kein State-Konflikt)
+# --------------------------------------------------------------------------
+QueryWecker:
+  speech:
+    text: >
+      {% set w1_aktiv = states('input_boolean.wecker_1_aktiv') == 'on' %}
+      {% set w2_aktiv = states('input_boolean.wecker_2_aktiv') == 'on' %}
+      {% if not w1_aktiv and not w2_aktiv %}
+        Du hast keine aktiven Wecker.
+      {% else %}
+        {% set parts = [] %}
+        {% if w1_aktiv %}
+          {% set zeit1 = states('input_datetime.wecker_1_zeit') %}
+          {% set h1 = zeit1.split(':')[0] | int %}
+          {% set m1 = zeit1.split(':')[1] %}
+          {% set wiederh1 = states('input_boolean.wecker_1_wiederkehrend') == 'on' %}
+          {% set tage1 = states('input_text.wecker_1_tage') %}
+          {% set tage_map = {
+            'montag,dienstag,mittwoch,donnerstag,freitag': 'werktags',
+            'samstag,sonntag': 'am Wochenende',
+            'montag,dienstag,mittwoch,donnerstag,freitag,samstag,sonntag': 'jeden Tag'
+          } %}
+          {% set tage_text = tage_map.get(tage1, tage1) if wiederh1 else 'einmalig' %}
+          {% set parts = parts + ['Wecker 1: ' ~ h1 ~ ' Uhr ' ~ m1 ~ ', ' ~ tage_text] %}
+        {% endif %}
+        {% if w2_aktiv %}
+          {% set zeit2 = states('input_datetime.wecker_2_zeit') %}
+          {% set h2 = zeit2.split(':')[0] | int %}
+          {% set m2 = zeit2.split(':')[1] %}
+          {% set wiederh2 = states('input_boolean.wecker_2_wiederkehrend') == 'on' %}
+          {% set tage2 = states('input_text.wecker_2_tage') %}
+          {% set tage_map = {
+            'montag,dienstag,mittwoch,donnerstag,freitag': 'werktags',
+            'samstag,sonntag': 'am Wochenende',
+            'montag,dienstag,mittwoch,donnerstag,freitag,samstag,sonntag': 'jeden Tag'
+          } %}
+          {% set tage_text = tage_map.get(tage2, tage2) if wiederh2 else 'einmalig' %}
+          {% set parts = parts + ['Wecker 2: ' ~ h2 ~ ' Uhr ' ~ m2 ~ ', ' ~ tage_text] %}
+        {% endif %}
+        {{ parts | join('. ') }}.
+      {% endif %}
+
+# --------------------------------------------------------------------------
+# WECKER LÖSCHEN (alle)
+# --------------------------------------------------------------------------
+DeleteWecker:
+  speech:
+    text: >
+      {% set r = [
+        "Alle Wecker gelöscht.",
+        "Wecker wurden gelöscht.",
+        "Alle Alarme deaktiviert."
+      ] %}
+      {{ r | random }}
+  action:
+    - action: input_boolean.turn_off
+      target:
+        entity_id:
+          - input_boolean.wecker_1_aktiv
+          - input_boolean.wecker_2_aktiv
+          - input_boolean.wecker_1_wiederkehrend
+          - input_boolean.wecker_2_wiederkehrend
+          - input_boolean.wecker_klingelt
+    - action: input_text.set_value
+      target:
+        entity_id:
+          - input_text.wecker_1_tage
+          - input_text.wecker_2_tage
+      data:
+        value: ""
+
+# --------------------------------------------------------------------------
+# WECKER LÖSCHEN (nach Nummer)
+# --------------------------------------------------------------------------
+DeleteWeckerNummer:
+  speech:
+    text: >
+      {% set nr = wecker_nummer | int %}
+      Wecker {{ nr }} wurde gelöscht.
+  action:
+    - variables:
+        nr: "{{ wecker_nummer | int }}"
+    - action: input_boolean.turn_off
+      target:
+        entity_id: "input_boolean.wecker_{{ nr }}_aktiv"
+    - action: input_boolean.turn_off
+      target:
+        entity_id: "input_boolean.wecker_{{ nr }}_wiederkehrend"
+    - action: input_text.set_value
+      target:
+        entity_id: "input_text.wecker_{{ nr }}_tage"
+      data:
+        value: ""

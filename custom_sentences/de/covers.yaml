@@ -83,15 +83,39 @@ lists:
         out: 100
 
 # ============================================================================
+# RESPONSES FÜR BUILT-IN INTENTS (Key-basiert, nicht inline!)
+# Bei Built-in Intents ist response: ein KEY der auf responses: verweist!
+# ============================================================================
+responses:
+  intents:
+    HassTurnOn:
+      cover_open_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Jo, mache ich', 'Ja, nur für dich'] | random }}, {{ slots.name }} wird geöffnet."
+      cover_open_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Jo, mache ich'] | random }}, Rolladen in {{ slots.area }} werden geöffnet."
+      cover_open_all: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Aber gerne doch'] | random }}, alle Rolladen werden geöffnet."
+    HassTurnOff:
+      cover_close_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Jo, mache ich', 'Wird gemacht'] | random }}, {{ slots.name }} wird geschlossen."
+      cover_close_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Jo, mache ich'] | random }}, Rolladen in {{ slots.area }} werden geschlossen."
+      cover_close_all: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Aber gerne doch'] | random }}, alle Rolladen werden geschlossen."
+    HassStopCover:
+      cover_stop_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jo', 'Jawohl'] | random }}, {{ slots.name }} gestoppt."
+      cover_stop_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jo', 'Jawohl'] | random }}, Rolladen in {{ slots.area }} gestoppt."
+    HassSetCoverPosition:
+      cover_pos_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Jo, mache ich', 'Aber gerne doch'] | random }}, {{ slots.name }} auf {{ slots.position }}%."
+      cover_pos_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Aber gerne doch'] | random }}, Rolladen in {{ slots.area }} auf {{ slots.position }}%."
+    HassSetCoverTiltPosition:
+      cover_tilt_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Jo'] | random }}, Lamellen {{ slots.name }} auf {{ slots.tilt_position }}%."
+      cover_tilt_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Aber gerne doch'] | random }}, Lamellen in {{ slots.area }} auf {{ slots.tilt_position }}%."
+
+# ============================================================================
 # INTENTS MIT ENTITY/AREA SLOTS + RESPONSES
 # ============================================================================
 intents:
   # --------------------------------------------------------------------------
-  # ROLLADEN ÖFFNEN
+  # ROLLADEN ÖFFNEN (HassTurnOn mit domain: cover)
   # --------------------------------------------------------------------------
-  HassOpenCover:
+  HassTurnOn:
     data:
-      # === Mit Entity-Name (HA matched automatisch gegen cover domain!) ===
+      # === Mit Entity-Name ===
       - sentences:
           # Einfache Formen
           - "{name} <action_open>"
@@ -112,11 +136,14 @@ intents:
           - "[ich möchte] [das|die|den] {name} (öffnen|aufmachen|hochfahren)"
           - "mach [bitte] [das|die|den] {name} auf"
           - "fahr [bitte] [das|die|den] {name} hoch"
+        requires_context:
+          domain: cover
         slots:
           name:
             type: entity
             domain: cover
-        response: "OK, {{ slots.name }} wird geöffnet."
+          domain: cover
+        response: cover_open_entity
       
       # === Mit Area (alle Cover im Raum) ===
       - sentences:
@@ -130,12 +157,26 @@ intents:
         slots:
           area:
             type: area
-        response: "OK, Rolladen in {{ slots.area }} werden geöffnet."
+          domain: cover
+        response: cover_open_area
+
+      # === Alle Rolladen ===
+      - sentences:
+          - "(öffne|mach|fahr) <polite> alle <cover_types> [(auf|hoch)]"
+          - "alle <cover_types> <action_open>"
+          - "<cover_types> überall <action_open>"
+          - "überall <cover_types> <action_open>"
+          - "überall [(die|alle)] <cover_types> (auf|hoch|öffnen)"
+          - "alle <cover_types> (in allen räumen|überall|im ganzen haus) <action_open>"
+          - "(mach|mache) <polite> überall (hell|licht)"
+        slots:
+          domain: cover
+        response: cover_open_all
 
   # --------------------------------------------------------------------------
-  # ROLLADEN SCHLIESSEN
+  # ROLLADEN SCHLIESSEN (HassTurnOff mit domain: cover)
   # --------------------------------------------------------------------------
-  HassCloseCover:
+  HassTurnOff:
     data:
       # === Mit Entity-Name ===
       - sentences:
@@ -161,11 +202,14 @@ intents:
           - "[ich möchte] [das|die|den] {name} (schließen|zumachen|runterfahren)"
           - "mach [bitte] [das|die|den] {name} zu"
           - "fahr [bitte] [das|die|den] {name} runter"
+        requires_context:
+          domain: cover
         slots:
           name:
             type: entity
             domain: cover
-        response: "OK, {{ slots.name }} wird geschlossen."
+          domain: cover
+        response: cover_close_entity
       
       # === Mit Area ===
       - sentences:
@@ -182,7 +226,22 @@ intents:
         slots:
           area:
             type: area
-        response: "OK, Rolladen in {{ slots.area }} werden geschlossen."
+          domain: cover
+        response: cover_close_area
+
+      # === Alle Rolladen ===
+      - sentences:
+          - "(schließe|mach|fahr) <polite> alle <cover_types> [(zu|runter)]"
+          - "alle <cover_types> <action_close>"
+          - "<cover_types> überall <action_close>"
+          - "überall <cover_types> <action_close>"
+          - "(verdunkle|verdunkeln) <polite> (alles|überall|alle räume|das ganze haus)"
+          - "(komplette|totale) verdunklung"
+          - "(mach|mache) <polite> überall dunkel"
+          - "alles dunkel [machen]"
+        slots:
+          domain: cover
+        response: cover_close_all
 
   # --------------------------------------------------------------------------
   # ROLLADEN STOPPEN
@@ -198,7 +257,7 @@ intents:
           name:
             type: entity
             domain: cover
-        response: "OK, {{ slots.name }} gestoppt."
+        response: cover_stop_entity
       
       - sentences:
           - "<action_stop> <polite> <article> <cover_type> <room_prep> {area}"
@@ -207,7 +266,7 @@ intents:
         slots:
           area:
             type: area
-        response: "OK, Rolladen in {{ slots.area }} gestoppt."
+        response: cover_stop_area
 
   # --------------------------------------------------------------------------
   # POSITION SETZEN
@@ -227,7 +286,7 @@ intents:
           name:
             type: entity
             domain: cover
-        response: "OK, {{ slots.name }} auf {{ slots.position or 50 }}%."
+        response: cover_pos_entity
       
       # === Mit Area ===
       - sentences:
@@ -240,7 +299,7 @@ intents:
         slots:
           area:
             type: area
-        response: "OK, Rolladen in {{ slots.area }} auf {{ slots.position or 50 }}%."
+        response: cover_pos_area
 
   # --------------------------------------------------------------------------
   # LAMELLEN/KIPPEN
@@ -258,7 +317,7 @@ intents:
           name:
             type: entity
             domain: cover
-        response: "OK, Lamellen {{ slots.name }} auf {{ slots.tilt_position or 50 }}%."
+        response: cover_tilt_entity
       
       - sentences:
           - "<cover_type> <room_prep> {area} lamellen [auf] {tilt_position} [prozent]"
@@ -267,35 +326,7 @@ intents:
         slots:
           area:
             type: area
-        response: "OK, Lamellen in {{ slots.area }} auf {{ slots.tilt_position or 50 }}%."
-
-  # --------------------------------------------------------------------------
-  # ALLE ROLLADEN
-  # --------------------------------------------------------------------------
-  HassOpenCover:
-    data:
-      - sentences:
-          - "(öffne|mach|fahr) <polite> alle <cover_types> [(auf|hoch)]"
-          - "alle <cover_types> <action_open>"
-          - "<cover_types> überall <action_open>"
-          - "überall <cover_types> <action_open>"
-          - "überall [(die|alle)] <cover_types> (auf|hoch|öffnen)"
-          - "alle <cover_types> (in allen räumen|überall|im ganzen haus) <action_open>"
-          - "(mach|mache) <polite> überall (hell|licht)"
-        response: "OK, alle Rolladen werden geöffnet."
-
-  HassCloseCover:
-    data:
-      - sentences:
-          - "(schließe|mach|fahr) <polite> alle <cover_types> [(zu|runter)]"
-          - "alle <cover_types> <action_close>"
-          - "<cover_types> überall <action_close>"
-          - "überall <cover_types> <action_close>"
-          - "(verdunkle|verdunkeln) <polite> (alles|überall|alle räume|das ganze haus)"
-          - "(komplette|totale) verdunklung"
-          - "(mach|mache) <polite> überall dunkel"
-          - "alles dunkel [machen]"
-        response: "OK, alle Rolladen werden geschlossen."
+        response: cover_tilt_area
 
   # --------------------------------------------------------------------------
   # SONNENSCHUTZ
@@ -430,8 +461,14 @@ intents:
           {{ state_attr(slots.name, 'friendly_name') }} ist offen bei {{ pos }}%.
           {% elif states(slots.name) == 'closed' %}
           {{ state_attr(slots.name, 'friendly_name') }} ist geschlossen.
+          {% elif states(slots.name) == 'opening' %}
+          {{ state_attr(slots.name, 'friendly_name') }} fährt gerade hoch.
+          {% elif states(slots.name) == 'closing' %}
+          {{ state_attr(slots.name, 'friendly_name') }} fährt gerade runter.
+          {% elif states(slots.name) == 'unavailable' %}
+          {{ state_attr(slots.name, 'friendly_name') }} ist gerade nicht erreichbar.
           {% else %}
-          {{ state_attr(slots.name, 'friendly_name') }}: {{ states(slots.name) }}, {{ pos }}%.
+          {{ state_attr(slots.name, 'friendly_name') }} ist bei {{ pos }}%.
           {% endif %}
       
       - sentences:

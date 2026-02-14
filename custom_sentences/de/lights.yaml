@@ -87,6 +87,32 @@ lists:
         out: 500
 
 # ============================================================================
+# RESPONSES FÜR BUILT-IN INTENTS (Key-basiert, nicht inline!)
+# Bei Built-in Intents (HassTurnOn, HassTurnOff, HassToggle, HassLightSet)
+# ist response: ein KEY der auf responses: verweist, KEIN Jinja2-Template!
+# ============================================================================
+responses:
+  intents:
+    HassTurnOn:
+      light_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Ja, nur für dich', 'Jo, mache ich', 'Aber sowas von'] | random }}, {{ slots.name }} ist an."
+      light_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Ja, nur für dich', 'Jo, mache ich'] | random }}, Licht in {{ slots.area }} ist an."
+      light_all: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Aber gerne doch'] | random }}, alle Lichter sind an."
+    HassTurnOff:
+      light_off_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Ja, nur für dich', 'Jo, mache ich', 'Wird gemacht'] | random }}, {{ slots.name }} ist aus."
+      light_off_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jo', 'Geht klar', 'Jawohl mein Bester', 'Aber gerne doch', 'Ja, nur für dich'] | random }}, Licht in {{ slots.area }} ist aus."
+      light_off_all: "{{ ['OK', 'Alles klar', 'Erledigt', 'Jawohl', 'Aber gerne doch'] | random }}, alle Lichter sind aus."
+    HassToggle:
+      light_toggle: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Jo, mache ich', 'Aber gerne doch'] | random }}, {{ slots.name }} umgeschaltet."
+    HassLightSet:
+      brightness_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Jo, mache ich', 'Aber gerne doch'] | random }}, {{ slots.name }} auf {{ slots.brightness }}%."
+      brightness_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Aber gerne doch'] | random }}, Licht in {{ slots.area }} auf {{ slots.brightness }}%."
+      adjust_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Aber sowas von'] | random }}, {{ slots.name }} angepasst."
+      color_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Jo, mache ich'] | random }}, {{ slots.name }} leuchtet jetzt {{ slots.color }}."
+      color_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Aber gerne doch'] | random }}, Licht in {{ slots.area }} leuchtet jetzt {{ slots.color }}."
+      colortemp_entity: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Jo'] | random }}, Farbtemperatur von {{ slots.name }} angepasst."
+      colortemp_area: "{{ ['OK', 'Alles klar', 'Erledigt', 'Klar', 'Jawohl', 'Aber gerne doch'] | random }}, Farbtemperatur in {{ slots.area }} angepasst."
+
+# ============================================================================
 # INTENTS MIT ENTITY/AREA SLOTS + RESPONSES
 # ============================================================================
 intents:
@@ -106,15 +132,7 @@ intents:
           name:
             type: entity
             domain: light
-        response: >
-          {% set responses = [
-            "OK, " ~ slots.name ~ " ist an.",
-            "Alles klar, " ~ slots.name ~ " leuchtet jetzt.",
-            "Erledigt, " ~ slots.name ~ " eingeschaltet.",
-            slots.name ~ " ist jetzt an.",
-            "Klar, " ~ slots.name ~ " ist an."
-          ] %}
-          {{ responses | random }}
+        response: light_entity
       
       # === Mit Area ===
       - sentences:
@@ -126,15 +144,16 @@ intents:
         slots:
           area:
             type: area
-        response: >
-          {% set responses = [
-            "OK, Licht in " ~ slots.area ~ " ist an.",
-            "Alles klar, " ~ slots.area ~ " ist jetzt beleuchtet.",
-            "Erledigt, Licht im " ~ slots.area ~ " eingeschaltet.",
-            slots.area ~ " ist jetzt hell.",
-            "Klar, Licht in " ~ slots.area ~ " ist an."
-          ] %}
-          {{ responses | random }}
+        response: light_area
+
+      # === Alle Lichter ===
+      - sentences:
+          - "(mach|schalte) <polite> (alle|alles|sämtliche) (lichter|lampen|beleuchtung) (an|ein)"
+          - "(alle|alles|sämtliche) (lichter|lampen) (an|einschalten)"
+          - "lichter (an|ein)"
+          - "licht überall (an|ein)"
+          - "überall hell"
+        response: light_all
 
   # --------------------------------------------------------------------------
   # LICHT AUS
@@ -152,15 +171,7 @@ intents:
           name:
             type: entity
             domain: light
-        response: >
-          {% set responses = [
-            "OK, " ~ slots.name ~ " ist aus.",
-            "Alles klar, " ~ slots.name ~ " ausgeschaltet.",
-            "Erledigt, " ~ slots.name ~ " ist jetzt aus.",
-            slots.name ~ " ist jetzt aus.",
-            "Klar, " ~ slots.name ~ " abgeschaltet."
-          ] %}
-          {{ responses | random }}
+        response: light_off_entity
       
       # === Mit Area ===
       - sentences:
@@ -171,15 +182,16 @@ intents:
         slots:
           area:
             type: area
-        response: >
-          {% set responses = [
-            "OK, Licht in " ~ slots.area ~ " ist aus.",
-            "Alles klar, " ~ slots.area ~ " ist jetzt dunkel.",
-            "Erledigt, Licht im " ~ slots.area ~ " ausgeschaltet.",
-            slots.area ~ " ist jetzt dunkel.",
-            "Klar, Licht in " ~ slots.area ~ " ist aus."
-          ] %}
-          {{ responses | random }}
+        response: light_off_area
+
+      # === Alle Lichter ===
+      - sentences:
+          - "(mach|schalte) <polite> (alle|alles|sämtliche) (lichter|lampen|beleuchtung) (aus|ab)"
+          - "(alle|alles|sämtliche) (lichter|lampen) (aus|ausschalten)"
+          - "lichter (aus|ab)"
+          - "licht überall (aus|ab)"
+          - "alles dunkel"
+        response: light_off_all
 
   # --------------------------------------------------------------------------
   # LICHT TOGGLE
@@ -193,14 +205,7 @@ intents:
           name:
             type: entity
             domain: light
-        response: >
-          {% set responses = [
-            "OK, " ~ slots.name ~ " umgeschaltet.",
-            "Alles klar, " ~ slots.name ~ " getoggled.",
-            "Erledigt, " ~ slots.name ~ " gewechselt.",
-            slots.name ~ " ist jetzt umgeschaltet."
-          ] %}
-          {{ responses | random }}
+        response: light_toggle
 
   # --------------------------------------------------------------------------
   # HELLIGKEIT SETZEN
@@ -219,14 +224,7 @@ intents:
           name:
             type: entity
             domain: light
-        response: >
-          {% set responses = [
-            "OK, " ~ slots.name ~ " auf " ~ slots.brightness ~ "%.",
-            "Alles klar, " ~ slots.name ~ " auf " ~ slots.brightness ~ " Prozent eingestellt.",
-            "Erledigt, Helligkeit von " ~ slots.name ~ " auf " ~ slots.brightness ~ "%.",
-            slots.name ~ " jetzt auf " ~ slots.brightness ~ "%."
-          ] %}
-          {{ responses | random }}
+        response: brightness_entity
       
       # === Mit Area und Brightness ===
       - sentences:
@@ -236,14 +234,7 @@ intents:
         slots:
           area:
             type: area
-        response: >
-          {% set responses = [
-            "OK, Licht in " ~ slots.area ~ " auf " ~ slots.brightness ~ "%.",
-            "Alles klar, " ~ slots.area ~ " auf " ~ slots.brightness ~ " Prozent.",
-            "Erledigt, Helligkeit im " ~ slots.area ~ " auf " ~ slots.brightness ~ "%.",
-            slots.area ~ " jetzt auf " ~ slots.brightness ~ "%."
-          ] %}
-          {{ responses | random }}
+        response: brightness_area
       
       # === Heller/Dunkler mit Entity - Alle Satzstellungen ===
       - sentences:
@@ -265,16 +256,50 @@ intents:
           name:
             type: entity
             domain: light
-        response: >
-          {% set responses = [
-            "OK, " ~ slots.name ~ " angepasst.",
-            "Alles klar, " ~ slots.name ~ " wurde angepasst.",
-            "Erledigt, Helligkeit von " ~ slots.name ~ " geändert.",
-            slots.name ~ " ist jetzt angepasst."
-          ] %}
-          {{ responses | random }}
+        response: adjust_entity
       
       # === Heller/Dunkler mit Area - ENTFERNT - siehe LightBrighterArea/LightDarkerArea ===
+
+      # === FARBE setzen (Entity) ===
+      - sentences:
+          - "(mach|stell|setz) <polite> <article> {name} [auf] {color}"
+          - "<article> {name} [in|auf] {color} [setzen|stellen|ändern]"
+          - "{color}[es] licht {name}"
+          - "(änder|wechsel|wechsle) [die] farbe [von|der|des|am] {name} [auf|zu|nach] {color}"
+          - "<article> {name} farbe [auf] {color}"
+        slots:
+          name:
+            type: entity
+            domain: light
+        response: color_entity
+
+      # === FARBE setzen (Area) ===
+      - sentences:
+          - "{color}[es] licht <room_prep> {area}"
+          - "(änder|wechsel) [die] farbe <room_prep> {area} [auf|zu] {color}"
+        slots:
+          area:
+            type: area
+        response: color_area
+
+      # === FARBTEMPERATUR setzen (Entity) ===
+      - sentences:
+          - "(mach|stell) <polite> <article> {name} [auf] {color_temp}[es] [licht]"
+          - "<article> {name} [auf] {color_temp}"
+        slots:
+          name:
+            type: entity
+            domain: light
+        response: colortemp_entity
+
+      # === FARBTEMPERATUR setzen (Area) ===
+      - sentences:
+          - "{color_temp}[es] licht <room_prep> {area}"
+          - "<room_prep> {area} [licht] [auf] {color_temp}"
+        slots:
+          area:
+            type: area
+        response: colortemp_area
 
   # --------------------------------------------------------------------------
   # LICHT HELLER (Custom Intent für Area)
@@ -410,115 +435,6 @@ intents:
             type: area
 
   # --------------------------------------------------------------------------
-  # FARBE SETZEN
-  # --------------------------------------------------------------------------
-  HassLightSet:
-    data:
-      - sentences:
-          - "(mach|stell|setz) <polite> <article> {name} [auf] {color}"
-          - "<article> {name} [in|auf] {color} [setzen|stellen|ändern]"
-          - "{color}[es] licht {name}"
-          - "(änder|wechsel|wechsle) [die] farbe [von|der|des|am] {name} [auf|zu|nach] {color}"
-          - "<article> {name} farbe [auf] {color}"
-        slots:
-          name:
-            type: entity
-            domain: light
-        response: >
-          {% set responses = [
-            "OK, " ~ slots.name ~ " auf " ~ slots.color ~ ".",
-            "Alles klar, " ~ slots.name ~ " leuchtet jetzt " ~ slots.color ~ ".",
-            "Erledigt, " ~ slots.name ~ " ist jetzt " ~ slots.color ~ ".",
-            slots.name ~ " in " ~ slots.color ~ " eingestellt."
-          ] %}
-          {{ responses | random }}
-      
-      - sentences:
-          - "{color}[es] licht <room_prep> {area}"
-          - "(änder|wechsel) [die] farbe <room_prep> {area} [auf|zu] {color}"
-        slots:
-          area:
-            type: area
-        response: >
-          {% set responses = [
-            "OK, Licht in " ~ slots.area ~ " auf " ~ slots.color ~ ".",
-            "Alles klar, " ~ slots.area ~ " leuchtet jetzt " ~ slots.color ~ ".",
-            "Erledigt, Licht im " ~ slots.area ~ " ist jetzt " ~ slots.color ~ "."
-          ] %}
-          {{ responses | random }}
-
-  # --------------------------------------------------------------------------
-  # FARBTEMPERATUR SETZEN
-  # --------------------------------------------------------------------------
-  HassLightSet:
-    data:
-      - sentences:
-          - "(mach|stell) <polite> <article> {name} [auf] {color_temp}[es] [licht]"
-          - "<article> {name} [auf] {color_temp}"
-        slots:
-          name:
-            type: entity
-            domain: light
-        response: >
-          {% set responses = [
-            "OK, " ~ slots.name ~ " auf " ~ slots.color_temp ~ " Kelvin.",
-            "Alles klar, Farbtemperatur von " ~ slots.name ~ " angepasst.",
-            "Erledigt, " ~ slots.name ~ " jetzt auf " ~ slots.color_temp ~ "K."
-          ] %}
-          {{ responses | random }}
-      
-      - sentences:
-          - "{color_temp}[es] licht <room_prep> {area}"
-          - "<room_prep> {area} [licht] [auf] {color_temp}"
-        slots:
-          area:
-            type: area
-        response: >
-          {% set responses = [
-            "OK, Licht in " ~ slots.area ~ " auf " ~ slots.color_temp ~ " Kelvin.",
-            "Alles klar, Farbtemperatur in " ~ slots.area ~ " angepasst.",
-            "Erledigt, " ~ slots.area ~ " jetzt auf " ~ slots.color_temp ~ "K."
-          ] %}
-          {{ responses | random }}
-
-  # --------------------------------------------------------------------------
-  # ALLES AUS/AN
-  # --------------------------------------------------------------------------
-  HassTurnOff:
-    data:
-      - sentences:
-          - "(mach|schalte) <polite> (alle|alles|sämtliche) (lichter|lampen|beleuchtung) (aus|ab)"
-          - "(alle|alles|sämtliche) (lichter|lampen) (aus|ausschalten)"
-          - "lichter (aus|ab)"
-          - "licht überall (aus|ab)"
-          - "alles dunkel"
-        response: >
-          {% set responses = [
-            "OK, alle Lichter sind aus.",
-            "Erledigt, alles dunkel.",
-            "Alle Lampen ausgeschaltet.",
-            "Lichter sind alle aus."
-          ] %}
-          {{ responses | random }}
-
-  HassTurnOn:
-    data:
-      - sentences:
-          - "(mach|schalte) <polite> (alle|alles|sämtliche) (lichter|lampen|beleuchtung) (an|ein)"
-          - "(alle|alles|sämtliche) (lichter|lampen) (an|einschalten)"
-          - "lichter (an|ein)"
-          - "licht überall (an|ein)"
-          - "überall hell"
-        response: >
-          {% set responses = [
-            "OK, alle Lichter sind an.",
-            "Erledigt, alles erleuchtet.",
-            "Alle Lampen eingeschaltet.",
-            "Lichter sind alle an."
-          ] %}
-          {{ responses | random }}
-
-  # --------------------------------------------------------------------------
   # LICHT STATUS
   # --------------------------------------------------------------------------
   GetLightState:
@@ -555,15 +471,7 @@ intents:
           {% endif %}
 
   # --------------------------------------------------------------------------
-  # LICHT HELLER (Custom Intent f?r Entity)
-  # --------------------------------------------------------------------------
-
-  # --------------------------------------------------------------------------
-  # LICHT HELLER (Custom Intent fuer Entity)
-  # --------------------------------------------------------------------------
-
-  # --------------------------------------------------------------------------
-  # LICHT HELLER (Custom Intent fuer Entity)
+  # LICHT HELLER/DUNKLER (Custom Intent fuer Entity)
   # --------------------------------------------------------------------------
   LightBrighterEntity:
     data:

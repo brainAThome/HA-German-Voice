@@ -99,10 +99,11 @@ LightBrighterEntity:
             'wandel licht': 'light.h61a2_d4ea',
             'wand leuchte': 'light.h61a2_d4ea',
             'wand lampe': 'light.h61a2_d4ea',
-            'bürolicht': 'light.buro',
-            'arbeitszimmerlicht': 'light.buro',
-            'büro licht': 'light.buro',
-            'licht im büro': 'light.buro'
+            'bürolicht': 'light.burolicht',
+            'arbeitszimmerlicht': 'light.burolicht',
+            'büro licht': 'light.burolicht',
+            'licht im büro': 'light.burolicht',
+            'iris': 'light.buro'
           } %}
           {% if name | lower in alias_map %}
             {{ alias_map[name | lower] }}
@@ -141,10 +142,11 @@ LightDarkerEntity:
             'wandel licht': 'light.h61a2_d4ea',
             'wand leuchte': 'light.h61a2_d4ea',
             'wand lampe': 'light.h61a2_d4ea',
-            'bürolicht': 'light.buro',
-            'arbeitszimmerlicht': 'light.buro',
-            'büro licht': 'light.buro',
-            'licht im büro': 'light.buro'
+            'bürolicht': 'light.burolicht',
+            'arbeitszimmerlicht': 'light.burolicht',
+            'büro licht': 'light.burolicht',
+            'licht im büro': 'light.burolicht',
+            'iris': 'light.buro'
           } %}
           {% if name | lower in alias_map %}
             {{ alias_map[name | lower] }}
@@ -183,10 +185,11 @@ LightMaxEntity:
             'wandel licht': 'light.h61a2_d4ea',
             'wand leuchte': 'light.h61a2_d4ea',
             'wand lampe': 'light.h61a2_d4ea',
-            'bürolicht': 'light.buro',
-            'arbeitszimmerlicht': 'light.buro',
-            'büro licht': 'light.buro',
-            'licht im büro': 'light.buro'
+            'bürolicht': 'light.burolicht',
+            'arbeitszimmerlicht': 'light.burolicht',
+            'büro licht': 'light.burolicht',
+            'licht im büro': 'light.burolicht',
+            'iris': 'light.buro'
           } %}
           {% if name | lower in alias_map %}
             {{ alias_map[name | lower] }}
@@ -225,10 +228,11 @@ LightMinEntity:
             'wandel licht': 'light.h61a2_d4ea',
             'wand leuchte': 'light.h61a2_d4ea',
             'wand lampe': 'light.h61a2_d4ea',
-            'bürolicht': 'light.buro',
-            'arbeitszimmerlicht': 'light.buro',
-            'büro licht': 'light.buro',
-            'licht im büro': 'light.buro'
+            'bürolicht': 'light.burolicht',
+            'arbeitszimmerlicht': 'light.burolicht',
+            'büro licht': 'light.burolicht',
+            'licht im büro': 'light.burolicht',
+            'iris': 'light.buro'
           } %}
           {% if name | lower in alias_map %}
             {{ alias_map[name | lower] }}

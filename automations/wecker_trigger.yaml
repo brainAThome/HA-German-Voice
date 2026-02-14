@@ -1,0 +1,79 @@
+# ==============================================================================
+# HA-GERMAN-VOICE - Wecker Trigger Automation
+# ==============================================================================
+# Löst den Wecker aus, wenn die eingestellte Zeit erreicht ist.
+# Prüft bei wiederkehrenden Weckern ob der aktuelle Wochentag passt.
+# Behandelt auch Snooze-Retrigger.
+# ==============================================================================
+
+- id: wecker_zeit_trigger
+  alias: "Wecker: Zeit-Trigger"
+  description: >
+    Feuert wenn die Uhrzeit mit einem aktiven Wecker übereinstimmt.
+    Prüft Wochentag bei wiederkehrenden Weckern.
+  mode: parallel
+  max: 2
+  triggers:
+    # --- Wecker 1: Zeitabgleich ---
+    - trigger: time
+      at: input_datetime.wecker_1_zeit
+      id: wecker_1
+    # --- Wecker 2: Zeitabgleich ---
+    - trigger: time
+      at: input_datetime.wecker_2_zeit
+      id: wecker_2
+  conditions: []
+  actions:
+    - variables:
+        slot: "{{ trigger.id.split('_')[1] }}"
+        ist_aktiv: >
+          {{ states('input_boolean.wecker_' ~ slot ~ '_aktiv') == 'on' }}
+        ist_wiederkehrend: >
+          {{ states('input_boolean.wecker_' ~ slot ~ '_wiederkehrend') == 'on' }}
+        tage_config: >
+          {{ states('input_text.wecker_' ~ slot ~ '_tage') }}
+        heute: >
+          {% set tag_map = ['montag','dienstag','mittwoch','donnerstag','freitag','samstag','sonntag'] %}
+          {{ tag_map[now().weekday()] }}
+    # --- Prüfe ob Wecker aktiv ---
+    - condition: template
+      value_template: "{{ ist_aktiv }}"
+    # --- Prüfe Wochentag bei wiederkehrenden Weckern ---
+    - condition: template
+      value_template: >
+        {% if ist_wiederkehrend %}
+          {{ heute in tage_config.split(',') }}
+        {% else %}
+          true
+        {% endif %}
+    # --- Alarm auslösen ---
+    - action: script.turn_on
+      target:
+        entity_id: script.wecker_alarm_loop
+      data:
+        variables:
+          slot: "{{ slot }}"
+
+# ==============================================================================
+# Snooze Retrigger - Wenn der Snooze-Timer abläuft, klingelt es erneut
+# ==============================================================================
+- id: wecker_snooze_retrigger
+  alias: "Wecker: Snooze Retrigger"
+  description: >
+    Startet den Wecker erneut wenn der Snooze-Timer abläuft.
+    Verwendet den gespeicherten aktiven Slot.
+  mode: single
+  triggers:
+    - trigger: event
+      event_type: timer.finished
+      event_data:
+        entity_id: timer.wecker_snooze
+  actions:
+    - variables:
+        slot: "{{ states('input_text.wecker_aktiver_slot') | int(1) }}"
+    - action: script.turn_on
+      target:
+        entity_id: script.wecker_alarm_loop
+      data:
+        variables:
+          slot: "{{ slot }}"

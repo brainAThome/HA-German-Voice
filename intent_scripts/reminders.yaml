@@ -372,7 +372,7 @@ StopReminder:
     - service: media_player.media_stop
       target:
         entity_id: media_player.vaca_362812d56_mediaplayer
-    - service: media_player.media_stop
+    - service: media_player.media_play_pause
       target:
         entity_id: media_player.spotify_sven
       continue_on_error: true

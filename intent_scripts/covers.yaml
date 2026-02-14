@@ -6,67 +6,67 @@
 
 SetSunProtection:
   action:
-    - service: cover.set_cover_position
+    - action: cover.set_cover_position
       target:
-        entity_id: "{{ 'cover.' ~ name | lower | replace(' ', '_') }}"
+        area_id: "{{ area_id(area) }}"
       data:
         position: 30
   speech:
     text: >
       {% set responses = [
-        "Sonnenschutz für " ~ name ~ " ist jetzt aktiv. Die Rolladen fahren auf 30 Prozent.",
-        "Alles klar, Sonnenschutzmodus für " ~ name ~ " aktiviert.",
-        "OK, " ~ name ~ " Rolladen sind jetzt im Sonnenschutz.",
-        "Erledigt, " ~ name ~ " ist vor der Sonne geschützt.",
-        "Geht klar, Sonnenschutz im " ~ name ~ " ist an."
+        "Sonnenschutz für " ~ area ~ " ist jetzt aktiv. Die Rolladen fahren auf 30 Prozent.",
+        "Alles klar, Sonnenschutzmodus für " ~ area ~ " aktiviert.",
+        "OK, " ~ area ~ " Rolladen sind jetzt im Sonnenschutz.",
+        "Erledigt, " ~ area ~ " ist vor der Sonne geschützt.",
+        "Geht klar, Sonnenschutz im " ~ area ~ " ist an."
       ] %}
       {{ responses | random }}
 
 DisableSunProtection:
   action:
-    - service: cover.open_cover
+    - action: cover.open_cover
       target:
-        entity_id: "{{ 'cover.' ~ name | lower | replace(' ', '_') }}"
+        area_id: "{{ area_id(area) }}"
   speech:
     text: >
       {% set responses = [
-        "Sonnenschutz für " ~ name ~ " ist deaktiviert, die Rolladen fahren wieder hoch.",
-        "Alles klar, " ~ name ~ " Rolladen öffnen sich wieder.",
-        "OK, Sonnenschutz im " ~ name ~ " ist aus.",
-        "Erledigt, " ~ name ~ " Sonnenschutz wurde beendet.",
-        "Geht klar, " ~ name ~ " Rolladen gehen wieder auf."
+        "Sonnenschutz für " ~ area ~ " ist deaktiviert, die Rolladen fahren wieder hoch.",
+        "Alles klar, " ~ area ~ " Rolladen öffnen sich wieder.",
+        "OK, Sonnenschutz im " ~ area ~ " ist aus.",
+        "Erledigt, " ~ area ~ " Sonnenschutz wurde beendet.",
+        "Geht klar, " ~ area ~ " Rolladen gehen wieder auf."
       ] %}
       {{ responses | random }}
 
 EnableCoverAutomation:
   action:
-    - service: input_boolean.turn_on
+    - action: input_boolean.turn_on
       target:
-        entity_id: "input_boolean.rolladen_automatik_{{ name | lower | replace(' ', '_') }}"
+        entity_id: "input_boolean.rolladen_automatik_{{ area | lower | replace(' ', '_') }}"
   speech:
     text: >
       {% set responses = [
-        "Die Rolladen-Automatik für " ~ name ~ " ist jetzt eingeschaltet.",
-        "Alles klar, " ~ name ~ " Automatik ist aktiv.",
-        "OK, automatische Steuerung für " ~ name ~ " läuft.",
-        "Erledigt, " ~ name ~ " wird jetzt automatisch gesteuert.",
-        "Verstanden, Rolladen-Automatik im " ~ name ~ " ist an."
+        "Die Rolladen-Automatik für " ~ area ~ " ist jetzt eingeschaltet.",
+        "Alles klar, " ~ area ~ " Automatik ist aktiv.",
+        "OK, automatische Steuerung für " ~ area ~ " läuft.",
+        "Erledigt, " ~ area ~ " wird jetzt automatisch gesteuert.",
+        "Verstanden, Rolladen-Automatik im " ~ area ~ " ist an."
       ] %}
       {{ responses | random }}
 
 DisableCoverAutomation:
   action:
-    - service: input_boolean.turn_off
+    - action: input_boolean.turn_off
       target:
-        entity_id: "input_boolean.rolladen_automatik_{{ name | lower | replace(' ', '_') }}"
+        entity_id: "input_boolean.rolladen_automatik_{{ area | lower | replace(' ', '_') }}"
   speech:
     text: >
       {% set responses = [
-        "Rolladen-Automatik für " ~ name ~ " ist aus. Du kannst jetzt manuell steuern.",
-        "Alles klar, " ~ name ~ " ist jetzt auf manuelle Steuerung.",
-        "OK, Automatik für " ~ name ~ " deaktiviert.",
-        "Erledigt, " ~ name ~ " läuft jetzt ohne Automatik.",
-        "Verstanden, manuelle Kontrolle für " ~ name ~ " ist an."
+        "Rolladen-Automatik für " ~ area ~ " ist aus. Du kannst jetzt manuell steuern.",
+        "Alles klar, " ~ area ~ " ist jetzt auf manuelle Steuerung.",
+        "OK, Automatik für " ~ area ~ " deaktiviert.",
+        "Erledigt, " ~ area ~ " läuft jetzt ohne Automatik.",
+        "Verstanden, manuelle Kontrolle für " ~ area ~ " ist an."
       ] %}
       {{ responses | random }}
 
@@ -117,39 +117,44 @@ SetCoverScene:
 GetCoverState:
   speech:
     text: >
-      {% set cover = 'cover.' ~ name | lower | replace(' ', '_') %}
-      {% set state = states(cover) %}
-      {% set pos = state_attr(cover, 'current_position') | default(0) %}
-      {% if state == 'open' %}
-        {% set responses = [
-          "Die Rolladen im " ~ name ~ " sind geöffnet, aktuell bei " ~ pos ~ " Prozent.",
-          "Im " ~ name ~ " sind die Rolladen offen, Position " ~ pos ~ " Prozent.",
-          name ~ " Rolladen: offen bei " ~ pos ~ " Prozent."
-        ] %}
-        {{ responses | random }}
-      {% elif state == 'closed' %}
-        {% set responses = [
-          "Die Rolladen im " ~ name ~ " sind komplett geschlossen.",
-          "Im " ~ name ~ " sind die Rolladen zu.",
-          name ~ " Rolladen sind unten."
-        ] %}
-        {{ responses | random }}
-      {% elif state == 'opening' %}
-        {% set responses = [
-          "Die Rolladen im " ~ name ~ " fahren gerade hoch.",
-          "Im " ~ name ~ " öffnen sich die Rolladen gerade.",
-          name ~ " Rolladen sind in Bewegung nach oben."
-        ] %}
-        {{ responses | random }}
-      {% elif state == 'closing' %}
-        {% set responses = [
-          "Die Rolladen im " ~ name ~ " fahren gerade runter.",
-          "Im " ~ name ~ " schließen sich die Rolladen gerade.",
-          name ~ " Rolladen sind in Bewegung nach unten."
-        ] %}
-        {{ responses | random }}
+      {% if name is defined and name %}
+        {% set cover = 'cover.' ~ name | lower | replace(' ', '_') %}
+        {% set display = name %}
+      {% elif area is defined and area %}
+        {% set display = area %}
+        {% set cover = '' %}
       {% else %}
-        {{ name }} hat den Status {{ state }} und ist bei {{ pos }} Prozent.
+        {% set display = 'Unbekannt' %}
+        {% set cover = '' %}
+      {% endif %}
+      {% if cover %}
+        {% set state = states(cover) %}
+        {% set pos = state_attr(cover, 'current_position') | default(0) %}
+        {% if state == 'open' %}
+          {% set responses = [
+            "Die Rolladen im " ~ display ~ " sind geöffnet, aktuell bei " ~ pos ~ " Prozent.",
+            "Im " ~ display ~ " sind die Rolladen offen, Position " ~ pos ~ " Prozent.",
+            display ~ " Rolladen: offen bei " ~ pos ~ " Prozent."
+          ] %}
+          {{ responses | random }}
+        {% elif state == 'closed' %}
+          {% set responses = [
+            "Die Rolladen im " ~ display ~ " sind komplett geschlossen.",
+            "Im " ~ display ~ " sind die Rolladen zu.",
+            display ~ " Rolladen sind unten."
+          ] %}
+          {{ responses | random }}
+        {% elif state == 'opening' %}
+          Die Rolladen im {{ display }} fahren gerade hoch.
+        {% elif state == 'closing' %}
+          Die Rolladen im {{ display }} fahren gerade runter.
+        {% elif state == 'unavailable' %}
+          Die Rolladen im {{ display }} sind gerade nicht erreichbar.
+        {% else %}
+          Die Rolladen im {{ display }} sind bei {{ pos }} Prozent.
+        {% endif %}
+      {% else %}
+        Rolladen in {{ display }}: Raumstatus kann nur für einzelne Rolladen abgefragt werden.
       {% endif %}
 
 ScheduleCover:
