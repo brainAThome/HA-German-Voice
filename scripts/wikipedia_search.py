@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Wikipedia + Ollama Zusammenfasser für HA-German-Voice
-=====================================================
-Sucht einen deutschen Wikipedia-Artikel, lässt Ollama eine
-TTS-taugliche Zusammenfassung erstellen und schreibt das Ergebnis
-als HA-Sensor (sensor.wikipedia_result) via REST API.
+Wikipedia-Suche für HA-German-Voice
+====================================
+Sucht einen deutschen Wikipedia-Artikel und schreibt eine TTS-taugliche
+Zusammenfassung (max. 3 Sätze) als HA-Sensor (sensor.wikipedia_result)
+via REST API.
 
 Verwendung (als shell_command):
   python3 /config/scripts/wikipedia_search.py "Quantenphysik"
@@ -16,8 +16,6 @@ Ergebnis in sensor.wikipedia_result:
 Konfiguration via Umgebungsvariablen:
   HA_API          - HA REST API URL       (default: http://localhost:8123/api)
   HA_TOKEN        - Long-Lived Access Token
-  OLLAMA_API      - Ollama API URL         (default: http://localhost:11434)
-  OLLAMA_MODEL    - Ollama Modell          (default: llama3)
 """
 
 import json
@@ -35,6 +33,7 @@ import logging
 HA_API = os.getenv("HA_API", "http://localhost:8123/api")
 SENSOR_ENTITY = "sensor.wikipedia_result"
 WIKIPEDIA_LANG = "de"
+MAX_SENTENCES = 3  # Max Sätze für TTS-Ausgabe
 
 # HA Token aus secrets_config.py oder Umgebungsvariable
 try:
@@ -42,10 +41,6 @@ try:
     from secrets_config import HA_TOKEN
 except ImportError:
     HA_TOKEN = os.getenv("HA_TOKEN", "")
-
-# ANPASSEN: Ollama-Server URL und Modell
-OLLAMA_API = os.getenv("OLLAMA_API", "http://192.168.178.95:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
 
 # Logging
 LOG_DIR = "/config/logs"
@@ -157,54 +152,31 @@ def _wikipedia_search_fallback(query):
 
 
 # ============================================================================
-# OLLAMA ZUSAMMENFASSUNG
+# TTS-TAUGLICHE ZUSAMMENFASSUNG
 # ============================================================================
 
-def ollama_summarize(text, title):
+def tts_summary(text, max_sentences=MAX_SENTENCES):
     """
-    Lässt Ollama den Wikipedia-Extrakt in 2-3 TTS-taugliche Sätze
-    zusammenfassen. Gibt None zurück bei Fehler.
+    Kürzt den Wikipedia-Extrakt auf max_sentences Sätze und bereinigt
+    ihn für TTS-Ausgabe (keine Klammern, keine Sonderzeichen).
     """
-    prompt = (
-        f'Fasse den folgenden Wikipedia-Artikel über "{title}" in genau '
-        f"2 bis 3 kurzen, gut verständlichen Sätzen zusammen. "
-        f"Die Zusammenfassung soll für eine Sprachausgabe geeignet sein: "
-        f"natürlich klingen, keine Sonderzeichen, keine Aufzählungen, "
-        f"keine URLs, keine Klammern. Duze den Zuhörer nicht. "
-        f"Antworte NUR mit der Zusammenfassung, ohne Einleitung.\n\n"
-        f"Artikel:\n{text}"
-    )
+    import re
 
-    url = f"{OLLAMA_API}/api/generate"
-    data = {
-        "model": OLLAMA_MODEL,
-        "prompt": prompt,
-        "stream": False,
-        "options": {
-            "temperature": 0.3,
-            "num_predict": 250,
-        },
-    }
+    # Klammer-Inhalte entfernen: (geb. 1879) etc.
+    text = re.sub(r"\s*\([^)]*\)", "", text)
+    # Eckige Klammern entfernen: [1], [Anm. 2] etc.
+    text = re.sub(r"\s*\[[^\]]*\]", "", text)
+    # Doppelte Leerzeichen bereinigen
+    text = re.sub(r"\s{2,}", " ", text).strip()
 
-    body = json.dumps(data).encode("utf-8")
-    req = urllib.request.Request(url, data=body, method="POST")
-    req.add_header("Content-Type", "application/json")
+    # Sätze aufteilen (am Punkt, Ausrufezeichen, Fragezeichen)
+    sentences = re.split(r"(?<=[.!?])\s+", text)
+    sentences = [s.strip() for s in sentences if s.strip()]
 
-    try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            result = json.loads(resp.read().decode("utf-8"))
-            summary = result.get("response", "").strip()
-            if summary:
-                log.info("Ollama Zusammenfassung erhalten (%d Zeichen)", len(summary))
-                return summary
-            log.warning("Ollama gab leere Antwort zurück")
-            return None
-    except urllib.error.URLError as e:
-        log.error("Ollama nicht erreichbar (%s): %s", OLLAMA_API, e)
-        return None
-    except Exception as e:
-        log.error("Ollama Fehler: %s", e)
-        return None
+    # Auf max_sentences begrenzen
+    summary = " ".join(sentences[:max_sentences])
+
+    return summary if summary else text[:400]
 
 
 # ============================================================================
@@ -256,20 +228,8 @@ def main():
     title = article["title"]
     log.info("Artikel gefunden: '%s' (%d Zeichen)", title, len(extract))
 
-    # 2. Ollama-Zusammenfassung
-    summary = ollama_summarize(extract, title)
-
-    if not summary:
-        # Fallback: Wikipedia-Extrakt direkt verwenden (gekürzt)
-        log.warning("Ollama nicht erreichbar, verwende Wikipedia-Extrakt direkt")
-        summary = extract
-        if len(summary) > 500:
-            # Am letzten Satzende kürzen
-            cut = summary[:500].rfind(".")
-            if cut > 100:
-                summary = summary[: cut + 1]
-            else:
-                summary = summary[:497] + "..."
+    # 2. TTS-taugliche Zusammenfassung (max. 3 Sätze, bereinigt)
+    summary = tts_summary(extract)
 
     log.info("Zusammenfassung (%d Zeichen): %s", len(summary), summary[:100])
 
