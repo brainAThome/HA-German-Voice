@@ -102,12 +102,11 @@
 - **Stopp via HA API** (`SPOTIFY_STOP_PAUSE_VIA_HA=True`) — kein Spotify Connect Auto-Reconnect
 - **Display-Navigation**: Automatisch Music-View bei Wiedergabe, Clock-View bei Stopp
 
-### 📚 Wikipedia (mit Ollama-Zusammenfassung)
+### 📚 Wikipedia-Suche
 - **Sprachsuche**: "Wikipedia Quantenphysik" / "Was sagt Wikipedia zu Einstein?"
-- **Ollama-Zusammenfassung**: Wikipedia-Extrakt wird von Ollama in 2-3 TTS-taugliche Sätze zusammengefasst
-- **Fallback**: Falls Ollama nicht erreichbar, wird der Wikipedia-Extrakt direkt verwendet
+- **TTS-optimiert**: Wikipedia-Extrakt wird automatisch auf max. 3 Sätze gekürzt und für Sprachausgabe bereinigt (keine Klammern, Fußnoten etc.)
 - **Freitext-Suche**: Findet auch Artikel bei ungenauen Begriffen (Wikipedia Search API Fallback)
-- **Kein Konflikt mit Ollama-Fallback**: Expliziter Trigger ("Wikipedia ...") — freie Wissensfragen gehen weiterhin direkt an Ollama
+- **Schnell**: Keine KI-Verarbeitung — Ergebnis in unter 1 Sekunde
 
 ### 🎵 Medien
 - **Wiedergabe**: "Spiele Musik ab" / "Pause" / "Weiter"
@@ -153,7 +152,7 @@ ha-german-voice/
 │   ├── spotify_monitor_supervisor.sh # Supervisor mit auto-restart
 │   ├── spotify_voice.py            # Spotify Web API Bridge
 │   ├── spotify.env.example         # Beispiel-Konfiguration für Monitor
-│   ├── wikipedia_search.py         # Wikipedia + Ollama Zusammenfasser
+│   ├── wikipedia_search.py         # Wikipedia-Suche + TTS-Zusammenfassung
 │   └── download_radio_logos.py     # Radio-Logos herunterladen
 ├── intent_scripts/                 # Intent Scripts (modular, 125 Intents)
 │   ├── alarm.yaml                  # Wecker/Alarm
