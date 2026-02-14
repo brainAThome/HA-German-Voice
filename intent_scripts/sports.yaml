@@ -98,7 +98,10 @@ GetNextMatch:
 # BUNDESLIGA TABELLE
 # ============================================================================
 GetBundesligaTable:
+  async_action: true
   action:
+    - delay:
+        seconds: 2
     - action: view_assist.navigate
       data:
         device: sensor.jarvis_speaker
@@ -152,7 +155,10 @@ GetTeamPosition:
       {% endif %}
 
 ShowSportsView:
+  async_action: true
   action:
+    - delay:
+        seconds: 2
     - action: view_assist.navigate
       data:
         device: sensor.jarvis_speaker
@@ -180,7 +186,10 @@ ShowSportsView:
 # TABELLEN-VIEW ANZEIGEN
 # ============================================================================
 ShowTableView:
+  async_action: true
   action:
+    - delay:
+        seconds: 2
     - action: view_assist.navigate
       data:
         device: sensor.jarvis_speaker
