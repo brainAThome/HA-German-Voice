@@ -98,6 +98,12 @@ GetNextMatch:
 # BUNDESLIGA TABELLE
 # ============================================================================
 GetBundesligaTable:
+  action:
+    - action: view_assist.navigate
+      data:
+        device: sensor.jarvis_speaker
+        path: /view-assist/bundesliga-tabelle
+        timeout: 30
   speech:
     text: >
       {% set tabelle = state_attr('sensor.bundesliga_tabelle', 'table') %}
@@ -146,6 +152,12 @@ GetTeamPosition:
       {% endif %}
 
 ShowSportsView:
+  action:
+    - action: view_assist.navigate
+      data:
+        device: sensor.jarvis_speaker
+        path: /view-assist/sports
+        timeout: 30
   speech:
     text: >
       {% set tracker = 'sensor.werder_bremen' %}
@@ -168,6 +180,12 @@ ShowSportsView:
 # TABELLEN-VIEW ANZEIGEN
 # ============================================================================
 ShowTableView:
+  action:
+    - action: view_assist.navigate
+      data:
+        device: sensor.jarvis_speaker
+        path: /view-assist/bundesliga-tabelle
+        timeout: 30
   speech:
     text: >
       {% set tabelle = state_attr('sensor.bundesliga_tabelle', 'table') %}
