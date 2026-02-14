@@ -1,0 +1,74 @@
+# ================================================================================
+# HA-GERMAN-VOICE - Deutsche Sport-Sprachbefehle
+# ================================================================================
+# Bundesliga / Fußball Ergebnisse via TeamTracker
+# ✅ Expansion Rules für natürliche Sprache
+# ⚙️  Custom Intents → benötigen intent_script für Aktionen
+# ================================================================================
+# GitHub: https://github.com/brainAThome/HA-German-Voice
+# Version: 1.0.0
+# ================================================================================
+
+language: de
+
+# ============================================================================
+# EXPANSION RULES
+# ============================================================================
+expansion_rules:
+  polite_sport: "[bitte|mal|doch]"
+  polite_q_sport: "(könntest|kannst|würdest) du [bitte|mal]"
+  sport_verb: "(steht|stand|war|ist|lief|läuft|ging|geht)"
+  werder_name: "(werder [bremen]|bremen|svw)"
+  match_noun: "(spiel|match|partie|begegnung)"
+  result_noun: "(ergebnis|spielstand|resultat|endergebnis|stand)"
+  next_word: "(nächste|nächstes|kommende|kommendes)"
+  last_word: "(letzte|letztes|vergangene|vergangenes)"
+
+# ============================================================================
+# INTENTS
+# ============================================================================
+intents:
+  # --------------------------------------------------------------------------
+  # AKTUELLES/LETZTES ERGEBNIS
+  # --------------------------------------------------------------------------
+  GetSportsResult:
+    data:
+      - sentences:
+          # Direkt: "Wie hat Werder gespielt?"
+          - "wie hat <werder_name> [heute|gestern] (gespielt|abgeschnitten)"
+          - "wie <sport_verb> es [bei|für|um] <werder_name>"
+          - "was [<sport_verb>] [das] <result_noun> [von|bei|für] <werder_name>"
+          - "[<polite_q_sport>][<polite_sport>][das] <result_noun> [von] <werder_name>"
+          - "hat <werder_name> (gewonnen|verloren|gespielt)"
+          - "<werder_name> <result_noun>"
+          # Allgemein Fußball
+          - "[<polite_q_sport>][<polite_sport>](fussball|fußball|bundesliga) <result_noun>[e]"
+          - "wie <sport_verb> es in der bundesliga"
+          - "was (macht|sagt) die bundesliga"
+          - "[<polite_sport>]sag mir [bitte] [das] <result_noun> [von] <werder_name>"
+          # Kurz
+          - "[und] <werder_name>"
+          - "<werder_name> [<result_noun>] [heute|gestern]"
+
+  # --------------------------------------------------------------------------
+  # NÄCHSTES SPIEL
+  # --------------------------------------------------------------------------
+  GetNextMatch:
+    data:
+      - sentences:
+          - "wann (spielt|ist) [das] <next_word> <match_noun> [von] <werder_name>"
+          - "wann spielt <werder_name> [als nächstes|wieder|das nächste mal]"
+          - "<next_word> <match_noun> [von] <werder_name>"
+          - "gegen wen spielt <werder_name> [als nächstes]"
+          - "wer ist [der] nächste gegner [von] <werder_name>"
+          - "wann ist [das nächste] (bundesliga|werder) <match_noun>"
+
+  # --------------------------------------------------------------------------
+  # SPORTS VIEW ANZEIGEN
+  # --------------------------------------------------------------------------
+  ShowSportsView:
+    data:
+      - sentences:
+          - "[<polite_sport>]zeig [mir] [die|das] (sport|sports|bundesliga|fussball|fußball|werder)[karte|ergebnis|ansicht|anzeige|view]"
+          - "[<polite_sport>]zeig [mir] <werder_name> [auf dem display|auf dem bildschirm]"
+          - "[<polite_sport>](sport|sports|fussball|fußball|bundesliga) [anzeige|karte|ansicht] [anzeigen|zeigen]"

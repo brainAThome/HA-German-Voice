@@ -1,0 +1,113 @@
+# ============================================================================
+# SPORT INTENTS - Modulare Datei
+# ============================================================================
+# Teil von: intent_script: !include_dir_merge_named intent_scripts/
+# Verwendet: sensor.werder_bremen (TeamTracker)
+# ============================================================================
+
+GetSportsResult:
+  speech:
+    text: >
+      {% set tracker = 'sensor.werder_bremen' %}
+      {% set game_state = states(tracker) %}
+      {% set team = state_attr(tracker, 'team_name') %}
+      {% set team_long = state_attr(tracker, 'team_long_name') %}
+      {% set opponent = state_attr(tracker, 'opponent_long_name') or state_attr(tracker, 'opponent_name') %}
+      {% set team_score = state_attr(tracker, 'team_score') %}
+      {% set opponent_score = state_attr(tracker, 'opponent_score') %}
+      {% set venue = state_attr(tracker, 'venue') %}
+      {% set homeaway = state_attr(tracker, 'team_homeaway') %}
+      {% set team_won = state_attr(tracker, 'team_winner') %}
+      {% set kickoff = state_attr(tracker, 'kickoff_in') %}
+      {% set clock = state_attr(tracker, 'clock') %}
+      {% set event = state_attr(tracker, 'event_name') %}
+      {% if game_state == 'POST' %}
+        {% if team_won == true %}
+          {% set results = [
+            team_long ~ " hat gegen " ~ opponent ~ " gewonnen! " ~ team_score ~ " zu " ~ opponent_score ~ "!",
+            "Sieg für " ~ team_long ~ "! " ~ team_score ~ " zu " ~ opponent_score ~ " gegen " ~ opponent ~ ".",
+            team_long ~ " gewinnt " ~ team_score ~ " zu " ~ opponent_score ~ " gegen " ~ opponent ~ ". Klasse!",
+            "Jawoll! " ~ team_long ~ " schlägt " ~ opponent ~ " mit " ~ team_score ~ " zu " ~ opponent_score ~ "!"
+          ] %}
+        {% elif team_score == opponent_score %}
+          {% set results = [
+            team_long ~ " hat " ~ team_score ~ " zu " ~ opponent_score ~ " gegen " ~ opponent ~ " unentschieden gespielt.",
+            "Remis zwischen " ~ team_long ~ " und " ~ opponent ~ ". " ~ team_score ~ " zu " ~ opponent_score ~ ".",
+            team_long ~ " trennt sich " ~ team_score ~ " zu " ~ opponent_score ~ " von " ~ opponent ~ "."
+          ] %}
+        {% else %}
+          {% set results = [
+            team_long ~ " hat leider gegen " ~ opponent ~ " verloren. " ~ team_score ~ " zu " ~ opponent_score ~ ".",
+            "Niederlage für " ~ team_long ~ ". " ~ team_score ~ " zu " ~ opponent_score ~ " gegen " ~ opponent ~ ".",
+            team_long ~ " verliert " ~ team_score ~ " zu " ~ opponent_score ~ " gegen " ~ opponent ~ ". Schade."
+          ] %}
+        {% endif %}
+        {{ results | random }}
+      {% elif game_state == 'IN' %}
+        {% set results = [
+          "Das Spiel läuft gerade! " ~ team_long ~ " gegen " ~ opponent ~ ": " ~ team_score ~ " zu " ~ opponent_score ~ ". " ~ clock ~ " gespielt.",
+          "Live: " ~ team_long ~ " " ~ team_score ~ " zu " ~ opponent_score ~ " " ~ opponent ~ ". Spielminute " ~ clock ~ ".",
+          "Es steht " ~ team_score ~ " zu " ~ opponent_score ~ " zwischen " ~ team_long ~ " und " ~ opponent ~ ". " ~ clock ~ "."
+        ] %}
+        {{ results | random }}
+      {% elif game_state == 'PRE' %}
+        {% set results = [
+          "Das nächste Spiel von " ~ team_long ~ " ist gegen " ~ opponent ~ ". Anstoß " ~ kickoff ~ ".",
+          team_long ~ " spielt als nächstes gegen " ~ opponent ~ ". " ~ kickoff ~ " geht es los.",
+          "Noch kein Spielergebnis. " ~ team_long ~ " trifft " ~ kickoff ~ " auf " ~ opponent ~ "."
+        ] %}
+        {{ results | random }}
+      {% elif game_state == 'BYE' %}
+        {{ team_long }} hat diese Woche spielfrei.
+      {% else %}
+        Ich konnte leider keine aktuellen Ergebnisse für {{ team_long }} finden.
+      {% endif %}
+
+GetNextMatch:
+  speech:
+    text: >
+      {% set tracker = 'sensor.werder_bremen' %}
+      {% set game_state = states(tracker) %}
+      {% set team_long = state_attr(tracker, 'team_long_name') %}
+      {% set opponent = state_attr(tracker, 'opponent_long_name') or state_attr(tracker, 'opponent_name') %}
+      {% set kickoff = state_attr(tracker, 'kickoff_in') %}
+      {% set venue = state_attr(tracker, 'venue') %}
+      {% set homeaway = state_attr(tracker, 'team_homeaway') %}
+      {% if game_state == 'PRE' %}
+        {% set ha = 'zu Hause' if homeaway == 'home' else 'auswärts' %}
+        {% set results = [
+          team_long ~ " spielt " ~ kickoff ~ " " ~ ha ~ " gegen " ~ opponent ~ " im " ~ venue ~ ".",
+          "Das nächste Spiel: " ~ team_long ~ " gegen " ~ opponent ~ ", " ~ kickoff ~ ". Spielort: " ~ venue ~ ".",
+          kickoff | capitalize ~ " trifft " ~ team_long ~ " " ~ ha ~ " auf " ~ opponent ~ "."
+        ] %}
+        {{ results | random }}
+      {% elif game_state == 'IN' %}
+        Das Spiel läuft gerade! {{ team_long }} gegen {{ opponent }}.
+      {% elif game_state == 'POST' %}
+        {% set results = [
+          "Das letzte Spiel gegen " ~ opponent ~ " ist vorbei. Das nächste Spiel wird bald aktualisiert.",
+          team_long ~ " hat zuletzt gegen " ~ opponent ~ " gespielt. Der nächste Spieltermin wird noch geladen."
+        ] %}
+        {{ results | random }}
+      {% else %}
+        Ich konnte den nächsten Spieltermin von {{ team_long }} leider nicht finden.
+      {% endif %}
+
+ShowSportsView:
+  speech:
+    text: >
+      {% set tracker = 'sensor.werder_bremen' %}
+      {% set game_state = states(tracker) %}
+      {% set team_long = state_attr(tracker, 'team_long_name') %}
+      {% set opponent = state_attr(tracker, 'opponent_long_name') or state_attr(tracker, 'opponent_name') %}
+      {% set team_score = state_attr(tracker, 'team_score') %}
+      {% set opponent_score = state_attr(tracker, 'opponent_score') %}
+      {% if game_state == 'POST' %}
+        Hier die Sportkarte. {{ team_long }} gegen {{ opponent }}: {{ team_score }} zu {{ opponent_score }}.
+      {% elif game_state == 'IN' %}
+        Hier die Live-Ansicht. {{ team_long }} gegen {{ opponent }}: {{ team_score }} zu {{ opponent_score }}.
+      {% elif game_state == 'PRE' %}
+        Hier die Sportkarte. {{ team_long }} spielt demnächst gegen {{ opponent }}.
+      {% else %}
+        Hier die Sportkarte.
+      {% endif %}
