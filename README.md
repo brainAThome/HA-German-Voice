@@ -1,9 +1,9 @@
 # 🇩🇪 HA-German-Voice
 
-**Deutsche Sprachbefehle für Home Assistant** — Modulare Custom Sentences + Intent Scripts für Assist/Voice Pipelines mit View Assist (VACA) Display-Integration.
+**Deutsche Sprachbefehle für Home Assistant** — Custom Sentences + Intent Scripts für Assist/Voice Pipelines mit View Assist (VACA) Display-Integration.
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1+-blue.svg)](https://www.home-assistant.io/)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2023.7+-blue.svg)](https://www.home-assistant.io/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
@@ -38,7 +38,7 @@
 - **Alarm-Loop**: Nativer VA Alarm-Switch mit TTS-Ansage, automatischer Stopp nach 5 Min oder per Sprachbefehl
 
 ### 🛑 Universeller Stopp & Löschen
-- **Stopp**: "Stopp" / "Halt" / "OK" — bricht laufenden Alarm ab (Erinnerung ODER Wecker), stoppt Alarm-Switch, beendet Alarm-Loop, räumt Display auf
+- **Stopp**: "Stopp" / "Halt" / "Es reicht" / "Sei still" — bricht laufenden Alarm ab (Erinnerung ODER Wecker), stoppt Alarm-Switch, beendet Alarm-Loop, räumt Display auf
 - **Löschen getrennt**: "Lösche alle Erinnerungen" → nur Erinnerungen | "Lösche alle Wecker" → nur Wecker | "Lösche alles" → beides
 - **Aufräumen**: Display-Navigation zurück zur Uhr, `view_timeout` zurückgesetzt, Nachricht gelöscht
 
@@ -67,7 +67,7 @@
 - **Area-basiert**: "Licht im Bad an" (automatisches Area-Matching)
 - **Alias-Support**: STT-Fehler wie "Wadenlicht" → Wandlicht werden erkannt
 
-### 🔊 Echo/VACA Steuerung (Jailbroken Echo Show 5)
+### 🔊 Echo/VACA Steuerung (VACA Companion)
 - **Sprachlautstärke**: "Sprachlautstärke auf 8" / "Sprachlautstärke lauter"
 - **Musiklautstärke**: "Musiklautstärke auf 5" / "Musiklautstärke leiser"
 - **Gesamtlautstärke**: "Lautstärke auf 7" / "Lauter" / "Leiser"
@@ -92,12 +92,14 @@
 - **Now Playing**: "Was spielt gerade auf Spotify?" mit Artist, Titel, Album
 - **Spotify Web API**: Direkte Suche über die Spotify API — kein Spotcast nötig
 
-### 🎛️ Spotify Monitor (ADB Daemon)
-- **Track Monitor**: Erkennt Titelwechsel/Play/Pause via ADB MediaSession → HA Entity-Update
-- **Keep-Alive**: Hält Spotify App permanent am Leben (Doze-Whitelist, 30s Prozess-Check)
-- **Audio-Ducking**: Pausiert Musik automatisch bei Sprachbefehlen via ADB KeyEvent
-  - Race-Condition-sicher: Boolean ON vor ADB-Befehlen, Polling mit 15s Timeout
-  - MEDIA_STOP bei Stopp-Intent → kein Spotify Connect Auto-Reconnect
+### 🎛️ Spotify Monitor (HA API + ADB Fallback)
+- **Track Monitor**: Erkennt Titelwechsel/Play/Pause → HA Entity-Update
+- **Keep-Alive**: Hält Spotify App permanent im Hintergrund am Leben (Doze-Whitelist, 30s Prozess-Check)
+- **Audio-Ducking**: Pausiert Musik automatisch bei Sprachbefehlen
+  - **Primär via HA API** (`SPOTIFY_DUCKING_CONTROL_VIA_HA=True`) — `media_player.media_pause/play`
+  - **ADB Fallback**: Optional via ADB KeyEvent wenn HA API deaktiviert
+  - Race-Condition-sicher: Boolean ON vor Befehlen, Polling mit 15s Timeout
+- **Stopp via HA API** (`SPOTIFY_STOP_PAUSE_VIA_HA=True`) — kein Spotify Connect Auto-Reconnect
 - **Display-Navigation**: Automatisch Music-View bei Wiedergabe, Clock-View bei Stopp
 
 ### 🎵 Medien
@@ -112,7 +114,9 @@
 ```
 ha-german-voice/
 ├── automations/                    # Sentence Trigger Automations
-│   └── general_stop.yaml           # Stopp-Automation (Priorität über HA-Builtins)
+│   ├── general_stop.yaml           # Stopp-Automation (kontextabhängig: Spotify/Radio/Default)
+│   ├── wecker_trigger.yaml         # Wecker Zeit-Trigger Automation
+│   └── echo_screen_fix.yaml        # Echo Display Fix
 ├── custom_components/              # Custom Components
 │   └── jarvis_router/              # Conversation Agent Router
 │       ├── __init__.py
@@ -136,7 +140,7 @@ ha-german-voice/
 │   ├── erinnerung_scripts.yaml     # Erinnerungs-Watcher Scripts
 │   ├── wecker_scripts.yaml         # Wecker Alarm-Loop Script
 │   ├── radio_search.py             # Radio Browser API Suche
-│   ├── spotify_monitor.py          # ADB Track Monitor + Ducking Daemon
+│   ├── spotify_monitor.py          # Spotify Monitor (HA API + ADB Fallback)
 │   ├── spotify_monitor_start.sh    # Startskript für Monitor
 │   ├── spotify_monitor_supervisor.sh # Supervisor mit auto-restart
 │   ├── spotify_voice.py            # Spotify Web API Bridge
@@ -146,6 +150,7 @@ ha-german-voice/
 │   └── radio_logos/                # Senderlogos (PNG)
 │       └── radio_default.png       # Fallback-Logo
 ├── docs/                           # Dokumentation
+├── intent_script.yaml              # Alle Intent Scripts (124 Intents)
 ├── conversation_logging.yaml       # Konversations-Logging
 ├── hacs.json                       # HACS Konfiguration
 ├── CHANGELOG.md
@@ -321,6 +326,8 @@ Die Erinnerungs-Automationen (`Erinnerung: Timer abgelaufen` und `Erinnerung: Uh
 
 > ⚠️ **ANPASSEN**: Entity-IDs für deinen VACA Satellite, Alarm-Switch und Sprachlautstärke
 
+> 📝 **Hinweis**: Alle mitgelieferten Dateien (`erinnerung_scripts.yaml`, `wecker_scripts.yaml`, `general_stop.yaml`, `spotify_monitor.py`) enthalten Beispiel-Entity-IDs (`vaca_362812d56`, `sensor.quasselbuechse`). Suche in jeder Datei nach `ANPASSEN` und ersetze die Entity-IDs durch deine eigenen VACA-Entities.
+
 ### 5. Wecker-Automationen & Script
 
 Die Wecker-Automationen (`Wecker: Zeit-Trigger` und `Wecker: Snooze Retrigger`) triggern das `wecker_alarm_loop` Script:
@@ -441,14 +448,19 @@ User: "Erinnere mich in 5 Minuten an Pizza"
 ### Stopp/Löschen-Logik
 
 ```
-"Stopp" / "Halt" / "OK"
-  → StopReminder / StopWecker (identische Aktionen)
-  → Alarm-Switch OFF
-  → Wecker-Klingeln OFF
-  → Media-Player STOP
-  → Erinnerungs-Automationen abbrechen + neu aktivieren
-  → Wecker-Alarm-Loop-Script stoppen
-  → Display aufräumen (view_timeout, message, clock)
+"Stopp" / "Halt" / "Sei still" / "Es reicht" / ...
+  ├─ Sentence Trigger → general_stop_sentence_trigger
+  │   ├─ Wecker-Klingeln OFF (immer)
+  │   └─ choose (kontextabhängig):
+  │       ├─ Spotify playing → Ducking OFF + Spotify pausieren + Clock
+  │       ├─ Radio playing  → Radio pausieren + Clock
+  │       └─ Default        → Alles stoppen (Spotify, Radio, Media, Clock)
+  │
+  ├─ StopReminder / StopWecker (Intent Scripts, identische Aktionen):
+  │   → Alarm-Switch OFF, Wecker-Klingeln OFF, Media STOP
+  │   → Erinnerungs-Automationen abbrechen + neu aktivieren
+  │   → Wecker-Alarm-Loop-Script stoppen
+  │   → Display aufräumen (view_timeout, message, → Clock)
 
 "Lösche alle Erinnerungen"
   → DeleteReminder: Stopp + Timer cancel + Erinnerungen deaktivieren
@@ -464,10 +476,10 @@ User: "Erinnere mich in 5 Minuten an Pizza"
 
 ## 🔧 Voraussetzungen
 
-- **Home Assistant 2024.1+** (für Entity/Area Slots)
+- **Home Assistant 2023.7+** (für Entity/Area Slots)
 - Wetter-Integration (z.B. Met.no)
 - Assist/Voice Pipeline aktiviert
-- Für Echo-Steuerung: VACA Integration mit jailbroken Echo Show 5
+- Für Echo-Steuerung: VACA Companion Integration (Echo Show 5 o.Ä. mit LineageOS)
 - Für Info-Karte: View Assist mit `/view-assist/info` View
 - Für LLM-Fallback: Ollama Server + Ollama Conversation Integration
 - Für Radio: Radio Browser API (über `radio_search.py`)
