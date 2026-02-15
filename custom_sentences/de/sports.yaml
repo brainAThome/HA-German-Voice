@@ -131,12 +131,20 @@ intents:
   GetTeamPosition:
     data:
       - sentences:
+          # Position / Tabelle
           - "[<polite_sport>]auf welchem platz (steht|ist) {team_name}"
           - "[<polite_sport>]welcher (platz|tabellenplatz) [ist] {team_name}"
           - "[<polite_sport>]wie <sport_verb> es [um|für|bei] {team_name} [in der tabelle]"
           - "[<polite_sport>]wo (steht|ist) {team_name} [in der tabelle|in der bundesliga]"
           - "[<polite_sport>]{team_name} (platz|tabellenplatz|position|tabelle)"
           - "[<polite_sport>]was macht {team_name} [in der bundesliga|in der liga]"
+          # Ergebnis-Fragen (Fallback: Tabellenposition)
+          - "wie hat [der|die|das|den] {team_name} [heute|gestern] (gespielt|abgeschnitten)"
+          - "hat [der|die|das|den] {team_name} (gewonnen|verloren|gespielt)"
+          - "wie <sport_verb> es [bei|für|um] [der|die|das|den] {team_name}"
+          - "was [<sport_verb>] [das] <result_noun> [von|bei|für] [der|die|das|den] {team_name}"
+          - "[der|die|das|den] {team_name} [<result_noun>] [heute|gestern]"
+          - "[<polite_sport>]sag mir [bitte] [das] <result_noun> [von] [der|die|das|den] {team_name}"
 
   # --------------------------------------------------------------------------
   # SPORTS VIEW ANZEIGEN
