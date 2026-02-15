@@ -20,6 +20,7 @@ Konfiguration via Umgebungsvariablen:
 
 import json
 import os
+import re
 import sys
 import urllib.request
 import urllib.parse
@@ -76,6 +77,186 @@ def ha_set_state(entity_id, state, attributes=None):
     except Exception as e:
         log.error("HA API Fehler: %s", e)
         return None
+
+
+# ============================================================================
+# ROLLEN-ERKENNUNG (Trainer, Präsident, …) via Wikidata
+# ============================================================================
+
+# Rollen-Keywords → Wikidata-Properties
+ROLE_MAP = {
+    "trainer": "P286",       # head coach
+    "cheftrainer": "P286",
+    "coach": "P286",
+    "manager": "P286",
+    "präsident": "P488",     # chairperson
+    "vorsitzender": "P488",
+    "vorsitzende": "P488",
+}
+
+
+def detect_role_query(query):
+    """Erkennt Rollen-Fragen wie 'Trainer von Bayern München'.
+
+    Returns:
+        (role, wikidata_property, entity_name) oder (None, None, None)
+    """
+    q = query.lower().strip()
+    # Führende Fragewörter / Artikel entfernen
+    q = re.sub(
+        r"^(wer\s+ist\s+|wer\s+war\s+|wie\s+heißt\s+)"
+        r"(der\s+|die\s+|das\s+|den\s+|dem\s+)?",
+        "", q,
+    ).strip()
+    # Weitere führende Artikel
+    q = re.sub(r"^(den|der|die|das|dem)\s+", "", q).strip()
+
+    for role, prop in ROLE_MAP.items():
+        if q.startswith(role):
+            # Entity-Name extrahieren (Rolle + optionale Präposition entfernen)
+            entity = re.sub(
+                r"^" + re.escape(role) + r"\s*(von|vom|des|der|bei|beim)?\s*",
+                "", q,
+            ).strip()
+            if entity:
+                return role, prop, entity
+    return None, None, None
+
+
+def _wikidata_find_entity(article_title):
+    """Findet die Wikidata-Entity-ID für einen Wikipedia-Artikeltitel."""
+    encoded = urllib.parse.quote(article_title)
+    url = (
+        f"https://{WIKIPEDIA_LANG}.wikipedia.org/w/api.php?"
+        f"action=query&titles={encoded}&prop=pageprops&format=json"
+    )
+    req = urllib.request.Request(url)
+    req.add_header("User-Agent", "HA-German-Voice/1.0")
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    for page in data.get("query", {}).get("pages", {}).values():
+        return page.get("pageprops", {}).get("wikibase_item", "")
+    return ""
+
+
+def _wikidata_get_role_person(entity_id, property_id):
+    """Holt die aktuelle Person für eine Rolle aus Wikidata.
+
+    Bevorzugt den Eintrag mit rank='preferred' (= aktuell).
+    """
+    url = (
+        f"https://www.wikidata.org/w/api.php?"
+        f"action=wbgetclaims&entity={entity_id}&property={property_id}&format=json"
+    )
+    req = urllib.request.Request(url)
+    req.add_header("User-Agent", "HA-German-Voice/1.0")
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+
+    claims = data.get("claims", {}).get(property_id, [])
+    preferred = None
+    latest_normal = None
+    for claim in claims:
+        pid = (claim.get("mainsnak", {})
+               .get("datavalue", {})
+               .get("value", {})
+               .get("id", ""))
+        rank = claim.get("rank", "")
+        if rank == "preferred":
+            preferred = pid
+            break
+        if rank == "normal":
+            latest_normal = pid
+
+    person_id = preferred or latest_normal
+    if not person_id:
+        return None, None
+
+    # Label der Person holen
+    label_url = (
+        f"https://www.wikidata.org/w/api.php?"
+        f"action=wbgetentities&ids={person_id}"
+        f"&props=labels&languages=de|en&format=json"
+    )
+    req2 = urllib.request.Request(label_url)
+    req2.add_header("User-Agent", "HA-German-Voice/1.0")
+    with urllib.request.urlopen(req2, timeout=10) as resp2:
+        data2 = json.loads(resp2.read().decode("utf-8"))
+    labels = data2.get("entities", {}).get(person_id, {}).get("labels", {})
+    name = (labels.get("de", {}).get("value", "")
+            or labels.get("en", {}).get("value", ""))
+    return name, person_id
+
+
+def try_role_query(query):
+    """Versucht eine Rollen-Frage über Wikidata zu beantworten.
+
+    Returns:
+        dict mit title, extract, url, summary   oder  None
+    """
+    role, prop, entity = detect_role_query(query)
+    if not role:
+        return None
+
+    log.info("Rollen-Frage erkannt: %s → Eigenschaft %s, Entität '%s'", role, prop, entity)
+
+    # 1. Wikipedia-Artikel für die Entität finden
+    encoded = urllib.parse.quote(entity)
+    search_url = (
+        f"https://{WIKIPEDIA_LANG}.wikipedia.org/w/api.php?"
+        f"action=query&list=search&srsearch={encoded}"
+        f"&srnamespace=0&srlimit=1&format=json"
+    )
+    req = urllib.request.Request(search_url)
+    req.add_header("User-Agent", "HA-German-Voice/1.0")
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    results = data.get("query", {}).get("search", [])
+    if not results:
+        log.info("Kein Wikipedia-Artikel für '%s' gefunden", entity)
+        return None
+
+    article_title = results[0]["title"]
+    log.info("Wikipedia-Artikel: '%s'", article_title)
+
+    # 2. Wikidata-ID holen
+    wikidata_id = _wikidata_find_entity(article_title)
+    if not wikidata_id:
+        log.info("Keine Wikidata-ID für '%s'", article_title)
+        return None
+    log.info("Wikidata-ID: %s", wikidata_id)
+
+    # 3. Person für die Rolle holen
+    person_name, person_id = _wikidata_get_role_person(wikidata_id, prop)
+    if not person_name:
+        log.info("Keine Person für %s/%s gefunden", wikidata_id, prop)
+        return None
+    log.info("%s von '%s' ist: %s (%s)", role.capitalize(), article_title, person_name, person_id)
+
+    # 4. Wikipedia-Summary der Person holen
+    person_extract = ""
+    person_url = ""
+    try:
+        person_article = wikipedia_summary(person_name)
+        if person_article:
+            person_extract = person_article.get("extract", "")
+            person_url = person_article.get("url", "")
+    except Exception as e:
+        log.warning("Wikipedia-Summary für '%s' fehlgeschlagen: %s", person_name, e)
+
+    # 5. TTS-Antwort zusammenbauen
+    answer = f"Der {role.capitalize()} von {article_title} ist {person_name}."
+    if person_extract:
+        # Ersten Satz der Person anhängen für Kontext
+        person_summary = tts_summary(person_extract, max_sentences=2)
+        answer += f" {person_summary}"
+
+    return {
+        "title": person_name,
+        "extract": person_extract or answer,
+        "url": person_url,
+        "summary": answer,
+    }
 
 
 # ============================================================================
@@ -162,8 +343,6 @@ def tts_summary(text, max_sentences=MAX_SENTENCES):
     Erkennt deutsche Abkürzungen (e. V., z. B.) und Ordinalzahlen (27.)
     korrekt, sodass Sätze nicht mitten im Text abgeschnitten werden.
     """
-    import re
-
     # Klammer-Inhalte entfernen: (geb. 1879) etc.
     text = re.sub(r"\s*\([^)]*\)", "", text)
     # Eckige Klammern entfernen: [1], [Anm. 2] etc.
@@ -242,7 +421,27 @@ def main():
         "url": "",
     })
 
-    # 1. Wikipedia-Artikel holen
+    # 1. Rollen-Frage prüfen (Trainer, Präsident, …)
+    role_result = None
+    try:
+        role_result = try_role_query(query)
+    except Exception as e:
+        log.warning("Rollen-Abfrage fehlgeschlagen: %s", e)
+
+    if role_result and role_result.get("summary"):
+        log.info("Rollen-Antwort: %s", role_result["summary"][:100])
+        ha_set_state(SENSOR_ENTITY, "ready", {
+            "friendly_name": "Wikipedia Ergebnis",
+            "summary": role_result["summary"],
+            "extract": role_result.get("extract", ""),
+            "query": query,
+            "title": role_result.get("title", ""),
+            "url": role_result.get("url", ""),
+        })
+        log.info("Ergebnis (Rollen-Frage) in sensor.wikipedia_result geschrieben")
+        return
+
+    # 2. Normaler Wikipedia-Artikel
     article = wikipedia_summary(query)
 
     if not article or not article.get("extract"):
@@ -261,12 +460,12 @@ def main():
     title = article["title"]
     log.info("Artikel gefunden: '%s' (%d Zeichen)", title, len(extract))
 
-    # 2. TTS-taugliche Zusammenfassung (max. 5 Sätze, bereinigt)
+    # 3. TTS-taugliche Zusammenfassung (max. 5 Sätze, bereinigt)
     summary = tts_summary(extract)
 
     log.info("Zusammenfassung (%d Zeichen): %s", len(summary), summary[:100])
 
-    # 3. Ergebnis in HA-Sensor schreiben
+    # 4. Ergebnis in HA-Sensor schreiben
     ha_set_state(SENSOR_ENTITY, "ready", {
         "friendly_name": "Wikipedia Ergebnis",
         "summary": summary,
