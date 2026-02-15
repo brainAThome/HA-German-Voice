@@ -3,7 +3,7 @@
 Wikipedia-Suche für HA-German-Voice
 ====================================
 Sucht einen deutschen Wikipedia-Artikel und schreibt eine TTS-taugliche
-Zusammenfassung (max. 3 Sätze) als HA-Sensor (sensor.wikipedia_result)
+Zusammenfassung (max. 5 Sätze) als HA-Sensor (sensor.wikipedia_result)
 via REST API.
 
 Verwendung (als shell_command):
@@ -33,7 +33,7 @@ import logging
 HA_API = os.getenv("HA_API", "http://localhost:8123/api")
 SENSOR_ENTITY = "sensor.wikipedia_result"
 WIKIPEDIA_LANG = "de"
-MAX_SENTENCES = 3  # Max Sätze für TTS-Ausgabe
+MAX_SENTENCES = 5  # Max Sätze für TTS-Ausgabe
 
 # HA Token aus secrets_config.py oder Umgebungsvariable
 try:
@@ -159,6 +159,8 @@ def tts_summary(text, max_sentences=MAX_SENTENCES):
     """
     Kürzt den Wikipedia-Extrakt auf max_sentences Sätze und bereinigt
     ihn für TTS-Ausgabe (keine Klammern, keine Sonderzeichen).
+    Erkennt deutsche Abkürzungen (e. V., z. B.) und Ordinalzahlen (27.)
+    korrekt, sodass Sätze nicht mitten im Text abgeschnitten werden.
     """
     import re
 
@@ -169,14 +171,45 @@ def tts_summary(text, max_sentences=MAX_SENTENCES):
     # Doppelte Leerzeichen bereinigen
     text = re.sub(r"\s{2,}", " ", text).strip()
 
-    # Sätze aufteilen (am Punkt, Ausrufezeichen, Fragezeichen)
-    sentences = re.split(r"(?<=[.!?])\s+", text)
-    sentences = [s.strip() for s in sentences if s.strip()]
+    # Smarte Satzerkennung: Wörter durchgehen und echte Satzenden finden
+    # (statt einfachem Regex-Split, der bei "e. V." oder "27." bricht)
+    sentences = []
+    current_words = []
+
+    for word in text.split():
+        current_words.append(word)
+        # Endet das Wort mit Satzzeichen?
+        if re.search(r"[.!?]$", word):
+            # Einzelbuchstaben-Abkürzung: e. V. z. B. → kein Satzende
+            if re.match(r"^[A-Za-zÄÖÜäöü]\.$", word):
+                continue
+            # Ordinalzahlen: 27. 1. 100. → kein Satzende
+            if re.match(r"^\d+\.$", word):
+                continue
+            # Bekannte Abkürzungen (Stamm ohne Schlusszeichen)
+            stem = re.sub(r"[.,;:!?]+$", "", word).lower()
+            if stem in (
+                "dr", "prof", "nr", "st", "ca", "geb", "gest",
+                "bzw", "etc", "usw", "vgl", "evtl", "ggf",
+                "inkl", "max", "min", "mrd", "mio", "hl",
+                "sog", "sen", "jun", "abs", "tel", "str",
+            ):
+                continue
+            # Echtes Satzende gefunden
+            sentences.append(" ".join(current_words))
+            current_words = []
+
+    # Restliche Wörter an den letzten Satz anhängen
+    if current_words:
+        if sentences:
+            sentences[-1] += " " + " ".join(current_words)
+        else:
+            sentences.append(" ".join(current_words))
 
     # Auf max_sentences begrenzen
     summary = " ".join(sentences[:max_sentences])
 
-    return summary if summary else text[:400]
+    return summary if summary else text[:500]
 
 
 # ============================================================================
@@ -228,7 +261,7 @@ def main():
     title = article["title"]
     log.info("Artikel gefunden: '%s' (%d Zeichen)", title, len(extract))
 
-    # 2. TTS-taugliche Zusammenfassung (max. 3 Sätze, bereinigt)
+    # 2. TTS-taugliche Zusammenfassung (max. 5 Sätze, bereinigt)
     summary = tts_summary(extract)
 
     log.info("Zusammenfassung (%d Zeichen): %s", len(summary), summary[:100])
