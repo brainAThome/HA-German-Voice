@@ -1643,6 +1643,109 @@ GetPollen:
       ] %}
       {{ r | random }}
 
+GetSunriseDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% elif day_input == 'gestern' %}
+        {% set day_slot = -1 %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen', 3: 'in drei Tagen', 4: 'in vier Tagen', 5: 'in fünf Tagen', 6: 'in sechs Tagen'} %}
+      {% set day_name = day_names.get(day_slot, 'an dem Tag') %}
+      {% set sunrise_raw = state_attr('sun.sun', 'next_rising') %}
+      {% if sunrise_raw %}
+        {% set sunrise_dt = as_datetime(sunrise_raw) | as_local %}
+        {% set target_date = now().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=day_slot) %}
+        {% set sunrise_date = sunrise_dt.date() %}
+        {% set target_d = target_date.date() %}
+        {% if sunrise_date == target_d %}
+          {% set time = sunrise_dt.strftime('%H:%M') %}
+          {% set r = [
+            "Die Sonne geht " ~ day_name ~ " um " ~ time ~ " Uhr auf.",
+            "Sonnenaufgang " ~ day_name ~ " ist um " ~ time ~ " Uhr.",
+            day_name | capitalize ~ " geht die Sonne um " ~ time ~ " Uhr auf."
+          ] %}
+          {{ r | random }}
+        {% else %}
+          {% set time = sunrise_dt.strftime('%H:%M') %}
+          {% set r = [
+            "Ich kenne nur den nächsten Sonnenaufgang: " ~ time ~ " Uhr. Für " ~ day_name ~ " habe ich leider keine genauen Daten, aber die Zeit ist sehr ähnlich.",
+            "Der nächste Sonnenaufgang ist um " ~ time ~ " Uhr. Für " ~ day_name ~ " wird es ungefähr die gleiche Zeit sein, plus minus ein paar Minuten.",
+            "Exakte Daten habe ich nur für den nächsten Sonnenaufgang um " ~ time ~ " Uhr. " ~ day_name | capitalize ~ " dürfte es ähnlich sein."
+          ] %}
+          {{ r | random }}
+        {% endif %}
+      {% else %}
+        Die Sonnenaufgangszeit ist leider gerade nicht verfügbar.
+      {% endif %}
+
+GetSunsetDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set weekday_map = {'montag': 0, 'dienstag': 1, 'mittwoch': 2, 'donnerstag': 3, 'freitag': 4, 'samstag': 5, 'sonntag': 6} %}
+      {% set today_weekday = now().weekday() %}
+      {% if day_input in weekday_map %}
+        {% set target_weekday = weekday_map[day_input] %}
+        {% set days_until = (target_weekday - today_weekday) % 7 %}
+        {% set days_until = days_until if days_until > 0 else 7 %}
+        {% set day_slot = days_until %}
+      {% elif day_input == 'gestern' %}
+        {% set day_slot = -1 %}
+      {% else %}
+        {% set day_slot = day_input | int(default=1) %}
+      {% endif %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen', 3: 'in drei Tagen', 4: 'in vier Tagen', 5: 'in fünf Tagen', 6: 'in sechs Tagen'} %}
+      {% set day_name = day_names.get(day_slot, 'an dem Tag') %}
+      {% set sunset_raw = state_attr('sun.sun', 'next_setting') %}
+      {% if sunset_raw %}
+        {% set sunset_dt = as_datetime(sunset_raw) | as_local %}
+        {% set target_date = now().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=day_slot) %}
+        {% set sunset_date = sunset_dt.date() %}
+        {% set target_d = target_date.date() %}
+        {% if sunset_date == target_d %}
+          {% set time = sunset_dt.strftime('%H:%M') %}
+          {% set r = [
+            "Die Sonne geht " ~ day_name ~ " um " ~ time ~ " Uhr unter.",
+            "Sonnenuntergang " ~ day_name ~ " ist um " ~ time ~ " Uhr.",
+            day_name | capitalize ~ " geht die Sonne um " ~ time ~ " Uhr unter."
+          ] %}
+          {{ r | random }}
+        {% else %}
+          {% set time = sunset_dt.strftime('%H:%M') %}
+          {% set r = [
+            "Ich kenne nur den nächsten Sonnenuntergang: " ~ time ~ " Uhr. Für " ~ day_name ~ " habe ich leider keine genauen Daten, aber die Zeit ist sehr ähnlich.",
+            "Der nächste Sonnenuntergang ist um " ~ time ~ " Uhr. Für " ~ day_name ~ " wird es ungefähr die gleiche Zeit sein, plus minus ein paar Minuten.",
+            "Exakte Daten habe ich nur für den nächsten Sonnenuntergang um " ~ time ~ " Uhr. " ~ day_name | capitalize ~ " dürfte es ähnlich sein."
+          ] %}
+          {{ r | random }}
+        {% endif %}
+      {% else %}
+        Die Sonnenuntergangszeit ist leider gerade nicht verfügbar.
+      {% endif %}
+
+GetPollenDay:
+  speech:
+    text: >
+      {% set day_input = day | default(1) %}
+      {% set day_names = {0: 'heute', 1: 'morgen', 2: 'übermorgen'} %}
+      {% set day_name = day_names.get(day_input | int(default=1), 'an dem Tag') %}
+      {% set r = [
+        "Für den Pollenflug " ~ day_name ~ " bräuchte ich eine spezielle Pollenflug-Integration. Schau am besten online nach dem Pollenflug in deiner Region.",
+        "Leider habe ich keine Pollenflugdaten für " ~ day_name ~ ". Eine spezielle Integration wie DWD Pollenflug wäre nötig.",
+        "Pollendaten für " ~ day_name ~ " sind nicht verfügbar. Am besten online beim DWD nachschauen."
+      ] %}
+      {{ r | random }}
+
 GetWeatherComparison:
   speech:
     text: >

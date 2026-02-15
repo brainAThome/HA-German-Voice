@@ -580,6 +580,19 @@ intents:
           - "wann wird es hell"
           - "[um] (wieviel|wie viel) uhr [geht] [die] sonne auf"
 
+  GetSunriseDay:
+    data:
+      - sentences:
+          - "wann (geht|kommt) {day} die sonne auf"
+          - "wann geht die sonne {day} auf"
+          - "sonnenaufgang {day}"
+          - "{day} sonnenaufgang"
+          - "wann wird es {day} hell"
+          - "[um] (wieviel|wie viel) uhr geht {day} die sonne auf"
+          - "wann ist {day} sonnenaufgang"
+          - "wie (früh|spät) geht {day} die sonne auf"
+          - "geht die sonne {day} (früher|später) auf" 
+
   GetSunset:
     data:
       - sentences:
@@ -588,6 +601,19 @@ intents:
           - "wann wird es dunkel"
           - "[um] (wieviel|wie viel) uhr [geht] [die] sonne unter"
           - "wie lange (ist|haben wir) [es] noch (hell|tageslicht)"
+
+  GetSunsetDay:
+    data:
+      - sentences:
+          - "wann geht {day} die sonne unter"
+          - "wann geht die sonne {day} unter"
+          - "sonnenuntergang {day}"
+          - "{day} sonnenuntergang"
+          - "wann wird es {day} dunkel"
+          - "[um] (wieviel|wie viel) uhr geht {day} die sonne unter"
+          - "wann ist {day} sonnenuntergang"
+          - "wie (früh|spät) geht {day} die sonne unter"
+          - "wie lange (ist|haben wir|haben wir es) {day} [noch] (hell|tageslicht)" 
 
   # --------------------------------------------------------------------------
   # POLLEN
@@ -601,6 +627,19 @@ intents:
           - "heuschnupfen[ saison]"
           - "(birke|gräser)[ ]pollen"
           - "allergiebelastung"
+
+  GetPollenDay:
+    data:
+      - sentences:
+          - "[wie (ist|stark) ist] [der] pollenflug {day}"
+          - "pollen[belastung] {day}"
+          - "{day} pollenflug"
+          - "{day} pollen"
+          - "wie (stark|hoch) (ist|wird) der pollenflug {day}"
+          - "(birke|gräser)[n]pollen {day}"
+          - "allergiebelastung {day}"
+          - "(muss ich|muss man) {day} (aufpassen|vorsichtig sein) [wegen pollen]"
+          - "heuschnupfen {day}" 
 
   # --------------------------------------------------------------------------
   # WETTERVERGLEICH
