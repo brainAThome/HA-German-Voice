@@ -98,36 +98,14 @@ GetNextMatch:
 # BUNDESLIGA TABELLE
 # ============================================================================
 GetBundesligaTable:
-  async_action: true
   action:
-    - delay:
-        seconds: 2
     - action: view_assist.navigate
       data:
         device: sensor.jarvis_speaker
         path: /view-assist/bundesliga-tabelle
         timeout: 30
   speech:
-    text: >
-      {% set tabelle = state_attr('sensor.bundesliga_tabelle', 'table') %}
-      {% if tabelle and tabelle | length > 0 %}
-        {% set top5 = tabelle[:5] %}
-        {% set werder = tabelle | selectattr('name', 'search', 'Werder') | list | first %}
-        {% set intro = [
-          "Hier die aktuelle Bundesliga-Tabelle.",
-          "Die Bundesliga-Tabelle sieht so aus.",
-          "Aktueller Stand der Bundesliga."
-        ] %}
-        {{ intro | random }}
-        {% for t in top5 %}
-          Platz {{ t.rank }}: {{ t.name }} mit {{ t.pts }} Punkten.
-        {% endfor %}
-        {% if werder and werder.rank > 5 %}
-          Und Werder Bremen steht auf Platz {{ werder.rank }} mit {{ werder.pts }} Punkten. {{ werder.w }} Siege, {{ werder.d }} Unentschieden, {{ werder.l }} Niederlagen.
-        {% endif %}
-      {% else %}
-        Die Bundesliga-Tabelle ist gerade nicht verfügbar.
-      {% endif %}
+    text: "Hier die Bundesliga Tabelle."
 
 # ============================================================================
 # TEAM-POSITION ABFRAGEN
@@ -155,55 +133,24 @@ GetTeamPosition:
       {% endif %}
 
 ShowSportsView:
-  async_action: true
   action:
-    - delay:
-        seconds: 2
     - action: view_assist.navigate
       data:
         device: sensor.jarvis_speaker
         path: /view-assist/sports
         timeout: 30
   speech:
-    text: >
-      {% set tracker = 'sensor.werder_bremen' %}
-      {% set game_state = states(tracker) %}
-      {% set team_long = state_attr(tracker, 'team_long_name') %}
-      {% set opponent = state_attr(tracker, 'opponent_long_name') or state_attr(tracker, 'opponent_name') %}
-      {% set team_score = state_attr(tracker, 'team_score') %}
-      {% set opponent_score = state_attr(tracker, 'opponent_score') %}
-      {% if game_state == 'POST' %}
-        Hier die Sportkarte. {{ team_long }} gegen {{ opponent }}: {{ team_score }} zu {{ opponent_score }}.
-      {% elif game_state == 'IN' %}
-        Hier die Live-Ansicht. {{ team_long }} gegen {{ opponent }}: {{ team_score }} zu {{ opponent_score }}.
-      {% elif game_state == 'PRE' %}
-        Hier die Sportkarte. {{ team_long }} spielt demnächst gegen {{ opponent }}.
-      {% else %}
-        Hier die Sportkarte.
-      {% endif %}
+    text: "Hier die Sportkarte."
 
 # ============================================================================
 # TABELLEN-VIEW ANZEIGEN
 # ============================================================================
 ShowTableView:
-  async_action: true
   action:
-    - delay:
-        seconds: 2
     - action: view_assist.navigate
       data:
         device: sensor.jarvis_speaker
         path: /view-assist/bundesliga-tabelle
         timeout: 30
   speech:
-    text: >
-      {% set tabelle = state_attr('sensor.bundesliga_tabelle', 'table') %}
-      {% if tabelle and tabelle | length > 0 %}
-        {% set werder = tabelle | selectattr('name', 'search', 'Werder') | list | first %}
-        Hier die Bundesliga-Tabelle. {{ tabelle[0].name }} führt mit {{ tabelle[0].pts }} Punkten.
-        {% if werder %}
-          Werder Bremen auf Platz {{ werder.rank }}.
-        {% endif %}
-      {% else %}
-        Hier die Bundesliga-Tabelle.
-      {% endif %}
+    text: "Hier die Tabelle."
