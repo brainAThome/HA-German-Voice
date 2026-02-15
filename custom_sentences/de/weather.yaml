@@ -117,6 +117,8 @@ intents:
           - "wie (schaut|sieht) [es|das wetter] {day} aus"
           - "{day} [das] <weather_noun>"
           - "[<polite>]sag mir [bitte] [das] wetter [für] {day}"
+          - "wie <weather_verb> {day} [das] <weather_noun>"
+          - "wie <weather_verb> {day} [das] wetter [so]"
 
   # --------------------------------------------------------------------------
   # WETTER GESTERN (Vergangenheit)
@@ -164,35 +166,36 @@ intents:
     data:
       - sentences:
           - "wie (warm|kalt|heiß) ist es [<time_prep>][draußen]"
-          - "[wie ist] [die] [aktuelle] temperatur [draußen]"
-          - "(was|wie) ist die temperatur"
+          - "[wie ist] [die] [aktuelle] (temperatur|lufttemperatur) [draußen]"
+          - "(was|wie) ist die (temperatur|lufttemperatur)"
           - "(wieviel|wie viel[e]) grad [haben wir|ist es|sind es][ draußen]"
           - "ist es (warm|kalt|heiß)[ draußen]"
           - "wird es (warm|kalt|heiß)"
           - "(außen|aussen)temperatur"
-          - "[<polite_question>][<polite>]sag mir die temperatur"
-          - "zeig mir die temperatur"
-          - "wie (sind|werden) [die] temperatur[en] [<time_prep>][draußen|drausen]"
+          - "[<polite_question>][<polite>]sag mir die (temperatur|lufttemperatur)"
+          - "zeig mir die (temperatur|lufttemperatur)"
+          - "wie (sind|werden) [die] (temperatur|lufttemperatur)[en] [<time_prep>][draußen|drausen]"
 
   GetTemperatureDay:
     data:
       - sentences:
           - "wie (warm|kalt|heiß) (ist|wird) es {day}"
-          - "(was|wie) ist die temperatur {day}"
-          - "temperatur[en] [für] {day}"
+          - "(was|wie) ist die (temperatur|lufttemperatur) {day}"
+          - "(temperatur|lufttemperatur)[en] [für] {day}"
           - "(wieviel|wie viel[e]) grad [werden es|wird es|haben wir] {day}"
           - "wird es {day} (warm|kalt|heiß|wärmer|kälter)"
-          - "{day} (wie warm|wie kalt|temperatur)"
+          - "{day} (wie warm|wie kalt|temperatur|lufttemperatur)"
           - "{day} (wieviel|wie viel) grad"
-          - "was für [(eine|welche)] temperatur[en] [haben wir|wird es|ist es] {day}"
+          - "was für [(eine|welche)] (temperatur|lufttemperatur)[en] [haben wir|wird es|ist es] {day}"
           # Ergänzungen aus Fehlanalyse
-          - "wie (werden|sind) [die] temperatur[en] {day}"
-          - "(wie sind|wie werden) {day} [die] temperatur[en]"
-          - "welche temperatur[en] (haben wir|erwarten wir|gibt es) {day}"
-          - "welche temperatur[en] (haben wir|erwarten wir) {day} [zu erwarten]"
-          - "wie wird die temperatur [am] {day}"
-          - "wie ist die temperatur [am] {day}"
-          - "{day} temperatur"
+          - "wie (werden|sind) [die] (temperatur|lufttemperatur)[en] {day}"
+          - "(wie sind|wie werden) {day} [die] (temperatur|lufttemperatur)[en]"
+          - "welche (temperatur|lufttemperatur)[en] (haben wir|erwarten wir|gibt es) {day}"
+          - "welche (temperatur|lufttemperatur)[en] (haben wir|erwarten wir) {day} [zu erwarten]"
+          - "wie wird die (temperatur|lufttemperatur) [am] {day}"
+          - "wie ist die (temperatur|lufttemperatur) [am] {day}"
+          - "{day} (temperatur|lufttemperatur)"
+          - "wie (wird|ist) {day} die (temperatur|lufttemperatur)"
 
   GetTemperatureTime:
     data:
