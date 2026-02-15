@@ -119,8 +119,6 @@ intents:
           - "[<polite_sport>]wie <sport_verb> [es in|die|der] [bundesliga] <tabelle_noun>"
           - "[<polite_sport>]wer (führt|steht oben|ist erster|ist erste) [in der bundesliga]"
           - "[<polite_sport>]wer (ist letzter|steht unten|steigt ab) [in der bundesliga]"
-          - "[<polite_sport>]auf welchem platz (steht|ist) <werder_name>"
-          - "[<polite_sport>]welcher (platz|tabellenplatz) [ist] <werder_name>"
           # Zeig die Tabelle
           - "[<polite_sport>](zeig|zeige) [mir] [die] [bundesliga] <tabelle_noun>"
           # Liga-Stand
